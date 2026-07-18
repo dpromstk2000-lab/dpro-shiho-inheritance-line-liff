@@ -1,0 +1,2619 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1F3046">
+  <meta name="description" content="DPRO司法書士・相続登記 LINE 営業前system-check画面">
+  <title>営業前system-check｜DPRO司法書士・相続登記 LINE</title>
+  <link rel="stylesheet" href="./dpro-base.css">
+  <style>
+    :root {
+      --navy: #1f3046;
+      --deep: #132238;
+      --gold: #a17b35;
+      --ivory: #f6f3ec;
+      --white: #fff;
+      --text: #1c2733;
+      --muted: #647181;
+      --border: #ddd7ca;
+      --soft: #faf8f3;
+      --success: #2f7a55;
+      --warning: #a96713;
+      --danger: #b42318;
+      --blue: #365f84;
+      --purple: #704e8f;
+      --shadow: 0 16px 40px rgba(19, 34, 56, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+      color: var(--text);
+      background: var(--ivory);
+      font-family:
+        system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans JP", sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(161, 123, 53, 0.12), transparent 34rem),
+        linear-gradient(180deg, #fbfaf6 0%, var(--ivory) 100%);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .topbar {
+      position: sticky;
+      z-index: 80;
+      top: 0;
+      display: flex;
+      min-height: 74px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(161, 123, 53, 0.24);
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 12px;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 47px;
+      height: 47px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 15px;
+      color: #fff;
+      background: linear-gradient(145deg, var(--navy), var(--deep));
+      box-shadow: 0 9px 22px rgba(19, 34, 56, 0.22);
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .brand-name {
+      display: block;
+      overflow: hidden;
+      color: var(--deep);
+      font-size: clamp(17px, 2.1vw, 22px);
+      font-weight: 900;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .brand-sub {
+      display: block;
+      margin-top: 1px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .connection {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border: 1px solid rgba(161, 123, 53, 0.3);
+      border-radius: 999px;
+      color: #344257;
+      background: #fbfaf6;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .connection-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--warning);
+      box-shadow: 0 0 0 4px rgba(169, 103, 19, 0.11);
+    }
+
+    .connection[data-status="ok"] .connection-dot {
+      background: var(--success);
+      box-shadow: 0 0 0 4px rgba(47, 122, 85, 0.12);
+    }
+
+    .connection[data-status="error"] .connection-dot {
+      background: var(--danger);
+      box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.11);
+    }
+
+    .top-button {
+      display: inline-flex;
+      min-height: 45px;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 14px;
+      border: 1px solid #c6ced6;
+      border-radius: 12px;
+      color: #354456;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .login-shell {
+      display: grid;
+      min-height: calc(100vh - 74px);
+      padding: 38px 18px 70px;
+      place-items: start center;
+    }
+
+    .login-card {
+      width: min(660px, 100%);
+      margin-top: 48px;
+      padding: clamp(30px, 5vw, 50px);
+      border: 1px solid rgba(161, 123, 53, 0.25);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: var(--shadow);
+    }
+
+    .login-icon {
+      display: grid;
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 20px;
+      place-items: center;
+      border-radius: 24px;
+      color: #fff;
+      background: var(--navy);
+      box-shadow: 0 12px 28px rgba(31, 48, 70, 0.2);
+      font-size: 31px;
+      font-weight: 900;
+    }
+
+    .login-card h1 {
+      margin: 0;
+      color: var(--deep);
+      font-size: clamp(28px, 4vw, 37px);
+      text-align: center;
+    }
+
+    .login-card > p {
+      margin: 12px auto 0;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 18px;
+      margin-top: 30px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: #253348;
+      font-weight: 900;
+    }
+
+    .control {
+      width: 100%;
+      min-height: 55px;
+      padding: 12px 14px;
+      border: 2px solid #d8d3c8;
+      border-radius: 13px;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+    }
+
+    .control:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(161, 123, 53, 0.18);
+    }
+
+    .control[aria-invalid="true"] {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.11);
+    }
+
+    .code-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 9px;
+    }
+
+    .clear-button {
+      min-width: 92px;
+      min-height: 55px;
+      border: 1px solid #c7ced6;
+      border-radius: 13px;
+      color: #435164;
+      background: #fff;
+      font-weight: 900;
+    }
+
+    .help {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .primary,
+    .secondary,
+    .danger,
+    .success {
+      display: inline-flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 13px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .primary {
+      border: 1px solid var(--navy);
+      color: #fff;
+      background: var(--navy);
+      box-shadow: 0 9px 20px rgba(31, 48, 70, 0.17);
+    }
+
+    .secondary {
+      border: 1px solid #bec6cf;
+      color: #354456;
+      background: #fff;
+    }
+
+    .danger {
+      border: 1px solid #e4b9b5;
+      color: #982119;
+      background: #fff5f4;
+    }
+
+    .success {
+      border: 1px solid #b7d8c5;
+      color: #205c40;
+      background: #edf7f1;
+    }
+
+    .message {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message[data-tone="success"] {
+      color: #205c40;
+      background: #eaf6ef;
+    }
+
+    .message[data-tone="error"] {
+      color: #922018;
+      background: #fff0ef;
+    }
+
+    .demo-note {
+      display: none;
+      margin-top: 18px;
+      padding: 15px 17px;
+      border-left: 5px solid var(--gold);
+      border-radius: 11px;
+      color: #57492e;
+      background: #fff8e9;
+      font-size: 14px;
+    }
+
+    .demo-note.show {
+      display: block;
+    }
+
+    .check-app {
+      display: none;
+      padding-bottom: 70px;
+    }
+
+    .check-app.show {
+      display: block;
+    }
+
+    .workspace {
+      width: min(1320px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 26px 0 60px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .hero-eyebrow {
+      margin: 0 0 5px;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.11em;
+    }
+
+    .hero h1 {
+      margin: 0;
+      color: var(--deep);
+      font-size: clamp(29px, 4vw, 43px);
+      line-height: 1.3;
+    }
+
+    .hero p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 9px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(170px, 0.45fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .overall-card,
+    .summary-card {
+      min-height: 140px;
+      padding: 20px;
+      border: 1px solid rgba(161, 123, 53, 0.23);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 11px 28px rgba(19, 34, 56, 0.08);
+    }
+
+    .overall-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 17px;
+      align-items: center;
+    }
+
+    .overall-icon {
+      display: grid;
+      width: 78px;
+      height: 78px;
+      place-items: center;
+      border-radius: 23px;
+      color: #fff;
+      background: var(--warning);
+      box-shadow: 0 12px 25px rgba(169, 103, 19, 0.2);
+      font-size: 29px;
+      font-weight: 900;
+    }
+
+    .overall-card[data-status="pass"] .overall-icon {
+      background: var(--success);
+      box-shadow: 0 12px 25px rgba(47, 122, 85, 0.2);
+    }
+
+    .overall-card[data-status="fail"] .overall-icon {
+      background: var(--danger);
+      box-shadow: 0 12px 25px rgba(180, 35, 24, 0.2);
+    }
+
+    .overall-card h2 {
+      margin: 0;
+      color: var(--deep);
+      font-size: 25px;
+    }
+
+    .overall-card p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .summary-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-top: 12px;
+      color: var(--deep);
+      font-size: 31px;
+      line-height: 1.2;
+    }
+
+    .summary-card small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .progress-panel {
+      display: none;
+      margin-bottom: 18px;
+      padding: 16px 18px;
+      border: 1px solid rgba(54, 95, 132, 0.25);
+      border-radius: 15px;
+      color: #294c6c;
+      background: #eef5fb;
+    }
+
+    .progress-panel.show {
+      display: block;
+    }
+
+    .progress-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 900;
+    }
+
+    .progress-bar {
+      overflow: hidden;
+      height: 11px;
+      margin-top: 11px;
+      border-radius: 999px;
+      background: #dce7ef;
+    }
+
+    .progress-value {
+      width: 0;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+      transition: width 0.2s ease;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.55fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      overflow: hidden;
+      border: 1px solid rgba(161, 123, 53, 0.23);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 12px 30px rgba(19, 34, 56, 0.08);
+    }
+
+    .panel + .panel {
+      margin-top: 17px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      border-bottom: 1px solid #e4dfd6;
+      background: linear-gradient(180deg, #fff 0%, #fcfbf7 100%);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      color: var(--deep);
+      font-size: 21px;
+    }
+
+    .panel-head p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel-body {
+      padding: 18px 20px 21px;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 13px;
+      align-items: center;
+      padding: 14px 15px;
+      border: 1px solid #ded9cf;
+      border-radius: 13px;
+      background: #fff;
+    }
+
+    .check-icon {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 12px;
+      color: #fff;
+      background: #8793a1;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .check-row[data-status="running"] .check-icon {
+      background: var(--blue);
+      animation: pulse 1.1s infinite;
+    }
+
+    .check-row[data-status="pass"] .check-icon {
+      background: var(--success);
+    }
+
+    .check-row[data-status="warning"] .check-icon {
+      background: var(--warning);
+    }
+
+    .check-row[data-status="fail"] .check-icon {
+      background: var(--danger);
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: 0.55;
+      }
+    }
+
+    .check-main strong {
+      display: block;
+      color: var(--deep);
+      font-size: 15px;
+    }
+
+    .check-main span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .check-result {
+      min-width: 84px;
+      text-align: right;
+    }
+
+    .status {
+      display: inline-flex;
+      min-height: 31px;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #3c566b;
+      background: #eaf0f5;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status[data-tone="success"] {
+      color: #205c40;
+      background: #eaf6ef;
+    }
+
+    .status[data-tone="warning"] {
+      color: #76470e;
+      background: #fff3df;
+    }
+
+    .status[data-tone="danger"] {
+      color: #912117;
+      background: #fff0ef;
+    }
+
+    .duration {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .data-box {
+      padding: 12px 13px;
+      border: 1px solid #e1ddd4;
+      border-radius: 12px;
+      background: #faf9f5;
+    }
+
+    .data-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .data-box strong {
+      display: block;
+      margin-top: 3px;
+      color: var(--deep);
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    .page-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .page-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 13px;
+      border: 1px solid #ded9cf;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .page-row strong {
+      display: block;
+      color: var(--deep);
+      font-size: 14px;
+    }
+
+    .page-row span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .mini-button {
+      display: inline-flex;
+      min-height: 39px;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      border: 1px solid #c2cad2;
+      border-radius: 10px;
+      color: #354456;
+      background: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .notice {
+      padding: 14px 16px;
+      border-left: 5px solid var(--gold);
+      border-radius: 11px;
+      color: #435164;
+      background: #faf7ef;
+      font-size: 13px;
+    }
+
+    .danger-zone {
+      padding: 16px;
+      border: 1px solid #e7bdb9;
+      border-radius: 14px;
+      background: #fff7f6;
+    }
+
+    .danger-zone h3 {
+      margin: 0;
+      color: #8e2018;
+      font-size: 17px;
+    }
+
+    .danger-zone p {
+      margin: 7px 0 13px;
+      color: #72504d;
+      font-size: 12px;
+    }
+
+    .empty {
+      display: grid;
+      min-height: 135px;
+      place-items: center;
+      padding: 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty strong {
+      display: block;
+      color: var(--deep);
+      font-size: 18px;
+    }
+
+    .raw-details {
+      margin-top: 13px;
+    }
+
+    .raw-details summary {
+      cursor: pointer;
+      color: #435164;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .raw-json {
+      max-height: 320px;
+      overflow: auto;
+      margin: 9px 0 0;
+      padding: 13px;
+      border-radius: 11px;
+      color: #dbe8f5;
+      background: #14253a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 1080px) {
+      .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .overall-card {
+        grid-column: 1 / -1;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      html {
+        font-size: 16px;
+      }
+
+      .topbar {
+        min-height: 68px;
+        padding-inline: 11px;
+      }
+
+      .brand-sub,
+      .connection span:last-child,
+      .top-button {
+        display: none;
+      }
+
+      .workspace {
+        width: min(100% - 20px, 680px);
+        padding-top: 18px;
+      }
+
+      .hero {
+        display: grid;
+      }
+
+      .hero-actions {
+        justify-content: flex-start;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .overall-card {
+        grid-column: 1 / -1;
+      }
+
+      .summary-card:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .check-row {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .check-result {
+        grid-column: 2;
+        text-align: left;
+      }
+
+      .data-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-row {
+        grid-template-columns: 1fr;
+      }
+
+      .page-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./system-check.html">
+      <span class="brand-mark" aria-hidden="true">司</span>
+      <span>
+        <span class="brand-name" id="header-office">DPRO司法書士・相続登記事務所</span>
+        <span class="brand-sub">営業前system-check</span>
+      </span>
+    </a>
+
+    <div class="top-actions">
+      <div class="connection" id="connection" data-status="checking">
+        <span class="connection-dot" aria-hidden="true"></span>
+        <span id="connection-text">未ログイン</span>
+      </div>
+      <button class="top-button hidden" id="logout-button" type="button">ログアウト</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="login-shell" id="login-shell">
+      <div class="login-card">
+        <div class="login-icon" aria-hidden="true">検</div>
+        <h1>営業前system-check</h1>
+        <p>
+          公開ページ、Worker、Supabase、管理API、安全設定を一括検査します。
+        </p>
+
+        <form class="login-form" id="login-form" novalidate>
+          <div class="field">
+            <label for="admin-code">管理コード</label>
+            <div class="code-row">
+              <input
+                class="control"
+                id="admin-code"
+                type="password"
+                inputmode="numeric"
+                autocomplete="current-password"
+                maxlength="200"
+                placeholder="管理コードを入力"
+                required
+              >
+              <button class="clear-button" id="clear-code" type="button">削除</button>
+            </div>
+            <p class="help">
+              デモURLの「?demo=1」でのみ1234を自動入力します。
+            </p>
+          </div>
+
+          <div class="message" id="login-message"></div>
+
+          <button class="primary" id="login-button" type="submit">
+            検査画面を開く
+          </button>
+        </form>
+
+        <div class="demo-note" id="demo-note">
+          デモモードです。管理コード1234でログインします。本番では1234を使用できません。
+        </div>
+      </div>
+    </section>
+
+    <section class="check-app" id="check-app">
+      <div class="workspace">
+        <div class="hero">
+          <div>
+            <p class="hero-eyebrow">PRE-SALES SYSTEM CHECK</p>
+            <h1>営業前一括検査</h1>
+            <p id="last-run-text">まだ検査していません。</p>
+          </div>
+
+          <div class="hero-actions">
+            <button class="secondary" id="copy-result-button" type="button" disabled>
+              結果をコピー
+            </button>
+            <button class="primary" id="run-all-button" type="button">
+              一括検査を実行
+            </button>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <article class="overall-card" id="overall-card" data-status="idle">
+            <div class="overall-icon" id="overall-icon">待</div>
+            <div>
+              <h2 id="overall-title">検査待ち</h2>
+              <p id="overall-message">
+                「一括検査を実行」を押すと、営業前に必要な項目を確認します。
+              </p>
+            </div>
+          </article>
+
+          <article class="summary-card">
+            <span>合格</span>
+            <strong id="pass-count">0</strong>
+            <small>正常に確認できた項目</small>
+          </article>
+
+          <article class="summary-card">
+            <span>要確認</span>
+            <strong id="warning-count">0</strong>
+            <small>営業前に確認する項目</small>
+          </article>
+
+          <article class="summary-card">
+            <span>不合格</span>
+            <strong id="fail-count">0</strong>
+            <small>修正が必要な項目</small>
+          </article>
+        </div>
+
+        <div class="progress-panel" id="progress-panel">
+          <div class="progress-head">
+            <span id="progress-text">検査中</span>
+            <span id="progress-number">0 / 0</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-value" id="progress-value"></div>
+          </div>
+        </div>
+
+        <div class="layout">
+          <div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>1．公開基盤・公開ページ</h2>
+                  <p>GitHub Pages、設定ファイル、公開APIを確認します。</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="check-list" id="public-check-list"></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>2．Worker・Supabase・安全設定</h2>
+                  <p>データベース接続、環境変数、production_guardを確認します。</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="check-list" id="system-check-list"></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>3．管理API読取検査</h2>
+                  <p>営業画面が使用する主要APIを、データ変更なしで確認します。</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="check-list" id="admin-check-list"></div>
+              </div>
+            </section>
+          </div>
+
+          <div>
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>データ件数</h2>
+                  <p>system-check・管理APIから取得した現在値です。</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="data-grid" id="data-count-grid">
+                  <div class="empty" style="grid-column:1/-1;">
+                    <div>
+                      <strong>未取得</strong>
+                      一括検査後に件数を表示します。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>画面リンク</h2>
+                  <p>営業時に確認する各画面を開けます。</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="page-list" id="page-list"></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>営業前の判定基準</h2>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="notice">
+                  不合格が0件で、要確認が意図した設定だけであれば営業利用可能です。
+                  法的期限は候補と確定を分け、司法書士確認済みかを必ず確認してください。
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>デモデータ</h2>
+                  <p>通常の一括検査ではデータを書き換えません。</p>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="danger-zone">
+                  <h3>デモデータ再生成</h3>
+                  <p>
+                    デモ事務所の案件・顧客・相談・予約を初期状態へ戻します。
+                    本番事務所では実行できません。
+                  </p>
+                  <button class="danger" id="demo-prepare-button" type="button">
+                    デモデータを再生成
+                  </button>
+                </div>
+
+                <details class="raw-details">
+                  <summary>system-checkのJSONを確認</summary>
+                  <pre class="raw-json" id="raw-json">まだ取得していません。</pre>
+                </details>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const SESSION_KEY = "dpro_shiho_system_check_session";
+
+      const state = {
+        token: null,
+        expiresAt: 0,
+        office: null,
+        staff: null,
+        demoMode: false,
+        running: false,
+        results: [],
+        rawSystemCheck: null,
+        collectedData: {},
+      };
+
+      const dom = {};
+      const checkElements = new Map();
+
+      document.addEventListener("DOMContentLoaded", initialize);
+
+      function initialize() {
+        cacheDom();
+        bindEvents();
+
+        state.demoMode = window.DPRO_SHIHO.isDemoMode();
+        renderPageLinks();
+        buildCheckRows();
+        if (state.demoMode) {
+          dom.adminCode.value = window.DPRO_SHIHO_CONFIG.demo.adminCode;
+          dom.demoNote.classList.add("show");
+        }
+
+        const session = readSession();
+        if (session) {
+          state.token = session.token;
+          state.expiresAt = session.expiresAt;
+          state.office = session.office;
+          state.staff = session.staff;
+          openApp();
+        }
+      }
+
+      function cacheDom() {
+        [
+          "header-office",
+          "connection",
+          "connection-text",
+          "logout-button",
+          "login-shell",
+          "login-form",
+          "admin-code",
+          "clear-code",
+          "login-button",
+          "login-message",
+          "demo-note",
+          "check-app",
+          "last-run-text",
+          "copy-result-button",
+          "run-all-button",
+          "overall-card",
+          "overall-icon",
+          "overall-title",
+          "overall-message",
+          "pass-count",
+          "warning-count",
+          "fail-count",
+          "progress-panel",
+          "progress-text",
+          "progress-number",
+          "progress-value",
+          "public-check-list",
+          "system-check-list",
+          "admin-check-list",
+          "data-count-grid",
+          "page-list",
+          "demo-prepare-button",
+          "raw-json",
+        ].forEach((id) => {
+          dom[toKey(id)] = document.getElementById(id);
+        });
+      }
+
+      function bindEvents() {
+        dom.loginForm.addEventListener("submit", login);
+        dom.clearCode.addEventListener("click", () => {
+          dom.adminCode.value = "";
+          dom.adminCode.focus();
+        });
+        dom.logoutButton.addEventListener("click", logout);
+        dom.runAllButton.addEventListener("click", runAllChecks);
+        dom.copyResultButton.addEventListener("click", copyResult);
+        dom.demoPrepareButton.addEventListener("click", runDemoPrepare);
+      }
+
+      async function login(event) {
+        event.preventDefault();
+        const code = dom.adminCode.value.trim();
+
+        if (!code) {
+          dom.adminCode.setAttribute("aria-invalid", "true");
+          showMessage(dom.loginMessage, "管理コードを入力してください。", "error");
+          return;
+        }
+
+        dom.adminCode.removeAttribute("aria-invalid");
+        dom.loginButton.disabled = true;
+        dom.loginButton.textContent = "確認中";
+        hideMessage(dom.loginMessage);
+
+        try {
+          const result = await window.DPRO_SHIHO.apiFetch(
+            window.DPRO_SHIHO_CONFIG.api.endpoints.adminLogin,
+            {
+              method: "POST",
+              body: { code },
+            },
+          );
+
+          state.token = result.token;
+          state.expiresAt =
+            Date.now() + Math.max(60, Number(result.expires_in || 28800) - 30) * 1000;
+          state.office = result.office || null;
+          state.staff = result.staff || null;
+
+          sessionStorage.setItem(
+            SESSION_KEY,
+            JSON.stringify({
+              token: state.token,
+              expiresAt: state.expiresAt,
+              office: state.office,
+              staff: state.staff,
+            }),
+          );
+
+          openApp();
+        } catch (error) {
+          showMessage(
+            dom.loginMessage,
+            error?.message || "検査画面へログインできませんでした。",
+            "error",
+          );
+        } finally {
+          dom.loginButton.disabled = false;
+          dom.loginButton.textContent = "検査画面を開く";
+        }
+      }
+
+      function readSession() {
+        try {
+          const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null");
+          if (
+            saved?.token &&
+            Number(saved.expiresAt) > Date.now() + 30 * 1000
+          ) {
+            return saved;
+          }
+        } catch {
+          sessionStorage.removeItem(SESSION_KEY);
+        }
+        return null;
+      }
+
+      function openApp() {
+        dom.loginShell.classList.add("hidden");
+        dom.checkApp.classList.add("show");
+        dom.logoutButton.classList.remove("hidden");
+
+        const officeName =
+          state.office?.office_name ||
+          window.DPRO_SHIHO_CONFIG.system.officeName;
+        dom.headerOffice.textContent = officeName;
+        dom.demoPrepareButton.disabled = !state.office?.is_demo;
+        dom.demoPrepareButton.title = state.office?.is_demo
+          ? "デモデータを初期状態へ戻します"
+          : "本番事務所では実行できません";
+        setConnection("ok", "管理者ログイン済み");
+      }
+
+      async function adminFetch(path, options = {}) {
+        if (!state.token) {
+          const error = new Error("管理者認証が必要です。");
+          error.status = 401;
+          throw error;
+        }
+
+        return window.DPRO_SHIHO.apiFetch(path, {
+          ...options,
+          token: state.token,
+        });
+      }
+
+      function buildCheckRows() {
+        const definitions = checkDefinitions();
+
+        definitions.forEach((definition) => {
+          const list =
+            definition.group === "public"
+              ? dom.publicCheckList
+              : definition.group === "system"
+                ? dom.systemCheckList
+                : dom.adminCheckList;
+
+          const row = document.createElement("article");
+          row.className = "check-row";
+          row.dataset.status = "idle";
+
+          const icon = document.createElement("div");
+          icon.className = "check-icon";
+          icon.textContent = "待";
+
+          const main = document.createElement("div");
+          main.className = "check-main";
+          const title = document.createElement("strong");
+          title.textContent = definition.label;
+          const detail = document.createElement("span");
+          detail.textContent = definition.initialDetail || "未実行";
+          main.append(title, detail);
+
+          const result = document.createElement("div");
+          result.className = "check-result";
+          const badge = statusBadge("未実行", "neutral");
+          const duration = document.createElement("span");
+          duration.className = "duration";
+          duration.textContent = "";
+          result.append(badge, duration);
+
+          row.append(icon, main, result);
+          list.appendChild(row);
+
+          checkElements.set(definition.id, {
+            row,
+            icon,
+            detail,
+            badge,
+            duration,
+          });
+        });
+      }
+
+      function checkDefinitions() {
+        return [
+          {
+            id: "https",
+            group: "public",
+            label: "GitHub Pages HTTPS",
+            initialDetail: "公開画面がHTTPSで開かれているか確認",
+          },
+          {
+            id: "config",
+            group: "public",
+            label: "config.js",
+            initialDetail: "公開設定ファイルとAPI URLを確認",
+          },
+          {
+            id: "assets",
+            group: "public",
+            label: "共通CSS・主要画面",
+            initialDetail: "公開ファイルのHTTP応答を確認",
+          },
+          {
+            id: "health",
+            group: "public",
+            label: "Worker Health",
+            initialDetail: "WorkerとSupabaseの総合応答を確認",
+          },
+          {
+            id: "ping",
+            group: "public",
+            label: "Worker Ping",
+            initialDetail: "軽量APIの応答とバージョンを確認",
+          },
+          {
+            id: "publicOffice",
+            group: "public",
+            label: "公開事務所情報",
+            initialDetail: "事務所名・30分枠・デモ状態を確認",
+          },
+          {
+            id: "categories",
+            group: "public",
+            label: "相談分野",
+            initialDetail: "公開相談カテゴリを取得",
+          },
+          {
+            id: "availability",
+            group: "public",
+            label: "30分空き枠",
+            initialDetail: "本日以降の予約枠形式を確認",
+          },
+          {
+            id: "adminSystem",
+            group: "system",
+            label: "管理system-check",
+            initialDetail: "認証済み総合検査を実行",
+          },
+          {
+            id: "database",
+            group: "system",
+            label: "Supabase接続",
+            initialDetail: "DB接続と主要テーブル件数を確認",
+          },
+          {
+            id: "phone",
+            group: "system",
+            label: "電話番号正規化",
+            initialDetail: "ハイフン・全角・+81対応のDB設定を確認",
+          },
+          {
+            id: "slot",
+            group: "system",
+            label: "30分予約枠",
+            initialDetail: "DBと公開設定の両方を確認",
+          },
+          {
+            id: "privatePath",
+            group: "system",
+            label: "機密書類の公開パス",
+            initialDetail: "公開経路に機密書類がないことを確認",
+          },
+          {
+            id: "productionGuard",
+            group: "system",
+            label: "production_guard",
+            initialDetail: "本番誤操作防止設定を確認",
+          },
+          {
+            id: "environment",
+            group: "system",
+            label: "Worker環境変数",
+            initialDetail: "URL・秘密鍵・トークン・Storage設定を確認",
+          },
+          {
+            id: "defaultCodeBlock",
+            group: "system",
+            label: "本番1234拒否",
+            initialDetail: "本番で共通管理コードを使わない設定を確認",
+          },
+          {
+            id: "dashboard",
+            group: "admin",
+            label: "ダッシュボードAPI",
+            initialDetail: "集計・相談・案件・予約・期限・タスクを取得",
+          },
+          {
+            id: "inquiries",
+            group: "admin",
+            label: "相談受付API",
+            initialDetail: "相談一覧を読取検査",
+          },
+          {
+            id: "clients",
+            group: "admin",
+            label: "顧客検索API",
+            initialDetail: "顧客一覧を読取検査",
+          },
+          {
+            id: "cases",
+            group: "admin",
+            label: "案件API",
+            initialDetail: "案件一覧を読取検査",
+          },
+          {
+            id: "appointments",
+            group: "admin",
+            label: "予約API",
+            initialDetail: "本日の予約一覧を読取検査",
+          },
+          {
+            id: "staff",
+            group: "admin",
+            label: "スタッフAPI",
+            initialDetail: "スタッフと権限を読取検査",
+          },
+          {
+            id: "settings",
+            group: "admin",
+            label: "事務所設定API",
+            initialDetail: "事務所設定を読取検査",
+          },
+          {
+            id: "lineLinks",
+            group: "admin",
+            label: "LINE連携承認API",
+            initialDetail: "承認待ち申請を読取検査",
+          },
+          {
+            id: "templates",
+            group: "admin",
+            label: "文面テンプレートAPI",
+            initialDetail: "メッセージテンプレートを読取検査",
+          },
+          {
+            id: "referrals",
+            group: "admin",
+            label: "紹介先API",
+            initialDetail: "紹介先・連携先を読取検査",
+          },
+        ];
+      }
+
+      async function runAllChecks() {
+        if (state.running) return;
+
+        state.running = true;
+        state.results = [];
+        state.rawSystemCheck = null;
+        state.collectedData = {};
+        resetRows();
+
+        dom.runAllButton.disabled = true;
+        dom.runAllButton.textContent = "検査中";
+        dom.copyResultButton.disabled = true;
+        dom.progressPanel.classList.add("show");
+        setConnection("checking", "一括検査中");
+
+        const tasks = createTasks();
+        let completed = 0;
+
+        updateProgress(completed, tasks.length, "一括検査を開始しています");
+
+        for (const task of tasks) {
+          setRowRunning(task.id);
+
+          const startedAt = performance.now();
+          let outcome;
+
+          try {
+            outcome = await task.run();
+          } catch (error) {
+            outcome = {
+              status: "fail",
+              detail: error?.message || "検査中にエラーが発生しました。",
+            };
+          }
+
+          const durationMs = Math.round(performance.now() - startedAt);
+          const result = {
+            id: task.id,
+            label: task.label,
+            status: outcome.status || "pass",
+            detail: outcome.detail || "正常です。",
+            durationMs,
+          };
+
+          state.results.push(result);
+          applyRowResult(result);
+
+          completed += 1;
+          updateProgress(completed, tasks.length, `${task.label}を確認しました`);
+        }
+
+        renderSummary();
+        renderDataCounts();
+        renderRawJson();
+
+        dom.lastRunText.textContent =
+          `最終検査：${formatDateTime(new Date().toISOString())}`;
+        dom.runAllButton.disabled = false;
+        dom.runAllButton.textContent = "もう一度検査";
+        dom.copyResultButton.disabled = false;
+        dom.progressPanel.classList.remove("show");
+        state.running = false;
+
+        const hasFail = state.results.some((result) => result.status === "fail");
+        setConnection(
+          hasFail ? "error" : "ok",
+          hasFail ? "要修正あり" : "検査完了",
+        );
+      }
+
+      function createTasks() {
+        const definitions = Object.fromEntries(
+          checkDefinitions().map((item) => [item.id, item]),
+        );
+
+        const task = (id, run) => ({
+          id,
+          label: definitions[id].label,
+          run,
+        });
+
+        return [
+          task("https", checkHttps),
+          task("config", checkConfig),
+          task("assets", checkAssets),
+          task("health", checkHealth),
+          task("ping", checkPing),
+          task("publicOffice", checkPublicOffice),
+          task("categories", checkCategories),
+          task("availability", checkAvailability),
+          task("adminSystem", checkAdminSystem),
+          task("database", checkDatabase),
+          task("phone", checkPhoneNormalization),
+          task("slot", checkSlotMinutes),
+          task("privatePath", checkPrivatePath),
+          task("productionGuard", checkProductionGuard),
+          task("environment", checkEnvironment),
+          task("defaultCodeBlock", checkDefaultCodeBlock),
+          task("dashboard", checkDashboard),
+          task("inquiries", checkInquiries),
+          task("clients", checkClients),
+          task("cases", checkCases),
+          task("appointments", checkAppointments),
+          task("staff", checkStaff),
+          task("settings", checkSettings),
+          task("lineLinks", checkLineLinks),
+          task("templates", checkTemplates),
+          task("referrals", checkReferrals),
+        ];
+      }
+
+      async function checkHttps() {
+        const https = window.location.protocol === "https:";
+        const expectedHost =
+          window.location.hostname === "dpromstk2000-lab.github.io" ||
+          ["localhost", "127.0.0.1"].includes(window.location.hostname);
+
+        if (!https && !["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+          return {
+            status: "fail",
+            detail: `HTTPSではありません：${window.location.protocol}`,
+          };
+        }
+
+        return {
+          status: expectedHost ? "pass" : "warning",
+          detail: `${window.location.protocol}//${window.location.host}`,
+        };
+      }
+
+      async function checkConfig() {
+        const config = window.DPRO_SHIHO_CONFIG;
+
+        if (!window.DPRO_SHIHO || !config) {
+          return {
+            status: "fail",
+            detail: "config.jsのグローバル設定を読み込めません。",
+          };
+        }
+
+        const apiUrl = String(config.api?.baseUrl || "");
+        if (!apiUrl.startsWith("https://")) {
+          return {
+            status: "fail",
+            detail: `API URLがHTTPSではありません：${apiUrl || "未設定"}`,
+          };
+        }
+
+        return {
+          status: "pass",
+          detail: `${config.system?.version || "version未設定"}・${apiUrl}`,
+        };
+      }
+
+      async function checkAssets() {
+        const files = [
+          "index.html",
+          "member.html",
+          "owner.html",
+          "owner-ipad.html",
+          "staff.html",
+          "system-check.html",
+          "config.js",
+          "dpro-base.css",
+        ];
+
+        const results = await Promise.all(
+          files.map(async (file) => {
+            const started = performance.now();
+            const response = await fetch(`./${file}?check=${Date.now()}`, {
+              method: "GET",
+              cache: "no-store",
+            });
+            return {
+              file,
+              ok: response.ok,
+              status: response.status,
+              duration: Math.round(performance.now() - started),
+            };
+          }),
+        );
+
+        state.collectedData.pageChecks = results;
+
+        const failed = results.filter((item) => !item.ok);
+        if (failed.length) {
+          return {
+            status: "fail",
+            detail: `取得失敗：${failed
+              .map((item) => `${item.file}(${item.status})`)
+              .join("、")}`,
+          };
+        }
+
+        return {
+          status: "pass",
+          detail: `主要8ファイル取得OK・最長 ${Math.max(
+            ...results.map((item) => item.duration),
+          )}ms`,
+        };
+      }
+
+      async function checkHealth() {
+        const response = await rawApiRequest(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.health,
+        );
+        state.collectedData.health = response.payload;
+
+        if (!response.ok || response.payload?.ok === false) {
+          return {
+            status: "fail",
+            detail:
+              response.payload?.message ||
+              `Health応答 ${response.status}`,
+          };
+        }
+
+        return {
+          status: "pass",
+          detail: `${response.payload.service}・${response.payload.version}`,
+        };
+      }
+
+      async function checkPing() {
+        const result = await window.DPRO_SHIHO.apiFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.ping,
+        );
+        state.collectedData.ping = result;
+
+        return {
+          status: result.ok ? "pass" : "fail",
+          detail: `${result.version || "version未設定"}・${result.jst_date || ""}`,
+        };
+      }
+
+      async function checkPublicOffice() {
+        const result = await window.DPRO_SHIHO.apiFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.publicOffice,
+        );
+        state.collectedData.publicOffice = result;
+
+        const slot = Number(result.settings?.default_slot_minutes || 0);
+        const valid = Boolean(result.office?.office_name && slot === 30);
+
+        return {
+          status: valid ? "pass" : "fail",
+          detail:
+            `${result.office?.office_name || "事務所名未設定"}・` +
+            `予約枠 ${slot || "未設定"}分・` +
+            `${result.office?.is_demo ? "デモ" : "本番"}`,
+        };
+      }
+
+      async function checkCategories() {
+        const result = await window.DPRO_SHIHO.apiFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.publicCategories,
+        );
+        state.collectedData.categories = result;
+
+        const rows = Array.isArray(result.categories) ? result.categories : [];
+        return {
+          status: rows.length > 0 ? "pass" : "fail",
+          detail: `公開相談分野 ${rows.length}件`,
+        };
+      }
+
+      async function checkAvailability() {
+        const dates = [
+          jstDate(new Date()),
+          addDays(jstDate(new Date()), 1),
+          addDays(jstDate(new Date()), 2),
+          addDays(jstDate(new Date()), 3),
+          addDays(jstDate(new Date()), 4),
+          addDays(jstDate(new Date()), 5),
+          addDays(jstDate(new Date()), 6),
+        ];
+
+        let selected = null;
+
+        for (const date of dates) {
+          const result = await window.DPRO_SHIHO.apiFetch(
+            window.DPRO_SHIHO_CONFIG.api.endpoints.publicAvailability,
+            { query: { date } },
+          );
+
+          if (!selected || (Array.isArray(result.slots) && result.slots.length)) {
+            selected = result;
+          }
+
+          if (Array.isArray(result.slots) && result.slots.length) break;
+        }
+
+        state.collectedData.availability = selected;
+
+        if (!selected || Number(selected.slot_minutes) !== 30) {
+          return {
+            status: "fail",
+            detail: `slot_minutesが30ではありません：${
+              selected?.slot_minutes ?? "未取得"
+            }`,
+          };
+        }
+
+        const slots = Array.isArray(selected.slots) ? selected.slots : [];
+        const invalidSlot = slots.find((slot) => {
+          const minutes =
+            (new Date(slot.end_at).getTime() - new Date(slot.start_at).getTime()) /
+            60000;
+          return Math.round(minutes) !== 30;
+        });
+
+        if (invalidSlot) {
+          return {
+            status: "fail",
+            detail: "30分ではない空き枠が含まれています。",
+          };
+        }
+
+        return {
+          status: slots.length ? "pass" : "warning",
+          detail: slots.length
+            ? `${selected.date}・空き枠 ${slots.length}件・30分単位`
+            : `${selected.date}・30分設定OK・公開可能枠なし`,
+        };
+      }
+
+      async function ensureAdminSystemCheck() {
+        if (state.rawSystemCheck) return state.rawSystemCheck;
+
+        const response = await rawApiRequest(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminSystemCheck,
+          { token: state.token },
+        );
+
+        state.rawSystemCheck = response.payload;
+        state.collectedData.adminSystemResponse = response;
+
+        return response.payload;
+      }
+
+      async function checkAdminSystem() {
+        const result = await ensureAdminSystemCheck();
+        const response = state.collectedData.adminSystemResponse;
+
+        if (!response?.ok || result?.ok === false) {
+          return {
+            status: "fail",
+            detail:
+              result?.message ||
+              `管理system-check応答 ${response?.status || "不明"}`,
+          };
+        }
+
+        return {
+          status: "pass",
+          detail: `${result.service}・${result.version}`,
+        };
+      }
+
+      async function checkDatabase() {
+        const result = await ensureAdminSystemCheck();
+        const database = result?.database || {};
+
+        if (!database.ok) {
+          return {
+            status: "fail",
+            detail: "Supabase system-checkが不合格です。",
+          };
+        }
+
+        const counts =
+          database.database?.counts ||
+          database.counts ||
+          database.database?.database?.counts ||
+          {};
+        state.collectedData.systemCounts = counts;
+
+        return {
+          status: "pass",
+          detail: `DB接続OK・案件 ${Number(
+            counts.cases || 0,
+          )}件・顧客 ${Number(counts.clients || 0)}件`,
+        };
+      }
+
+      async function checkPhoneNormalization() {
+        const result = await ensureAdminSystemCheck();
+        const value = deepPick(result, [
+          "database.database.phone_normalization",
+          "database.phone_normalization",
+          "database.database.database.phone_normalization",
+        ]);
+
+        return {
+          status: value === true ? "pass" : "fail",
+          detail:
+            value === true
+              ? "電話番号正規化が有効です。"
+              : `phone_normalization=${String(value)}`,
+        };
+      }
+
+      async function checkSlotMinutes() {
+        const result = await ensureAdminSystemCheck();
+        const dbValue = deepPick(result, [
+          "database.database.slot_30_minutes",
+          "database.slot_30_minutes",
+          "database.database.database.slot_30_minutes",
+        ]);
+        const publicValue = Number(
+          state.collectedData.publicOffice?.settings?.default_slot_minutes || 0,
+        );
+
+        const valid = dbValue === true && publicValue === 30;
+
+        return {
+          status: valid ? "pass" : "fail",
+          detail: `DB=${String(dbValue)}・公開設定=${publicValue || "未取得"}分`,
+        };
+      }
+
+      async function checkPrivatePath() {
+        const result = await ensureAdminSystemCheck();
+        const count = Number(
+          deepPick(result, [
+            "database.database.sensitive_public_path_count",
+            "database.sensitive_public_path_count",
+            "database.database.database.sensitive_public_path_count",
+          ]) ?? -1,
+        );
+
+        return {
+          status: count === 0 ? "pass" : "fail",
+          detail:
+            count === 0
+              ? "機密書類の公開パスは0件です。"
+              : `公開経路の要確認件数：${count}`,
+        };
+      }
+
+      async function checkProductionGuard() {
+        const result = await ensureAdminSystemCheck();
+        const guard = Boolean(
+          deepPick(result, [
+            "database.office.production_guard",
+            "database.database.office.production_guard",
+          ]),
+        );
+
+        return {
+          status: guard ? "pass" : "fail",
+          detail: `production_guard=${String(guard)}`,
+        };
+      }
+
+      async function checkEnvironment() {
+        const result = await ensureAdminSystemCheck();
+        const environment = result?.environment || {};
+        const checks = environment.checks || {};
+
+        const required = [
+          "supabase_url",
+          "supabase_server_key",
+          "token_secret_length",
+          "office_code",
+          "storage_bucket",
+        ];
+
+        const failed = required.filter((key) => checks[key] !== true);
+
+        return {
+          status: environment.ok && !failed.length ? "pass" : "fail",
+          detail: failed.length
+            ? `要確認：${failed.join("、")}`
+            : `APP_ENV=${environment.app_env || "未設定"}・必須環境変数OK`,
+        };
+      }
+
+      async function checkDefaultCodeBlock() {
+        const result = await ensureAdminSystemCheck();
+        const value =
+          result?.environment?.checks?.production_default_admin_code_blocked;
+
+        return {
+          status: value === true ? "pass" : "fail",
+          detail:
+            value === true
+              ? "本番で管理コード1234を拒否する設定です。"
+              : `production_default_admin_code_blocked=${String(value)}`,
+        };
+      }
+
+      async function checkDashboard() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminDashboard,
+        );
+        state.collectedData.dashboard = result;
+
+        const valid =
+          result.ok &&
+          result.counts &&
+          Array.isArray(result.inquiries) &&
+          Array.isArray(result.cases) &&
+          Array.isArray(result.appointments) &&
+          Array.isArray(result.deadlines) &&
+          Array.isArray(result.tasks);
+
+        return {
+          status: valid ? "pass" : "fail",
+          detail:
+            `相談 ${result.inquiries?.length || 0}件・` +
+            `案件 ${result.cases?.length || 0}件・` +
+            `予約 ${result.appointments?.length || 0}件`,
+        };
+      }
+
+      async function checkInquiries() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminInquiries,
+          { query: { page: 1, limit: 30 } },
+        );
+        state.collectedData.inquiries = result;
+
+        const rows = Array.isArray(result.inquiries) ? result.inquiries : null;
+        return {
+          status: rows ? "pass" : "fail",
+          detail: `相談受付 ${rows?.length || 0}件取得`,
+        };
+      }
+
+      async function checkClients() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminClients,
+          { query: { limit: 30 } },
+        );
+        state.collectedData.clients = result;
+
+        const rows = Array.isArray(result.clients) ? result.clients : null;
+        return {
+          status: rows ? "pass" : "fail",
+          detail: `顧客 ${rows?.length || 0}件取得`,
+        };
+      }
+
+      async function checkCases() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminCases,
+          { query: { limit: 30 } },
+        );
+        state.collectedData.cases = result;
+
+        const rows = Array.isArray(result.cases) ? result.cases : null;
+        return {
+          status: rows ? "pass" : "fail",
+          detail: `案件 ${rows?.length || 0}件取得`,
+        };
+      }
+
+      async function checkAppointments() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminAppointments,
+          { query: { date: jstDate(new Date()) } },
+        );
+        state.collectedData.appointments = result;
+
+        const rows = Array.isArray(result.appointments)
+          ? result.appointments
+          : null;
+        return {
+          status: rows ? "pass" : "fail",
+          detail: `本日の予約 ${rows?.length || 0}件取得`,
+        };
+      }
+
+      async function checkStaff() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminStaff,
+        );
+        state.collectedData.staff = result;
+
+        const rows = Array.isArray(result.staff) ? result.staff : null;
+        const active = rows?.filter((row) => row.is_active).length || 0;
+
+        return {
+          status: rows && active > 0 ? "pass" : "fail",
+          detail: `スタッフ ${rows?.length || 0}名・有効 ${active}名`,
+        };
+      }
+
+      async function checkSettings() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminSettings,
+        );
+        state.collectedData.settings = result;
+
+        const slot = Number(result.settings?.default_slot_minutes || 0);
+        const valid = Boolean(result.office?.office_name && slot === 30);
+
+        return {
+          status: valid ? "pass" : "fail",
+          detail:
+            `${result.office?.office_name || "事務所名未設定"}・` +
+            `予約枠 ${slot || "未設定"}分`,
+        };
+      }
+
+      async function checkLineLinks() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminLineLinkRequests,
+          { query: { status: "pending" } },
+        );
+        state.collectedData.lineLinks = result;
+
+        const rows = Array.isArray(result.requests) ? result.requests : null;
+        return {
+          status: rows ? "pass" : "fail",
+          detail: `LINE連携承認待ち ${rows?.length || 0}件`,
+        };
+      }
+
+      async function checkTemplates() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminMessageTemplates,
+        );
+        state.collectedData.templates = result;
+
+        const rows =
+          (Array.isArray(result.templates) && result.templates) ||
+          (Array.isArray(result.message_templates) && result.message_templates) ||
+          null;
+
+        return {
+          status: rows ? "pass" : "warning",
+          detail: rows
+            ? `文面テンプレート ${rows.length}件`
+            : "API応答は正常ですが、配列名を確認してください。",
+        };
+      }
+
+      async function checkReferrals() {
+        const result = await adminFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.adminReferralPartners,
+        );
+        state.collectedData.referrals = result;
+
+        const rows =
+          (Array.isArray(result.partners) && result.partners) ||
+          (Array.isArray(result.referral_partners) && result.referral_partners) ||
+          null;
+
+        return {
+          status: rows ? "pass" : "warning",
+          detail: rows
+            ? `紹介先 ${rows.length}件`
+            : "API応答は正常ですが、配列名を確認してください。",
+        };
+      }
+
+      async function rawApiRequest(path, options = {}) {
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), 18000);
+        const headers = new Headers({ accept: "application/json" });
+        headers.set("x-request-id", crypto.randomUUID());
+
+        if (options.token) {
+          headers.set("authorization", `Bearer ${options.token}`);
+        }
+
+        try {
+          const response = await fetch(
+            window.DPRO_SHIHO.apiUrl(path),
+            {
+              method: "GET",
+              headers,
+              cache: "no-store",
+              signal: controller.signal,
+            },
+          );
+
+          const text = await response.text();
+          let payload = {};
+
+          try {
+            payload = text ? JSON.parse(text) : {};
+          } catch {
+            payload = {
+              ok: false,
+              message: "JSON応答を読み取れませんでした。",
+              raw: text.slice(0, 500),
+            };
+          }
+
+          return {
+            ok: response.ok,
+            status: response.status,
+            payload,
+          };
+        } finally {
+          window.clearTimeout(timeoutId);
+        }
+      }
+
+      function resetRows() {
+        checkElements.forEach((elements) => {
+          elements.row.dataset.status = "idle";
+          elements.icon.textContent = "待";
+          elements.badge.dataset.tone = "neutral";
+          elements.badge.textContent = "未実行";
+          elements.duration.textContent = "";
+        });
+
+        dom.passCount.textContent = "0";
+        dom.warningCount.textContent = "0";
+        dom.failCount.textContent = "0";
+        dom.overallCard.dataset.status = "idle";
+        dom.overallIcon.textContent = "待";
+        dom.overallTitle.textContent = "検査中";
+        dom.overallMessage.textContent = "各項目を順番に確認しています。";
+      }
+
+      function setRowRunning(id) {
+        const elements = checkElements.get(id);
+        if (!elements) return;
+
+        elements.row.dataset.status = "running";
+        elements.icon.textContent = "検";
+        elements.badge.dataset.tone = "neutral";
+        elements.badge.textContent = "検査中";
+        elements.duration.textContent = "";
+      }
+
+      function applyRowResult(result) {
+        const elements = checkElements.get(result.id);
+        if (!elements) return;
+
+        elements.row.dataset.status = result.status;
+        elements.icon.textContent =
+          result.status === "pass"
+            ? "OK"
+            : result.status === "warning"
+              ? "注"
+              : "×";
+        elements.detail.textContent = result.detail;
+        elements.badge.dataset.tone =
+          result.status === "pass"
+            ? "success"
+            : result.status === "warning"
+              ? "warning"
+              : "danger";
+        elements.badge.textContent =
+          result.status === "pass"
+            ? "合格"
+            : result.status === "warning"
+              ? "要確認"
+              : "不合格";
+        elements.duration.textContent = `${result.durationMs}ms`;
+      }
+
+      function updateProgress(completed, total, text) {
+        const percentage = total ? Math.round((completed / total) * 100) : 0;
+        dom.progressText.textContent = text;
+        dom.progressNumber.textContent = `${completed} / ${total}`;
+        dom.progressValue.style.width = `${percentage}%`;
+      }
+
+      function renderSummary() {
+        const pass = state.results.filter((result) => result.status === "pass").length;
+        const warning = state.results.filter(
+          (result) => result.status === "warning",
+        ).length;
+        const fail = state.results.filter((result) => result.status === "fail").length;
+
+        dom.passCount.textContent = String(pass);
+        dom.warningCount.textContent = String(warning);
+        dom.failCount.textContent = String(fail);
+
+        if (fail > 0) {
+          dom.overallCard.dataset.status = "fail";
+          dom.overallIcon.textContent = "×";
+          dom.overallTitle.textContent = "営業前に修正が必要です";
+          dom.overallMessage.textContent =
+            `不合格が${fail}件あります。赤い項目を修正してから再検査してください。`;
+          return;
+        }
+
+        if (warning > 0) {
+          dom.overallCard.dataset.status = "pass";
+          dom.overallIcon.textContent = "OK";
+          dom.overallTitle.textContent = "基本検査は合格です";
+          dom.overallMessage.textContent =
+            `不合格は0件です。要確認${warning}件が意図した状態か確認してください。`;
+          return;
+        }
+
+        dom.overallCard.dataset.status = "pass";
+        dom.overallIcon.textContent = "OK";
+        dom.overallTitle.textContent = "営業前検査に合格しました";
+        dom.overallMessage.textContent =
+          "公開基盤、Worker、Supabase、主要管理API、安全設定は正常です。";
+      }
+
+      function renderDataCounts() {
+        const counts = collectCounts();
+        dom.dataCountGrid.replaceChildren();
+
+        Object.entries(counts).forEach(([label, value]) => {
+          const box = document.createElement("div");
+          box.className = "data-box";
+          const name = document.createElement("span");
+          name.textContent = label;
+          const count = document.createElement("strong");
+          count.textContent = value;
+          box.append(name, count);
+          dom.dataCountGrid.appendChild(box);
+        });
+      }
+
+      function collectCounts() {
+        const systemCounts = state.collectedData.systemCounts || {};
+        const dashboardCounts = state.collectedData.dashboard?.counts || {};
+
+        return {
+          "案件": `${numberValue(systemCounts.cases, state.collectedData.cases?.cases?.length)}件`,
+          "進行中案件": `${numberValue(systemCounts.open_cases, dashboardCounts.open_cases)}件`,
+          "顧客": `${numberValue(systemCounts.clients, state.collectedData.clients?.clients?.length)}件`,
+          "相談受付": `${numberValue(systemCounts.inquiries, state.collectedData.inquiries?.inquiries?.length)}件`,
+          "新規相談": `${numberValue(dashboardCounts.new_inquiries)}件`,
+          "スタッフ": `${numberValue(systemCounts.staff, state.collectedData.staff?.staff?.length)}名`,
+          "不動産": `${numberValue(systemCounts.properties)}件`,
+          "申請": `${numberValue(systemCounts.applications)}件`,
+          "必要書類": `${numberValue(systemCounts.document_requests)}件`,
+          "期限": `${numberValue(systemCounts.deadlines)}件`,
+          "本日の予約": `${numberValue(state.collectedData.appointments?.appointments?.length)}件`,
+          "LINE承認待ち": `${numberValue(state.collectedData.lineLinks?.requests?.length)}件`,
+          "公開相談分野": `${numberValue(state.collectedData.categories?.categories?.length)}件`,
+          "公開ページ": `${
+            state.collectedData.pageChecks?.filter((item) => item.ok).length || 0
+          } / 8`,
+        };
+      }
+
+      function renderRawJson() {
+        dom.rawJson.textContent = state.rawSystemCheck
+          ? JSON.stringify(state.rawSystemCheck, null, 2)
+          : "system-check応答を取得できませんでした。";
+      }
+
+      function renderPageLinks() {
+        const pages = [
+          ["お客様相談受付", "index", "index.html"],
+          ["お客様マイページ", "member", "member.html"],
+          ["オーナーPC", "owner", "owner.html"],
+          ["受付・iPad", "ownerIpad", "owner-ipad.html"],
+          ["スタッフモバイル", "staff", "staff.html"],
+          ["営業前system-check", "systemCheck", "system-check.html"],
+        ];
+
+        dom.pageList.replaceChildren();
+
+        pages.forEach(([label, key, file]) => {
+          const row = document.createElement("div");
+          row.className = "page-row";
+
+          const content = document.createElement("div");
+          const title = document.createElement("strong");
+          title.textContent = label;
+          const path = document.createElement("span");
+          path.textContent = file;
+          content.append(title, path);
+
+          const actions = document.createElement("div");
+          actions.className = "page-actions";
+
+          const open = document.createElement("a");
+          open.className = "mini-button";
+          open.target = "_blank";
+          open.rel = "noopener";
+          open.href = window.DPRO_SHIHO.pageUrl(
+            key,
+            state.demoMode ? { demo: 1 } : undefined,
+          );
+          open.textContent = "開く";
+          actions.appendChild(open);
+
+          row.append(content, actions);
+          dom.pageList.appendChild(row);
+        });
+      }
+
+      async function copyResult() {
+        const lines = [
+          "DPRO司法書士・相続登記 LINE 営業前system-check",
+          `実行日時：${formatDateTime(new Date().toISOString())}`,
+          `事務所：${state.office?.office_name || window.DPRO_SHIHO_CONFIG.system.officeName}`,
+          "",
+          ...state.results.map((result) => {
+            const mark =
+              result.status === "pass"
+                ? "合格"
+                : result.status === "warning"
+                  ? "要確認"
+                  : "不合格";
+            return `${mark}｜${result.label}｜${result.detail}｜${result.durationMs}ms`;
+          }),
+          "",
+          `合格：${dom.passCount.textContent}件`,
+          `要確認：${dom.warningCount.textContent}件`,
+          `不合格：${dom.failCount.textContent}件`,
+        ];
+
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
+          const original = dom.copyResultButton.textContent;
+          dom.copyResultButton.textContent = "コピーしました";
+          window.setTimeout(() => {
+            dom.copyResultButton.textContent = original;
+          }, 1200);
+        } catch {
+          window.alert("クリップボードへコピーできませんでした。");
+        }
+      }
+
+      async function runDemoPrepare() {
+        if (!state.office?.is_demo) {
+          window.alert("本番事務所ではデモデータ再生成を実行できません。");
+          return;
+        }
+
+        if (
+          !window.confirm(
+            "デモ事務所の案件・顧客・相談・予約を初期状態へ戻します。続けますか？",
+          )
+        ) {
+          return;
+        }
+
+        const secondConfirm = window.prompt(
+          "誤操作防止のため「再生成」と入力してください。",
+          "",
+        );
+        if (secondConfirm !== "再生成") {
+          window.alert("入力が一致しないため中止しました。");
+          return;
+        }
+
+        dom.demoPrepareButton.disabled = true;
+        dom.demoPrepareButton.textContent = "再生成中";
+        setConnection("checking", "デモ再生成中");
+
+        try {
+          await adminFetch(
+            window.DPRO_SHIHO_CONFIG.api.endpoints.adminDemoPrepare,
+            {
+              method: "POST",
+              body: {},
+              timeoutMs: 30000,
+            },
+          );
+
+          window.alert(
+            "デモデータを再生成しました。ログインし直して一括検査を実行してください。",
+          );
+          sessionStorage.removeItem(SESSION_KEY);
+          window.location.reload();
+        } catch (error) {
+          window.alert(
+            error?.message || "デモデータを再生成できませんでした。",
+          );
+          setConnection("error", "再生成エラー");
+        } finally {
+          dom.demoPrepareButton.disabled = !state.office?.is_demo;
+          dom.demoPrepareButton.textContent = "デモデータを再生成";
+        }
+      }
+
+      function logout() {
+        sessionStorage.removeItem(SESSION_KEY);
+        window.location.reload();
+      }
+
+      function setConnection(status, text) {
+        dom.connection.dataset.status = status;
+        dom.connectionText.textContent = text;
+      }
+
+      function statusBadge(label, tone = "neutral") {
+        const badge = document.createElement("span");
+        badge.className = "status";
+        badge.dataset.tone = tone;
+        badge.textContent = label;
+        return badge;
+      }
+
+      function showMessage(element, message, tone) {
+        element.textContent = message;
+        element.dataset.tone = tone;
+        element.classList.add("show");
+      }
+
+      function hideMessage(element) {
+        element.textContent = "";
+        element.classList.remove("show");
+      }
+
+      function deepPick(object, paths) {
+        for (const path of paths) {
+          const value = path
+            .split(".")
+            .reduce(
+              (current, key) =>
+                current !== undefined && current !== null
+                  ? current[key]
+                  : undefined,
+              object,
+            );
+          if (value !== undefined) return value;
+        }
+        return undefined;
+      }
+
+      function numberValue(primary, fallback = 0) {
+        if (primary !== undefined && primary !== null && primary !== "") {
+          return Number(primary) || 0;
+        }
+        return Number(fallback) || 0;
+      }
+
+      function toKey(id) {
+        return id.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+      }
+
+      function jstDate(date) {
+        const parts = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Tokyo",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).formatToParts(date);
+        const map = Object.fromEntries(
+          parts.map((part) => [part.type, part.value]),
+        );
+        return `${map.year}-${map.month}-${map.day}`;
+      }
+
+      function addDays(dateString, days) {
+        const date = new Date(`${dateString}T12:00:00+09:00`);
+        date.setUTCDate(date.getUTCDate() + days);
+        return jstDate(date);
+      }
+
+      function formatDateTime(value) {
+        if (!value) return "—";
+        return new Intl.DateTimeFormat("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(new Date(value));
+      }
+    })();
+  </script>
+</body>
+</html>
