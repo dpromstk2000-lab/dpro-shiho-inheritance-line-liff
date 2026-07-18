@@ -1,0 +1,2671 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1F3046">
+  <meta name="description" content="DPRO司法書士・相続登記事務所 お客様マイページ">
+  <title>お客様マイページ｜DPRO司法書士・相続登記事務所</title>
+  <link rel="stylesheet" href="./dpro-base.css">
+  <style>
+    :root {
+      --member-navy: #1f3046;
+      --member-deep: #132238;
+      --member-gold: #a17b35;
+      --member-ivory: #f6f3ec;
+      --member-text: #1c2733;
+      --member-muted: #657181;
+      --member-border: #ddd7ca;
+      --member-success: #2f7a55;
+      --member-warning: #a96713;
+      --member-danger: #b42318;
+      --member-blue: #365f84;
+      --member-shadow: 0 16px 40px rgba(19, 34, 56, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--member-text);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(161, 123, 53, 0.12), transparent 34rem),
+        linear-gradient(180deg, #fbfaf6 0%, var(--member-ivory) 100%);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+
+    .member-hidden {
+      display: none !important;
+    }
+
+    .member-header {
+      position: sticky;
+      z-index: 50;
+      top: 0;
+      border-bottom: 1px solid rgba(161, 123, 53, 0.24);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(14px);
+    }
+
+    .member-header__inner {
+      display: flex;
+      width: min(1180px, calc(100% - 30px));
+      min-height: 74px;
+      margin: 0 auto;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .member-brand {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 13px;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .member-brand__mark {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 14px;
+      color: #fff;
+      background: linear-gradient(145deg, var(--member-navy), var(--member-deep));
+      box-shadow: 0 9px 22px rgba(19, 34, 56, 0.22);
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .member-brand__name {
+      display: block;
+      overflow: hidden;
+      color: var(--member-deep);
+      font-size: clamp(15px, 2.1vw, 20px);
+      font-weight: 900;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .member-brand__sub {
+      display: block;
+      margin-top: 2px;
+      color: var(--member-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .member-header__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .connection-badge {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 13px;
+      border: 1px solid rgba(161, 123, 53, 0.3);
+      border-radius: 999px;
+      color: #344257;
+      background: #fbfaf6;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .connection-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--member-warning);
+      box-shadow: 0 0 0 4px rgba(169, 103, 19, 0.11);
+    }
+
+    .connection-badge[data-status="ok"] .connection-dot {
+      background: var(--member-success);
+      box-shadow: 0 0 0 4px rgba(47, 122, 85, 0.12);
+    }
+
+    .connection-badge[data-status="error"] .connection-dot {
+      background: var(--member-danger);
+      box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.11);
+    }
+
+    .header-button {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border: 1px solid #c8cfd6;
+      border-radius: 11px;
+      color: #354456;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .member-main {
+      padding: 30px 0 78px;
+    }
+
+    .member-shell {
+      width: min(1120px, calc(100% - 30px));
+      margin: 0 auto;
+    }
+
+    .auth-card,
+    .loading-card {
+      max-width: 680px;
+      margin: 48px auto 0;
+      padding: clamp(28px, 5vw, 50px);
+      border: 1px solid rgba(161, 123, 53, 0.25);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: var(--member-shadow);
+      text-align: center;
+    }
+
+    .auth-icon,
+    .loading-icon {
+      display: grid;
+      width: 76px;
+      height: 76px;
+      margin: 0 auto 20px;
+      place-items: center;
+      border-radius: 22px;
+      color: #fff;
+      background: var(--member-navy);
+      box-shadow: 0 12px 28px rgba(31, 48, 70, 0.2);
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .loading-icon {
+      border-radius: 999px;
+      animation: member-pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes member-pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.85;
+      }
+
+      50% {
+        transform: scale(1.06);
+        opacity: 1;
+      }
+    }
+
+    .auth-card h1,
+    .loading-card h1 {
+      margin: 0;
+      color: var(--member-deep);
+      font-size: clamp(25px, 4vw, 34px);
+    }
+
+    .auth-card p,
+    .loading-card p {
+      margin: 13px auto 0;
+      color: var(--member-muted);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .auth-message {
+      margin-top: 22px;
+      padding: 16px 18px;
+      border-left: 5px solid var(--member-gold);
+      border-radius: 11px;
+      color: #435164;
+      background: #faf7ef;
+      text-align: left;
+    }
+
+    .auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .danger-button {
+      display: inline-flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 20px;
+      border-radius: 13px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .primary-button {
+      border: 1px solid var(--member-navy);
+      color: #fff;
+      background: var(--member-navy);
+      box-shadow: 0 9px 20px rgba(31, 48, 70, 0.17);
+    }
+
+    .secondary-button {
+      border: 1px solid #bec6cf;
+      color: #344257;
+      background: #fff;
+    }
+
+    .danger-button {
+      border: 1px solid #e4b9b5;
+      color: #9d2118;
+      background: #fff5f4;
+    }
+
+    .dashboard {
+      display: none;
+    }
+
+    .dashboard.is-visible {
+      display: block;
+    }
+
+    .member-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .member-hero__eyebrow {
+      margin: 0 0 7px;
+      color: var(--member-gold);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+    }
+
+    .member-hero h1 {
+      margin: 0;
+      color: var(--member-deep);
+      font-size: clamp(27px, 4.7vw, 41px);
+      line-height: 1.28;
+    }
+
+    .member-hero p {
+      margin: 10px 0 0;
+      color: var(--member-muted);
+      font-size: 16px;
+    }
+
+    .member-number {
+      min-width: 190px;
+      padding: 13px 16px;
+      border: 1px solid rgba(161, 123, 53, 0.3);
+      border-radius: 14px;
+      color: #5a4825;
+      background: #fffaf0;
+      text-align: right;
+    }
+
+    .member-number span {
+      display: block;
+      color: #7a6c53;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .member-number strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--member-deep);
+      font-size: 17px;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .summary-card {
+      min-height: 120px;
+      padding: 20px;
+      border: 1px solid rgba(161, 123, 53, 0.22);
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 10px 26px rgba(19, 34, 56, 0.07);
+    }
+
+    .summary-card__label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--member-muted);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .summary-card__icon {
+      display: grid;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--member-gold);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-top: 13px;
+      color: var(--member-deep);
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.3;
+    }
+
+    .summary-card small {
+      display: block;
+      margin-top: 5px;
+      color: var(--member-muted);
+      font-size: 12px;
+    }
+
+    .member-nav {
+      position: sticky;
+      z-index: 20;
+      top: 74px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 8px;
+      border: 1px solid rgba(161, 123, 53, 0.24);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 24px rgba(19, 34, 56, 0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .nav-button {
+      min-height: 48px;
+      padding: 9px 12px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      color: #586577;
+      background: transparent;
+      font-weight: 900;
+    }
+
+    .nav-button.is-active {
+      color: #fff;
+      background: var(--member-navy);
+      box-shadow: 0 7px 17px rgba(31, 48, 70, 0.15);
+    }
+
+    .member-section {
+      display: none;
+    }
+
+    .member-section.is-active {
+      display: block;
+      animation: member-section-in 0.18s ease-out;
+    }
+
+    @keyframes member-section-in {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 0 14px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: var(--member-deep);
+      font-size: clamp(22px, 3vw, 28px);
+    }
+
+    .section-heading p {
+      margin: 5px 0 0;
+      color: var(--member-muted);
+      font-size: 14px;
+    }
+
+    .section-card {
+      border: 1px solid rgba(161, 123, 53, 0.23);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 12px 30px rgba(19, 34, 56, 0.08);
+    }
+
+    .section-card + .section-card {
+      margin-top: 16px;
+    }
+
+    .section-card__body {
+      padding: clamp(20px, 3vw, 28px);
+    }
+
+    .action-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .action-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 17px 18px;
+      border: 1px solid #ded9cf;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .action-item__icon {
+      display: grid;
+      width: 43px;
+      height: 43px;
+      place-items: center;
+      border-radius: 13px;
+      color: #fff;
+      background: var(--member-warning);
+      font-weight: 900;
+    }
+
+    .action-item__content strong {
+      display: block;
+      color: var(--member-deep);
+      font-size: 16px;
+    }
+
+    .action-item__content span {
+      display: block;
+      margin-top: 3px;
+      color: var(--member-muted);
+      font-size: 13px;
+    }
+
+    .action-item__date {
+      min-width: 105px;
+      color: #6a5840;
+      font-size: 13px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .empty-state {
+      display: grid;
+      min-height: 150px;
+      place-items: center;
+      padding: 24px;
+      color: var(--member-muted);
+      text-align: center;
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--member-deep);
+      font-size: 18px;
+    }
+
+    .case-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .case-card {
+      overflow: hidden;
+      border: 1px solid rgba(161, 123, 53, 0.26);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 10px 27px rgba(19, 34, 56, 0.07);
+    }
+
+    .case-card__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 22px;
+      border-bottom: 1px solid #e5e0d7;
+      background: linear-gradient(180deg, #fff 0%, #fcfbf7 100%);
+    }
+
+    .case-card__head h3 {
+      margin: 0;
+      color: var(--member-deep);
+      font-size: 20px;
+    }
+
+    .case-card__meta {
+      margin: 5px 0 0;
+      color: var(--member-muted);
+      font-size: 13px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 11px;
+      border-radius: 999px;
+      color: #3a5267;
+      background: #eaf0f5;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status-badge[data-tone="success"] {
+      color: #205c40;
+      background: #eaf6ef;
+    }
+
+    .status-badge[data-tone="warning"] {
+      color: #76470e;
+      background: #fff3df;
+    }
+
+    .status-badge[data-tone="danger"] {
+      color: #912117;
+      background: #fff0ef;
+    }
+
+    .case-card__body {
+      padding: 22px;
+    }
+
+    .case-summary {
+      margin: 0;
+      color: #445264;
+      font-size: 15px;
+    }
+
+    .progress-track {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 22px;
+    }
+
+    .progress-step {
+      position: relative;
+      min-width: 0;
+      padding-top: 31px;
+      color: #7a8490;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .progress-step::before {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 50%;
+      display: grid;
+      width: 25px;
+      height: 25px;
+      content: "";
+      transform: translateX(-50%);
+      border: 2px solid #d3cdc1;
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .progress-step:not(:last-child)::after {
+      position: absolute;
+      z-index: 1;
+      top: 12px;
+      left: calc(50% + 14px);
+      width: calc(100% - 28px);
+      height: 2px;
+      content: "";
+      background: #ded9cf;
+    }
+
+    .progress-step.is-complete::before,
+    .progress-step.is-active::before {
+      border-color: var(--member-gold);
+      background: var(--member-gold);
+    }
+
+    .progress-step.is-complete:not(:last-child)::after {
+      background: var(--member-gold);
+    }
+
+    .progress-step.is-active {
+      color: var(--member-deep);
+    }
+
+    .case-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .mini-panel {
+      padding: 15px 16px;
+      border: 1px solid #ddd7ca;
+      border-radius: 13px;
+      background: #faf9f5;
+    }
+
+    .mini-panel span {
+      display: block;
+      color: var(--member-muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .mini-panel strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--member-deep);
+      font-size: 15px;
+    }
+
+    .document-groups {
+      display: grid;
+      gap: 18px;
+    }
+
+    .document-group h3 {
+      margin: 0 0 10px;
+      color: var(--member-deep);
+      font-size: 19px;
+    }
+
+    .document-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .document-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 15px;
+      align-items: center;
+      padding: 17px 18px;
+      border: 1px solid #ded9cf;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .document-item__title {
+      color: var(--member-deep);
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .document-item__guidance {
+      margin-top: 4px;
+      color: var(--member-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .document-item__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .small-chip {
+      display: inline-flex;
+      min-height: 27px;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 8px;
+      color: #536173;
+      background: #edf0f3;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .upload-note {
+      margin-bottom: 16px;
+      padding: 15px 17px;
+      border-left: 5px solid var(--member-gold);
+      border-radius: 11px;
+      color: #435164;
+      background: #faf7ef;
+    }
+
+    .appointment-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .appointment-card {
+      display: grid;
+      grid-template-columns: 145px minmax(0, 1fr) auto;
+      gap: 17px;
+      align-items: center;
+      padding: 18px;
+      border: 1px solid #ded9cf;
+      border-radius: 15px;
+      background: #fff;
+    }
+
+    .appointment-date {
+      padding: 12px 10px;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--member-navy);
+      text-align: center;
+    }
+
+    .appointment-date strong {
+      display: block;
+      font-size: 18px;
+    }
+
+    .appointment-date span {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .appointment-detail strong {
+      display: block;
+      color: var(--member-deep);
+      font-size: 17px;
+    }
+
+    .appointment-detail span {
+      display: block;
+      margin-top: 4px;
+      color: var(--member-muted);
+      font-size: 13px;
+    }
+
+    .appointment-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .small-button {
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 1px solid #bfc7d0;
+      border-radius: 10px;
+      color: #354456;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .small-button--danger {
+      border-color: #e3b8b4;
+      color: #992119;
+      background: #fff5f4;
+    }
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.55fr) minmax(320px, 0.45fr);
+      gap: 18px;
+    }
+
+    .message-list {
+      display: grid;
+      gap: 11px;
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .message-item {
+      padding: 15px 17px;
+      border: 1px solid #ded9cf;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .message-item[data-direction="outbound"] {
+      border-left: 5px solid var(--member-gold);
+      background: #fffdf8;
+    }
+
+    .message-item[data-direction="inbound"] {
+      border-left: 5px solid var(--member-blue);
+      background: #f8fbfd;
+    }
+
+    .message-item__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--member-muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .message-item__body {
+      margin: 8px 0 0;
+      color: #344257;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .contact-form {
+      display: grid;
+      gap: 15px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: #253348;
+      font-weight: 900;
+    }
+
+    .control {
+      width: 100%;
+      min-height: 52px;
+      padding: 12px 14px;
+      border: 2px solid #d8d3c8;
+      border-radius: 12px;
+      color: var(--member-text);
+      background: #fff;
+      outline: none;
+    }
+
+    textarea.control {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    .control:focus {
+      border-color: var(--member-gold);
+      box-shadow: 0 0 0 4px rgba(161, 123, 53, 0.18);
+    }
+
+    .form-help {
+      margin: 6px 0 0;
+      color: var(--member-muted);
+      font-size: 12px;
+    }
+
+    .form-message {
+      display: none;
+      padding: 13px 14px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .form-message.is-visible {
+      display: block;
+    }
+
+    .form-message[data-tone="success"] {
+      color: #205c40;
+      background: #eaf6ef;
+    }
+
+    .form-message[data-tone="error"] {
+      color: #922018;
+      background: #fff0ef;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      display: none;
+      padding: 20px;
+      place-items: center;
+      background: rgba(19, 34, 56, 0.55);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop.is-visible {
+      display: grid;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      overflow: hidden;
+      border-radius: 19px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(19, 34, 56, 0.3);
+    }
+
+    .modal__head {
+      padding: 20px 22px;
+      border-bottom: 1px solid #e4dfd6;
+    }
+
+    .modal__head h2 {
+      margin: 0;
+      color: var(--member-deep);
+      font-size: 22px;
+    }
+
+    .modal__body {
+      padding: 22px;
+    }
+
+    .modal__actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 17px 22px 22px;
+    }
+
+    .screen-reader-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+    }
+
+    @media (max-width: 840px) {
+      .member-header__inner,
+      .member-shell {
+        width: min(100% - 22px, 700px);
+      }
+
+      .member-header__inner {
+        min-height: 68px;
+      }
+
+      .member-brand__sub,
+      .connection-badge span:last-child {
+        display: none;
+      }
+
+      .member-main {
+        padding-top: 22px;
+      }
+
+      .member-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .member-number {
+        min-width: 0;
+        text-align: left;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .member-nav {
+        top: 68px;
+      }
+
+      .nav-button {
+        padding-inline: 6px;
+        font-size: 12px;
+      }
+
+      .action-item,
+      .appointment-card {
+        grid-template-columns: 1fr;
+      }
+
+      .action-item__date {
+        text-align: left;
+      }
+
+      .appointment-buttons {
+        justify-content: flex-start;
+      }
+
+      .contact-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .case-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-step {
+        font-size: 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .member-brand__name {
+        max-width: 210px;
+      }
+
+      .header-button {
+        display: none;
+      }
+
+      .member-nav {
+        gap: 4px;
+        padding: 6px;
+      }
+
+      .nav-button {
+        min-height: 46px;
+        font-size: 11px;
+      }
+
+      .section-card__body,
+      .case-card__body {
+        padding: 18px;
+      }
+
+      .case-card__head {
+        display: grid;
+        padding: 18px;
+      }
+
+      .status-badge {
+        justify-self: start;
+      }
+
+      .document-item {
+        grid-template-columns: 1fr;
+      }
+
+      .document-item .status-badge {
+        justify-self: start;
+      }
+
+      .progress-track {
+        gap: 3px;
+      }
+
+      .progress-step::before {
+        width: 22px;
+        height: 22px;
+      }
+
+      .progress-step:not(:last-child)::after {
+        top: 10px;
+        left: calc(50% + 12px);
+        width: calc(100% - 24px);
+      }
+
+      .modal__actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="member-header">
+    <div class="member-header__inner">
+      <a class="member-brand" href="./index.html" aria-label="相談受付へ">
+        <span class="member-brand__mark" aria-hidden="true">司</span>
+        <span>
+          <span class="member-brand__name" id="office-name">
+            DPRO司法書士・相続登記事務所
+          </span>
+          <span class="member-brand__sub">お客様マイページ</span>
+        </span>
+      </a>
+      <div class="member-header__actions">
+        <div
+          class="connection-badge"
+          id="connection-badge"
+          data-status="checking"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connection-text">確認中</span>
+        </div>
+        <button class="header-button member-hidden" id="refresh-button" type="button">
+          更新
+        </button>
+        <button class="header-button member-hidden" id="logout-button" type="button">
+          ログアウト
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="member-main">
+    <div class="member-shell">
+      <section class="loading-card" id="loading-card">
+        <div class="loading-icon" aria-hidden="true">司</div>
+        <h1>マイページを準備しています</h1>
+        <p>
+          LINE連携とお客様情報を安全に確認しています。<br>
+          このまま少しお待ちください。
+        </p>
+      </section>
+
+      <section class="auth-card member-hidden" id="auth-card">
+        <div class="auth-icon" aria-hidden="true">LINE</div>
+        <h1 id="auth-title">LINEから開いてください</h1>
+        <p id="auth-description">
+          お客様の案件情報を安全に表示するため、LINE連携済みのアカウントから開く必要があります。
+        </p>
+        <div class="auth-message" id="auth-message">
+          電話番号だけで案件情報を表示することはありません。
+          初回のLINE連携は事務所の承認が必要です。
+        </div>
+        <div class="auth-actions">
+          <button class="primary-button member-hidden" id="line-login-button" type="button">
+            LINEでログイン
+          </button>
+          <a class="secondary-button" href="./index.html">相談受付へ戻る</a>
+        </div>
+      </section>
+
+      <section class="dashboard" id="dashboard">
+        <div class="member-hero">
+          <div>
+            <p class="member-hero__eyebrow">MY PAGE</p>
+            <h1><span id="client-name">お客様</span>のマイページ</h1>
+            <p>
+              現在の進捗、今必要なこと、書類、次回予定をご確認いただけます。
+            </p>
+          </div>
+          <div class="member-number">
+            <span>お客様番号</span>
+            <strong id="client-number">—</strong>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <div class="summary-card__label">
+              <span class="summary-card__icon">案</span>
+              進行中の案件
+            </div>
+            <strong id="active-case-count">0件</strong>
+            <small>完了・取消を除く案件数</small>
+          </article>
+          <article class="summary-card">
+            <div class="summary-card__label">
+              <span class="summary-card__icon">書</span>
+              お客様の対応待ち
+            </div>
+            <strong id="action-document-count">0件</strong>
+            <small>不足・未提出・差し替え等</small>
+          </article>
+          <article class="summary-card">
+            <div class="summary-card__label">
+              <span class="summary-card__icon">予</span>
+              次回の予定
+            </div>
+            <strong id="next-appointment-summary">予定なし</strong>
+            <small id="next-appointment-detail">事務所からの案内をご確認ください</small>
+          </article>
+        </div>
+
+        <nav class="member-nav" aria-label="マイページメニュー">
+          <button class="nav-button is-active" type="button" data-section-target="home">
+            ホーム
+          </button>
+          <button class="nav-button" type="button" data-section-target="documents">
+            必要書類
+          </button>
+          <button class="nav-button" type="button" data-section-target="appointments">
+            相談予約
+          </button>
+          <button class="nav-button" type="button" data-section-target="contact">
+            事務所へ連絡
+          </button>
+        </nav>
+
+        <section class="member-section is-active" data-section="home">
+          <div class="section-heading">
+            <div>
+              <h2>今やること</h2>
+              <p>お客様にご対応いただきたい内容を優先して表示します。</p>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card__body">
+              <div class="action-stack" id="action-list"></div>
+            </div>
+          </div>
+
+          <div class="section-heading" style="margin-top: 27px;">
+            <div>
+              <h2>進行中の案件</h2>
+              <p>事務所が公開している進捗だけを表示します。</p>
+            </div>
+          </div>
+          <div class="case-list" id="case-list"></div>
+        </section>
+
+        <section class="member-section" data-section="documents">
+          <div class="section-heading">
+            <div>
+              <h2>必要書類</h2>
+              <p>事務所からご案内した書類と現在の確認状況です。</p>
+            </div>
+          </div>
+          <div class="upload-note" id="upload-note">
+            この画面では書類状況を確認できます。安全なファイル提出機能は、
+            非公開Storageと署名付きアップロードの設定後に有効化します。
+          </div>
+          <div class="document-groups" id="document-groups"></div>
+        </section>
+
+        <section class="member-section" data-section="appointments">
+          <div class="section-heading">
+            <div>
+              <h2>相談予約・次回予定</h2>
+              <p>変更・キャンセルは希望受付後に事務所が確定します。</p>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card__body">
+              <div class="appointment-list" id="appointment-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="member-section" data-section="contact">
+          <div class="section-heading">
+            <div>
+              <h2>事務所へ連絡</h2>
+              <p>案件に関する追加質問や変更事項をお送りいただけます。</p>
+            </div>
+          </div>
+
+          <div class="contact-layout">
+            <div class="section-card">
+              <div class="section-card__body">
+                <h3 style="margin-top: 0; color: #132238;">お知らせ・連絡履歴</h3>
+                <div class="message-list" id="message-list"></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-card__body">
+                <h3 style="margin-top: 0; color: #132238;">新しいメッセージ</h3>
+                <form class="contact-form" id="contact-form" novalidate>
+                  <div class="field">
+                    <label for="contact-case">対象案件</label>
+                    <select class="control" id="contact-case">
+                      <option value="">案件を指定しない</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="contact-subject">件名</label>
+                    <input
+                      class="control"
+                      id="contact-subject"
+                      type="text"
+                      maxlength="200"
+                      placeholder="例：不足書類について"
+                    >
+                  </div>
+                  <div class="field">
+                    <label for="contact-body">メッセージ</label>
+                    <textarea
+                      class="control"
+                      id="contact-body"
+                      maxlength="3000"
+                      placeholder="確認したいことや変更内容をご入力ください。"
+                      required
+                    ></textarea>
+                    <p class="form-help">
+                      緊急の期限や法務局・裁判所からの通知は、送信後に事務所へお電話ください。
+                    </p>
+                  </div>
+                  <div class="form-message" id="contact-form-message"></div>
+                  <button class="primary-button" id="contact-submit" type="submit">
+                    メッセージを送信
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="appointment-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal__head">
+        <h2 id="modal-title">予約変更のご希望</h2>
+      </div>
+      <div class="modal__body">
+        <p id="modal-appointment-summary" style="margin-top: 0; color: #526071;"></p>
+        <div class="field">
+          <label for="appointment-reason">ご希望・理由</label>
+          <textarea
+            class="control"
+            id="appointment-reason"
+            maxlength="1000"
+            placeholder="例：別日の午前中を希望します。"
+          ></textarea>
+          <p class="form-help">
+            この送信だけでは変更・キャンセルは確定しません。事務所からの連絡をお待ちください。
+          </p>
+        </div>
+        <div class="form-message" id="modal-message"></div>
+      </div>
+      <div class="modal__actions">
+        <button class="secondary-button" id="modal-close" type="button">閉じる</button>
+        <button class="primary-button" id="modal-submit" type="button">希望を送信</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="./config.js"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const SESSION_KEY = "dpro_shiho_member_session";
+      const PROGRESS_ORDER = [
+        "reviewing",
+        "waiting_client",
+        "preparing",
+        "submitted",
+        "correction",
+        "completed",
+      ];
+
+      const PROGRESS_LABELS = {
+        new: "受付",
+        reviewing: "内容確認",
+        waiting_client: "お客様対応",
+        preparing: "申請準備",
+        submitted: "申請済み",
+        correction: "補正対応",
+        completed: "完了",
+        on_hold: "保留",
+      };
+
+      const DOCUMENT_LABELS = {
+        not_guided: ["未案内", "neutral"],
+        guided: ["ご案内済み", "neutral"],
+        not_submitted: ["未提出", "warning"],
+        partially_submitted: ["一部提出", "warning"],
+        received: ["受領済み", "neutral"],
+        reviewing: ["確認中", "neutral"],
+        insufficient: ["不足あり", "danger"],
+        replacement_requested: ["差し替え依頼", "danger"],
+        verified: ["確認完了", "success"],
+        original_required: ["原本が必要", "warning"],
+        original_received: ["原本受領", "neutral"],
+        returned: ["返却済み", "success"],
+        not_required: ["不要", "success"],
+      };
+
+      const APPOINTMENT_STATUS = {
+        reserved: ["予約受付", "neutral"],
+        confirmed: ["予約確定", "success"],
+        arrived: ["来所済み", "neutral"],
+        in_progress: ["相談中", "neutral"],
+        completed: ["完了", "success"],
+        change_requested: ["変更希望受付", "warning"],
+        cancel_requested: ["取消希望受付", "warning"],
+        cancelled: ["取消済み", "danger"],
+        no_show: ["未来所", "danger"],
+      };
+
+      const METHOD_LABELS = {
+        office: "来所",
+        phone: "電話",
+        online: "オンライン",
+        visit: "訪問",
+        other: "その他",
+      };
+
+      const APPOINTMENT_TYPE_LABELS = {
+        initial_consultation: "初回相談",
+        followup_consultation: "継続相談",
+        document_delivery: "書類お預かり",
+        document_return: "原本返却",
+        online_consultation: "オンライン相談",
+        phone_consultation: "電話相談",
+        other: "ご予定",
+      };
+
+      const state = {
+        token: null,
+        tokenExpiresAt: 0,
+        client: null,
+        cases: [],
+        documents: [],
+        appointments: [],
+        messages: [],
+        upload: null,
+        demoMode: false,
+        activeSection: "home",
+        modalAppointment: null,
+        modalRequestType: "change",
+        previewMode: false,
+      };
+
+      const dom = {};
+
+      document.addEventListener("DOMContentLoaded", initialize);
+
+      async function initialize() {
+        cacheDom();
+        bindEvents();
+
+        state.demoMode = window.DPRO_SHIHO.isDemoMode();
+        state.previewMode =
+          ["localhost", "127.0.0.1"].includes(window.location.hostname) &&
+          new URLSearchParams(window.location.search).get("preview") === "1";
+
+        if (state.previewMode) {
+          dom.officeName.textContent =
+            window.DPRO_SHIHO_CONFIG.system.officeName;
+          loadPreviewData();
+          return;
+        }
+
+        try {
+          const officeResult = await window.DPRO_SHIHO.apiFetch(
+            window.DPRO_SHIHO_CONFIG.api.endpoints.publicOffice,
+          );
+          dom.officeName.textContent =
+            officeResult.office?.office_name ||
+            window.DPRO_SHIHO_CONFIG.system.officeName;
+        } catch {
+          dom.officeName.textContent =
+            window.DPRO_SHIHO_CONFIG.system.officeName;
+        }
+
+        await authenticateAndLoad();
+      }
+
+      function cacheDom() {
+        dom.officeName = document.getElementById("office-name");
+        dom.connectionBadge = document.getElementById("connection-badge");
+        dom.connectionText = document.getElementById("connection-text");
+        dom.loadingCard = document.getElementById("loading-card");
+        dom.authCard = document.getElementById("auth-card");
+        dom.authTitle = document.getElementById("auth-title");
+        dom.authDescription = document.getElementById("auth-description");
+        dom.authMessage = document.getElementById("auth-message");
+        dom.lineLoginButton = document.getElementById("line-login-button");
+        dom.dashboard = document.getElementById("dashboard");
+        dom.refreshButton = document.getElementById("refresh-button");
+        dom.logoutButton = document.getElementById("logout-button");
+        dom.clientName = document.getElementById("client-name");
+        dom.clientNumber = document.getElementById("client-number");
+        dom.activeCaseCount = document.getElementById("active-case-count");
+        dom.actionDocumentCount = document.getElementById("action-document-count");
+        dom.nextAppointmentSummary = document.getElementById("next-appointment-summary");
+        dom.nextAppointmentDetail = document.getElementById("next-appointment-detail");
+        dom.actionList = document.getElementById("action-list");
+        dom.caseList = document.getElementById("case-list");
+        dom.documentGroups = document.getElementById("document-groups");
+        dom.uploadNote = document.getElementById("upload-note");
+        dom.appointmentList = document.getElementById("appointment-list");
+        dom.messageList = document.getElementById("message-list");
+        dom.contactForm = document.getElementById("contact-form");
+        dom.contactCase = document.getElementById("contact-case");
+        dom.contactSubject = document.getElementById("contact-subject");
+        dom.contactBody = document.getElementById("contact-body");
+        dom.contactSubmit = document.getElementById("contact-submit");
+        dom.contactFormMessage = document.getElementById("contact-form-message");
+        dom.appointmentModal = document.getElementById("appointment-modal");
+        dom.modalTitle = document.getElementById("modal-title");
+        dom.modalAppointmentSummary = document.getElementById("modal-appointment-summary");
+        dom.appointmentReason = document.getElementById("appointment-reason");
+        dom.modalMessage = document.getElementById("modal-message");
+        dom.modalClose = document.getElementById("modal-close");
+        dom.modalSubmit = document.getElementById("modal-submit");
+      }
+
+      function bindEvents() {
+        document.querySelectorAll("[data-section-target]").forEach((button) => {
+          button.addEventListener("click", () => {
+            showSection(button.dataset.sectionTarget);
+          });
+        });
+
+        dom.refreshButton.addEventListener("click", () => loadMemberData(true));
+        dom.logoutButton.addEventListener("click", logout);
+        dom.lineLoginButton.addEventListener("click", startLineLogin);
+        dom.contactForm.addEventListener("submit", sendMessage);
+        dom.modalClose.addEventListener("click", closeAppointmentModal);
+        dom.modalSubmit.addEventListener("click", submitAppointmentRequest);
+        dom.appointmentModal.addEventListener("click", (event) => {
+          if (event.target === dom.appointmentModal) closeAppointmentModal();
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeAppointmentModal();
+        });
+      }
+
+      async function authenticateAndLoad() {
+        setConnection("checking", "認証確認中");
+        showLoading();
+
+        const saved = readSession();
+        if (saved) {
+          state.token = saved.token;
+          state.tokenExpiresAt = saved.expiresAt;
+          try {
+            await loadMemberData();
+            return;
+          } catch (error) {
+            if (![401, 403].includes(Number(error?.status))) {
+              showAuthError(error);
+              return;
+            }
+            clearSession();
+          }
+        }
+
+        try {
+          if (state.demoMode) {
+            await createDemoSession();
+          } else {
+            await createLineSession();
+          }
+          await loadMemberData();
+        } catch (error) {
+          showAuthError(error);
+        }
+      }
+
+      async function createDemoSession() {
+        const result = await window.DPRO_SHIHO.apiFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.memberSession,
+          {
+            method: "POST",
+            body: {
+              demo: true,
+              line_user_id: window.DPRO_SHIHO_CONFIG.demo.lineUserId,
+            },
+          },
+        );
+        acceptSession(result);
+      }
+
+      async function createLineSession() {
+        const liffId = window.DPRO_SHIHO_CONFIG.line?.liffId || "";
+
+        if (!liffId || !window.liff) {
+          const error = new Error(
+            "このマイページはLINE公式アカウントから開いてください。",
+          );
+          error.code = "LIFF_NOT_CONFIGURED";
+          throw error;
+        }
+
+        await window.liff.init({ liffId });
+
+        if (!window.liff.isLoggedIn()) {
+          window.liff.login({ redirectUri: window.location.href });
+          throw new Error("LINEログイン画面へ移動します。");
+        }
+
+        const accessToken = window.liff.getAccessToken();
+        if (!accessToken) {
+          const error = new Error("LINE認証情報を取得できませんでした。");
+          error.code = "LINE_ACCESS_TOKEN_MISSING";
+          throw error;
+        }
+
+        const result = await window.DPRO_SHIHO.apiFetch(
+          window.DPRO_SHIHO_CONFIG.api.endpoints.memberSession,
+          {
+            method: "POST",
+            body: { access_token: accessToken },
+          },
+        );
+        acceptSession(result);
+      }
+
+      function acceptSession(result) {
+        state.token = result.token;
+        state.tokenExpiresAt =
+          Date.now() + Math.max(60, Number(result.expires_in || 3600) - 30) * 1000;
+        sessionStorage.setItem(
+          SESSION_KEY,
+          JSON.stringify({
+            token: state.token,
+            expiresAt: state.tokenExpiresAt,
+          }),
+        );
+      }
+
+      function readSession() {
+        try {
+          const parsed = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null");
+          if (
+            parsed?.token &&
+            Number(parsed.expiresAt) > Date.now() + 30 * 1000
+          ) {
+            return parsed;
+          }
+        } catch {
+          clearSession();
+        }
+        return null;
+      }
+
+      function clearSession() {
+        sessionStorage.removeItem(SESSION_KEY);
+        state.token = null;
+        state.tokenExpiresAt = 0;
+      }
+
+      async function loadMemberData(showRefreshing = false) {
+        if (!state.token) {
+          throw new Error("認証情報がありません。");
+        }
+
+        if (showRefreshing) {
+          dom.refreshButton.disabled = true;
+          dom.refreshButton.textContent = "更新中";
+        }
+
+        setConnection("checking", "情報更新中");
+
+        try {
+          const [summary, documents, appointments] = await Promise.all([
+            memberFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.memberSummary),
+            memberFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.memberDocuments),
+            memberFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.memberAppointments),
+          ]);
+
+          state.client = summary.client || null;
+          state.cases = Array.isArray(summary.cases) ? summary.cases : [];
+          state.messages = Array.isArray(summary.messages) ? summary.messages : [];
+          state.documents = Array.isArray(documents.cases) ? documents.cases : [];
+          state.upload = documents.upload || null;
+          state.appointments = Array.isArray(appointments.appointments)
+            ? appointments.appointments
+            : [];
+
+          renderDashboard();
+          setConnection("ok", "LINE連携済み");
+        } finally {
+          if (showRefreshing) {
+            dom.refreshButton.disabled = false;
+            dom.refreshButton.textContent = "更新";
+          }
+        }
+      }
+
+      async function memberFetch(path, options = {}) {
+        try {
+          return await window.DPRO_SHIHO.apiFetch(path, {
+            ...options,
+            token: state.token,
+          });
+        } catch (error) {
+          if ([401, 403].includes(Number(error?.status))) clearSession();
+          throw error;
+        }
+      }
+
+      function renderDashboard() {
+        if (!state.client) {
+          throw new Error("お客様情報を取得できませんでした。");
+        }
+
+        dom.loadingCard.classList.add("member-hidden");
+        dom.authCard.classList.add("member-hidden");
+        dom.dashboard.classList.add("is-visible");
+        dom.refreshButton.classList.remove("member-hidden");
+        dom.logoutButton.classList.remove("member-hidden");
+
+        dom.clientName.textContent = state.client.full_name || "お客様";
+        dom.clientNumber.textContent = state.client.client_no || "—";
+
+        renderSummary();
+        renderActions();
+        renderCases();
+        renderDocuments();
+        renderAppointments();
+        renderMessages();
+        renderContactCases();
+      }
+
+      function renderSummary() {
+        const activeCases = state.cases.filter(
+          (caseRow) => caseRow.member_progress_code !== "completed",
+        );
+        const actionDocuments = allDocumentRequests().filter((request) =>
+          ["not_submitted", "partially_submitted", "insufficient", "replacement_requested", "original_required"].includes(
+            request.status,
+          ),
+        );
+        const nextAppointment = futureAppointments()[0];
+
+        dom.activeCaseCount.textContent = `${activeCases.length}件`;
+        dom.actionDocumentCount.textContent = `${actionDocuments.length}件`;
+
+        if (nextAppointment) {
+          dom.nextAppointmentSummary.textContent = formatShortDate(
+            nextAppointment.start_at,
+          );
+          dom.nextAppointmentDetail.textContent =
+            `${formatTimeRange(nextAppointment.start_at, nextAppointment.end_at)}・` +
+            `${METHOD_LABELS[nextAppointment.method] || "相談"}`;
+        } else {
+          dom.nextAppointmentSummary.textContent = "予定なし";
+          dom.nextAppointmentDetail.textContent =
+            "事務所からの案内をご確認ください";
+        }
+      }
+
+      function renderActions() {
+        const actions = [];
+
+        state.cases.forEach((caseRow) => {
+          if (
+            caseRow.next_action &&
+            caseRow.member_progress_code !== "completed"
+          ) {
+            actions.push({
+              icon: "次",
+              title: caseRow.next_action,
+              detail: caseRow.case_title,
+              dueDate: caseRow.next_action_due_date,
+            });
+          }
+
+          (caseRow.document_requests || []).forEach((request) => {
+            if (
+              ["not_submitted", "partially_submitted", "insufficient", "replacement_requested", "original_required"].includes(
+                request.status,
+              )
+            ) {
+              actions.push({
+                icon: "書",
+                title: `${request.document_name}：${documentStatus(request.status).label}`,
+                detail:
+                  request.public_status_note ||
+                  request.client_guidance ||
+                  caseRow.case_title,
+                dueDate: request.due_date,
+              });
+            }
+          });
+        });
+
+        const nextAppointment = futureAppointments()[0];
+        if (nextAppointment) {
+          actions.push({
+            icon: "予",
+            title: `次回予定：${appointmentTypeLabel(nextAppointment.appointment_type)}`,
+            detail:
+              `${formatDateTime(nextAppointment.start_at)}・` +
+              `${METHOD_LABELS[nextAppointment.method] || "相談"}`,
+            dueDate: nextAppointment.start_at?.slice(0, 10),
+          });
+        }
+
+        actions.sort((left, right) =>
+          String(left.dueDate || "9999-12-31").localeCompare(
+            String(right.dueDate || "9999-12-31"),
+          ),
+        );
+
+        dom.actionList.replaceChildren();
+
+        if (!actions.length) {
+          dom.actionList.appendChild(
+            emptyState("現在、お客様にお願いしている対応はありません。"),
+          );
+          return;
+        }
+
+        actions.forEach((action) => {
+          const item = document.createElement("article");
+          item.className = "action-item";
+
+          const icon = document.createElement("div");
+          icon.className = "action-item__icon";
+          icon.textContent = action.icon;
+
+          const content = document.createElement("div");
+          content.className = "action-item__content";
+          const title = document.createElement("strong");
+          title.textContent = action.title;
+          const detail = document.createElement("span");
+          detail.textContent = action.detail || "";
+          content.append(title, detail);
+
+          const date = document.createElement("div");
+          date.className = "action-item__date";
+          date.textContent = action.dueDate
+            ? `目安 ${formatDateOnly(action.dueDate)}`
+            : "期限指定なし";
+
+          item.append(icon, content, date);
+          dom.actionList.appendChild(item);
+        });
+      }
+
+      function renderCases() {
+        dom.caseList.replaceChildren();
+
+        if (!state.cases.length) {
+          const card = document.createElement("div");
+          card.className = "section-card";
+          const body = document.createElement("div");
+          body.className = "section-card__body";
+          body.appendChild(emptyState("現在表示できる案件はありません。"));
+          card.appendChild(body);
+          dom.caseList.appendChild(card);
+          return;
+        }
+
+        state.cases.forEach((caseRow) => {
+          const card = document.createElement("article");
+          card.className = "case-card";
+
+          const head = document.createElement("div");
+          head.className = "case-card__head";
+
+          const titleBlock = document.createElement("div");
+          const title = document.createElement("h3");
+          title.textContent = caseRow.case_title || "相続・登記案件";
+          const meta = document.createElement("p");
+          meta.className = "case-card__meta";
+          meta.textContent =
+            `${caseRow.case_no || "—"}` +
+            (caseRow.decedent_name
+              ? `・被相続人 ${caseRow.decedent_name}様`
+              : "");
+          titleBlock.append(title, meta);
+
+          const status = memberProgress(caseRow.member_progress_code);
+          head.append(
+            titleBlock,
+            statusBadge(status.label, status.tone),
+          );
+
+          const body = document.createElement("div");
+          body.className = "case-card__body";
+
+          const summary = document.createElement("p");
+          summary.className = "case-summary";
+          summary.textContent =
+            caseRow.public_summary ||
+            "事務所で内容を確認しながら手続きを進めています。";
+
+          body.append(summary, createProgressTrack(caseRow.member_progress_code));
+
+          const panels = document.createElement("div");
+          panels.className = "case-actions";
+          panels.append(
+            miniPanel(
+              "次にお願いすること",
+              caseRow.next_action || "現在、追加のご対応はありません",
+            ),
+            miniPanel(
+              "次回予定",
+              caseRow.next_appointment_at
+                ? formatDateTime(caseRow.next_appointment_at)
+                : "現在、確定した予定はありません",
+            ),
+          );
+          body.appendChild(panels);
+
+          card.append(head, body);
+          dom.caseList.appendChild(card);
+        });
+      }
+
+      function createProgressTrack(progressCode) {
+        const track = document.createElement("div");
+        track.className = "progress-track";
+        const activeIndex = Math.max(
+          0,
+          PROGRESS_ORDER.indexOf(
+            progressCode === "new" ? "reviewing" : progressCode,
+          ),
+        );
+
+        PROGRESS_ORDER.forEach((code, index) => {
+          const step = document.createElement("div");
+          step.className = "progress-step";
+          step.textContent = PROGRESS_LABELS[code];
+          step.classList.toggle("is-complete", index < activeIndex);
+          step.classList.toggle("is-active", index === activeIndex);
+          track.appendChild(step);
+        });
+
+        return track;
+      }
+
+      function miniPanel(label, value) {
+        const panel = document.createElement("div");
+        panel.className = "mini-panel";
+        const labelElement = document.createElement("span");
+        labelElement.textContent = label;
+        const valueElement = document.createElement("strong");
+        valueElement.textContent = value;
+        panel.append(labelElement, valueElement);
+        return panel;
+      }
+
+      function renderDocuments() {
+        dom.documentGroups.replaceChildren();
+
+        if (state.upload?.reason) {
+          dom.uploadNote.textContent = state.upload.reason;
+        }
+
+        if (!state.documents.length) {
+          const card = document.createElement("div");
+          card.className = "section-card";
+          const body = document.createElement("div");
+          body.className = "section-card__body";
+          body.appendChild(emptyState("現在ご案内中の必要書類はありません。"));
+          card.appendChild(body);
+          dom.documentGroups.appendChild(card);
+          return;
+        }
+
+        state.documents.forEach((caseRow) => {
+          const group = document.createElement("section");
+          group.className = "document-group";
+
+          const title = document.createElement("h3");
+          title.textContent = caseRow.case_title || caseRow.case_no || "案件";
+
+          const list = document.createElement("div");
+          list.className = "document-list";
+
+          const requests = Array.isArray(caseRow.document_requests)
+            ? caseRow.document_requests
+            : [];
+
+          if (!requests.length) {
+            list.appendChild(emptyState("この案件でご案内中の書類はありません。"));
+          } else {
+            requests.forEach((request) => {
+              const item = document.createElement("article");
+              item.className = "document-item";
+
+              const content = document.createElement("div");
+              const itemTitle = document.createElement("div");
+              itemTitle.className = "document-item__title";
+              itemTitle.textContent = request.document_name || "必要書類";
+
+              const guidance = document.createElement("div");
+              guidance.className = "document-item__guidance";
+              guidance.textContent =
+                request.public_status_note ||
+                request.client_guidance ||
+                "事務所からの案内をご確認ください。";
+
+              const meta = document.createElement("div");
+              meta.className = "document-item__meta";
+
+              if (request.original_required) {
+                meta.appendChild(smallChip("原本確認あり"));
+              }
+              if (request.due_date) {
+                meta.appendChild(
+                  smallChip(`目安 ${formatDateOnly(request.due_date)}`),
+                );
+              }
+
+              content.append(itemTitle, guidance, meta);
+
+              const status = documentStatus(request.status);
+              item.append(content, statusBadge(status.label, status.tone));
+              list.appendChild(item);
+            });
+          }
+
+          group.append(title, list);
+          dom.documentGroups.appendChild(group);
+        });
+      }
+
+      function renderAppointments() {
+        dom.appointmentList.replaceChildren();
+
+        if (!state.appointments.length) {
+          dom.appointmentList.appendChild(
+            emptyState("現在登録されている相談予約はありません。"),
+          );
+          return;
+        }
+
+        state.appointments.forEach((appointment) => {
+          const card = document.createElement("article");
+          card.className = "appointment-card";
+
+          const date = document.createElement("div");
+          date.className = "appointment-date";
+          const dateStrong = document.createElement("strong");
+          dateStrong.textContent = formatShortDate(appointment.start_at);
+          const time = document.createElement("span");
+          time.textContent = formatTimeRange(
+            appointment.start_at,
+            appointment.end_at,
+          );
+          date.append(dateStrong, time);
+
+          const detail = document.createElement("div");
+          detail.className = "appointment-detail";
+          const title = document.createElement("strong");
+          title.textContent =
+            appointmentTypeLabel(appointment.appointment_type);
+          const method = document.createElement("span");
+          method.textContent =
+            `${METHOD_LABELS[appointment.method] || "相談"}` +
+            (appointment.location_text
+              ? `・${appointment.location_text}`
+              : "");
+          const status = APPOINTMENT_STATUS[appointment.status] || [
+            appointment.status || "状態確認中",
+            "neutral",
+          ];
+          detail.append(title, method, statusBadge(status[0], status[1]));
+
+          const buttons = document.createElement("div");
+          buttons.className = "appointment-buttons";
+
+          if (["reserved", "confirmed"].includes(appointment.status)) {
+            const changeButton = document.createElement("button");
+            changeButton.type = "button";
+            changeButton.className = "small-button";
+            changeButton.textContent = "変更を希望";
+            changeButton.addEventListener("click", () =>
+              openAppointmentModal(appointment, "change"),
+            );
+
+            const cancelButton = document.createElement("button");
+            cancelButton.type = "button";
+            cancelButton.className = "small-button small-button--danger";
+            cancelButton.textContent = "取消を希望";
+            cancelButton.addEventListener("click", () =>
+              openAppointmentModal(appointment, "cancel"),
+            );
+
+            buttons.append(changeButton, cancelButton);
+          }
+
+          card.append(date, detail, buttons);
+          dom.appointmentList.appendChild(card);
+        });
+      }
+
+      function renderMessages() {
+        dom.messageList.replaceChildren();
+
+        if (!state.messages.length) {
+          dom.messageList.appendChild(
+            emptyState("現在表示できる連絡履歴はありません。"),
+          );
+          return;
+        }
+
+        state.messages.forEach((message) => {
+          const item = document.createElement("article");
+          item.className = "message-item";
+          item.dataset.direction = message.direction || "outbound";
+
+          const head = document.createElement("div");
+          head.className = "message-item__head";
+          const source = document.createElement("span");
+          source.textContent =
+            message.direction === "inbound" ? "お客様から" : "事務所から";
+          const date = document.createElement("span");
+          date.textContent = formatDateTime(
+            message.sent_at || message.created_at,
+          );
+          head.append(source, date);
+
+          const body = document.createElement("p");
+          body.className = "message-item__body";
+          body.textContent = message.body || "";
+
+          item.append(head, body);
+          dom.messageList.appendChild(item);
+        });
+      }
+
+      function renderContactCases() {
+        const currentValue = dom.contactCase.value;
+        dom.contactCase.replaceChildren();
+
+        const emptyOption = document.createElement("option");
+        emptyOption.value = "";
+        emptyOption.textContent = "案件を指定しない";
+        dom.contactCase.appendChild(emptyOption);
+
+        state.cases.forEach((caseRow) => {
+          const option = document.createElement("option");
+          option.value = caseRow.case_id;
+          option.textContent = `${caseRow.case_no} ${caseRow.case_title}`;
+          dom.contactCase.appendChild(option);
+        });
+
+        if (
+          currentValue &&
+          state.cases.some((caseRow) => caseRow.case_id === currentValue)
+        ) {
+          dom.contactCase.value = currentValue;
+        }
+      }
+
+      async function sendMessage(event) {
+        event.preventDefault();
+        const body = dom.contactBody.value.trim();
+
+        if (!body) {
+          showFormMessage(
+            dom.contactFormMessage,
+            "メッセージをご入力ください。",
+            "error",
+          );
+          dom.contactBody.focus();
+          return;
+        }
+
+        dom.contactSubmit.disabled = true;
+        dom.contactSubmit.textContent = "送信中";
+
+        try {
+          const result = await memberFetch(
+            window.DPRO_SHIHO_CONFIG.api.endpoints.memberMessage,
+            {
+              method: "POST",
+              body: {
+                case_id: dom.contactCase.value || null,
+                subject: dom.contactSubject.value.trim() || null,
+                body,
+              },
+            },
+          );
+
+          state.messages.unshift(result.message);
+          dom.contactSubject.value = "";
+          dom.contactBody.value = "";
+          renderMessages();
+          showFormMessage(
+            dom.contactFormMessage,
+            "事務所へメッセージを送信しました。",
+            "success",
+          );
+        } catch (error) {
+          showFormMessage(
+            dom.contactFormMessage,
+            error?.message || "メッセージを送信できませんでした。",
+            "error",
+          );
+        } finally {
+          dom.contactSubmit.disabled = false;
+          dom.contactSubmit.textContent = "メッセージを送信";
+        }
+      }
+
+      function openAppointmentModal(appointment, requestType) {
+        state.modalAppointment = appointment;
+        state.modalRequestType = requestType;
+        dom.modalTitle.textContent =
+          requestType === "change"
+            ? "予約変更のご希望"
+            : "予約キャンセルのご希望";
+        dom.modalAppointmentSummary.textContent =
+          `${formatDateTime(appointment.start_at)} ` +
+          `${appointmentTypeLabel(appointment.appointment_type)}`;
+        dom.appointmentReason.value = "";
+        hideFormMessage(dom.modalMessage);
+        dom.modalSubmit.textContent =
+          requestType === "change"
+            ? "変更希望を送信"
+            : "取消希望を送信";
+        dom.modalSubmit.className =
+          requestType === "cancel"
+            ? "danger-button"
+            : "primary-button";
+        dom.appointmentModal.classList.add("is-visible");
+        window.setTimeout(() => dom.appointmentReason.focus(), 50);
+      }
+
+      function closeAppointmentModal() {
+        dom.appointmentModal.classList.remove("is-visible");
+        state.modalAppointment = null;
+      }
+
+      async function submitAppointmentRequest() {
+        if (!state.modalAppointment) return;
+
+        dom.modalSubmit.disabled = true;
+        const originalText = dom.modalSubmit.textContent;
+        dom.modalSubmit.textContent = "送信中";
+
+        try {
+          await memberFetch(
+            window.DPRO_SHIHO_CONFIG.api.endpoints.memberAppointmentChange,
+            {
+              method: "POST",
+              body: {
+                appointment_id: state.modalAppointment.id,
+                request_type: state.modalRequestType,
+                reason: dom.appointmentReason.value.trim() || null,
+              },
+            },
+          );
+
+          showFormMessage(
+            dom.modalMessage,
+            "ご希望を受け付けました。事務所からの連絡をお待ちください。",
+            "success",
+          );
+          await loadMemberData();
+          window.setTimeout(closeAppointmentModal, 1100);
+        } catch (error) {
+          showFormMessage(
+            dom.modalMessage,
+            error?.message || "ご希望を送信できませんでした。",
+            "error",
+          );
+        } finally {
+          dom.modalSubmit.disabled = false;
+          dom.modalSubmit.textContent = originalText;
+        }
+      }
+
+      function showSection(name) {
+        state.activeSection = name;
+        document.querySelectorAll("[data-section-target]").forEach((button) => {
+          button.classList.toggle(
+            "is-active",
+            button.dataset.sectionTarget === name,
+          );
+        });
+        document.querySelectorAll("[data-section]").forEach((section) => {
+          section.classList.toggle(
+            "is-active",
+            section.dataset.section === name,
+          );
+        });
+        document.querySelector(".member-nav")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+
+      function logout() {
+        clearSession();
+        if (!state.demoMode && window.liff?.isLoggedIn?.()) {
+          try {
+            window.liff.logout();
+          } catch {
+            // LINE SDK側でログアウトできなくてもセッションは削除済み。
+          }
+        }
+        window.location.reload();
+      }
+
+      async function startLineLogin() {
+        dom.lineLoginButton.disabled = true;
+        try {
+          await createLineSession();
+          await loadMemberData();
+        } catch (error) {
+          showAuthError(error);
+        } finally {
+          dom.lineLoginButton.disabled = false;
+        }
+      }
+
+      function showLoading() {
+        dom.loadingCard.classList.remove("member-hidden");
+        dom.authCard.classList.add("member-hidden");
+        dom.dashboard.classList.remove("is-visible");
+      }
+
+      function showAuthError(error) {
+        dom.loadingCard.classList.add("member-hidden");
+        dom.dashboard.classList.remove("is-visible");
+        dom.authCard.classList.remove("member-hidden");
+        dom.refreshButton.classList.add("member-hidden");
+        dom.logoutButton.classList.add("member-hidden");
+        setConnection("error", "未連携");
+
+        const code = error?.code || error?.payload?.error || "";
+
+        if (code === "LINE_LINK_NOT_APPROVED") {
+          dom.authTitle.textContent = "LINE連携の承認待ちです";
+          dom.authDescription.textContent =
+            "相談受付は完了しています。事務所でLINE連携を確認後、マイページをご利用いただけます。";
+          dom.authMessage.textContent =
+            "事務所から承認完了のご案内が届くまでお待ちください。";
+          return;
+        }
+
+        if (code === "LIFF_NOT_CONFIGURED") {
+          dom.authTitle.textContent = "LINE公式アカウントから開いてください";
+          dom.authDescription.textContent =
+            "このマイページはLINE内のメニューから開くことで、安全に本人確認を行います。";
+          dom.authMessage.textContent =
+            "現在のブラウザから電話番号だけで案件情報を表示することはありません。";
+          return;
+        }
+
+        dom.authTitle.textContent = "マイページを開けませんでした";
+        dom.authDescription.textContent =
+          error?.message ||
+          "認証情報を確認できませんでした。時間をおいて再度お試しください。";
+        dom.lineLoginButton.classList.toggle(
+          "member-hidden",
+          !window.DPRO_SHIHO_CONFIG.line?.liffId,
+        );
+      }
+
+      function setConnection(status, text) {
+        dom.connectionBadge.dataset.status = status;
+        dom.connectionText.textContent = text;
+      }
+
+      function allDocumentRequests() {
+        return state.documents.flatMap((caseRow) =>
+          Array.isArray(caseRow.document_requests)
+            ? caseRow.document_requests
+            : [],
+        );
+      }
+
+      function futureAppointments() {
+        const now = Date.now();
+        return state.appointments
+          .filter(
+            (appointment) =>
+              new Date(appointment.start_at).getTime() >= now &&
+              !["cancelled", "no_show"].includes(appointment.status),
+          )
+          .sort(
+            (left, right) =>
+              new Date(left.start_at).getTime() -
+              new Date(right.start_at).getTime(),
+          );
+      }
+
+      function memberProgress(code) {
+        if (code === "completed") {
+          return { label: "お手続き完了", tone: "success" };
+        }
+        if (code === "waiting_client") {
+          return { label: "お客様のご対応待ち", tone: "warning" };
+        }
+        if (code === "correction") {
+          return { label: "補正対応中", tone: "warning" };
+        }
+        if (code === "on_hold") {
+          return { label: "確認・保留中", tone: "danger" };
+        }
+        return {
+          label: PROGRESS_LABELS[code] || "事務所で確認中",
+          tone: "neutral",
+        };
+      }
+
+      function documentStatus(code) {
+        const value = DOCUMENT_LABELS[code] || [code || "確認中", "neutral"];
+        return { label: value[0], tone: value[1] };
+      }
+
+      function statusBadge(label, tone = "neutral") {
+        const badge = document.createElement("span");
+        badge.className = "status-badge";
+        badge.dataset.tone = tone;
+        badge.textContent = label;
+        return badge;
+      }
+
+      function smallChip(label) {
+        const chip = document.createElement("span");
+        chip.className = "small-chip";
+        chip.textContent = label;
+        return chip;
+      }
+
+      function emptyState(message) {
+        const container = document.createElement("div");
+        container.className = "empty-state";
+        const inner = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = "現在のお知らせ";
+        const text = document.createElement("span");
+        text.textContent = message;
+        inner.append(title, text);
+        container.appendChild(inner);
+        return container;
+      }
+
+      function appointmentTypeLabel(value) {
+        return APPOINTMENT_TYPE_LABELS[value] || "ご相談";
+      }
+
+      function formatDateTime(value) {
+        if (!value) return "—";
+        return new Intl.DateTimeFormat("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(new Date(value));
+      }
+
+      function formatDateOnly(value) {
+        if (!value) return "—";
+        const date = String(value).includes("T")
+          ? new Date(value)
+          : new Date(`${value}T12:00:00+09:00`);
+        return new Intl.DateTimeFormat("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          month: "numeric",
+          day: "numeric",
+          weekday: "short",
+        }).format(date);
+      }
+
+      function formatShortDate(value) {
+        if (!value) return "—";
+        return new Intl.DateTimeFormat("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          month: "numeric",
+          day: "numeric",
+          weekday: "short",
+        }).format(new Date(value));
+      }
+
+      function formatTimeRange(start, end) {
+        const formatter = new Intl.DateTimeFormat("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        });
+        return `${formatter.format(new Date(start))}～${formatter.format(
+          new Date(end),
+        )}`;
+      }
+
+      function showFormMessage(element, message, tone) {
+        element.textContent = message;
+        element.dataset.tone = tone;
+        element.classList.add("is-visible");
+      }
+
+      function hideFormMessage(element) {
+        element.textContent = "";
+        element.classList.remove("is-visible");
+      }
+
+      function loadPreviewData() {
+        const now = new Date();
+        const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        const tomorrowEnd = new Date(tomorrow.getTime() + 30 * 60 * 1000);
+
+        state.client = {
+          client_no: "CL-000001",
+          full_name: "相続テスト 花子",
+        };
+        state.cases = [
+          {
+            case_id: "11111111-1111-4111-8111-111111111111",
+            case_no: "CASE-20260718-001",
+            case_title: "相続テスト一郎様 相続登記",
+            member_progress_code: "waiting_client",
+            public_summary: "必要書類のご提出をお待ちしています。",
+            next_action: "戸籍等の不足書類をご確認ください",
+            next_action_due_date: new Date(now.getTime() + 3 * 86400000)
+              .toISOString()
+              .slice(0, 10),
+            decedent_name: "相続テスト 一郎",
+            next_appointment_at: tomorrow.toISOString(),
+            document_requests: [
+              {
+                document_name: "被相続人の戸籍等",
+                status: "partially_submitted",
+                due_date: new Date(now.getTime() + 3 * 86400000)
+                  .toISOString()
+                  .slice(0, 10),
+                client_guidance:
+                  "事務所からご案内した範囲の戸籍をご準備ください。",
+              },
+            ],
+          },
+        ];
+        state.documents = [
+          {
+            id: "11111111-1111-4111-8111-111111111111",
+            case_no: "CASE-20260718-001",
+            case_title: "相続テスト一郎様 相続登記",
+            document_requests: [
+              {
+                document_name: "被相続人の戸籍等",
+                status: "partially_submitted",
+                original_required: true,
+                due_date: new Date(now.getTime() + 3 * 86400000)
+                  .toISOString()
+                  .slice(0, 10),
+                client_guidance:
+                  "事務所からご案内した範囲の戸籍・除籍等をご準備ください。",
+              },
+              {
+                document_name: "被相続人の住所を確認する書類",
+                status: "not_submitted",
+                original_required: true,
+                due_date: new Date(now.getTime() + 5 * 86400000)
+                  .toISOString()
+                  .slice(0, 10),
+                client_guidance:
+                  "住民票除票または戸籍附票等について個別にご案内します。",
+              },
+              {
+                document_name: "固定資産評価証明書等",
+                status: "received",
+                original_required: true,
+                client_guidance: "事務所で内容を確認しています。",
+              },
+            ],
+          },
+        ];
+        state.appointments = [
+          {
+            id: "22222222-2222-4222-8222-222222222222",
+            case_id: "11111111-1111-4111-8111-111111111111",
+            appointment_no: "APPT-20260718-001",
+            appointment_type: "followup_consultation",
+            method: "office",
+            start_at: tomorrow.toISOString(),
+            end_at: tomorrowEnd.toISOString(),
+            status: "confirmed",
+            location_text: "DPRO司法書士・相続登記事務所",
+          },
+        ];
+        state.messages = [
+          {
+            id: "33333333-3333-4333-8333-333333333333",
+            direction: "outbound",
+            body:
+              "現在必要な書類をマイページに掲載しました。内容をご確認ください。",
+            created_at: now.toISOString(),
+          },
+        ];
+        state.upload = {
+          enabled: false,
+          reason:
+            "安全なファイル提出機能は、非公開Storage設定後に有効化します。",
+        };
+
+        dom.officeName.textContent = "DPRO司法書士・相続登記事務所";
+        renderDashboard();
+        setConnection("ok", "プレビュー");
+      }
+    })();
+  </script>
+</body>
+</html>
