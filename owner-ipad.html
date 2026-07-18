@@ -580,6 +580,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.75fr);
       gap: 17px;
+      align-items: start;
     }
 
     .panel {
@@ -1479,7 +1480,7 @@
             <article class="metric">
               <div class="metric-label"><span class="metric-icon">急</span>至急・高優先</div>
               <strong id="metric-urgent">0件</strong>
-              <small>早めの確認が必要</small>
+              <small>未完了の高優先相談</small>
             </article>
           </div>
 
@@ -1497,7 +1498,7 @@
             <div>
               <section class="panel">
                 <div class="panel-head">
-                  <h3>新着相談</h3>
+                  <h3>確認中の相談</h3>
                   <button class="touch-button secondary" type="button" data-jump-tab="inquiries">
                     一覧を開く
                   </button>
@@ -1789,7 +1790,8 @@
     </div>
   </div>
 
-  <script src="./config.js"></script>
+  <!-- STEP SHIHO-8-R1: iPad空白最適化・見出し修正・高優先集計修正 -->
+<script src="./config.js"></script>
   <script>
     (() => {
       "use strict";
@@ -2238,8 +2240,20 @@
         const requested = state.todayAppointments.filter((row) =>
           ["change_requested", "cancel_requested"].includes(row.status),
         );
-        const urgent = state.inquiryRows.filter((row) =>
-          ["high", "urgent"].includes(row.urgency),
+        const activeInquiryStatuses = new Set([
+          "new",
+          "reviewing",
+          "scheduling",
+          "appointment_confirmed",
+          "consulted",
+          "estimate_sent",
+          "engagement_pending",
+          "on_hold",
+        ]);
+        const urgent = state.inquiryRows.filter(
+          (row) =>
+            activeInquiryStatuses.has(row.status) &&
+            ["high", "urgent"].includes(row.urgency),
         );
 
         dom.metricToday.textContent = `${activeToday.length}件`;
@@ -2454,7 +2468,20 @@
           });
 
         state.inquiryRows
-          .filter((row) => ["high", "urgent"].includes(row.urgency))
+          .filter(
+            (row) =>
+              [
+                "new",
+                "reviewing",
+                "scheduling",
+                "appointment_confirmed",
+                "consulted",
+                "estimate_sent",
+                "engagement_pending",
+                "on_hold",
+              ].includes(row.status) &&
+              ["high", "urgent"].includes(row.urgency),
+          )
           .slice(0, 5)
           .forEach((row) => {
             alerts.push({
