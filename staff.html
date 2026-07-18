@@ -1047,6 +1047,195 @@
       }
     }
   </style>
+<style id="shiho-staff-r1-readability">
+/* STEP SHIHO-9-R1：スタッフモバイルの可読性・タッチ操作性を強化 */
+html {
+  font-size: 17px;
+}
+
+.workspace {
+  width: min(820px, calc(100% - 20px));
+}
+
+.brand-name {
+  font-size: 16px;
+}
+
+.brand-sub {
+  font-size: 11px;
+}
+
+.connection {
+  font-size: 12px;
+}
+
+.hero-eyebrow {
+  font-size: 12px;
+}
+
+.hero h1 {
+  font-size: clamp(30px, 8vw, 40px);
+}
+
+.hero p {
+  font-size: 14px;
+}
+
+.profile-card span {
+  font-size: 11px;
+}
+
+.profile-card strong {
+  font-size: 14px;
+}
+
+.metric {
+  min-height: 118px;
+  padding: 17px;
+}
+
+.metric-label {
+  font-size: 13px;
+}
+
+.metric-icon {
+  width: 33px;
+  height: 33px;
+  font-size: 13px;
+}
+
+.metric strong {
+  font-size: 29px;
+}
+
+.metric small {
+  font-size: 12px;
+}
+
+.section-head h2 {
+  font-size: 23px;
+}
+
+.section-head p {
+  font-size: 13px;
+}
+
+.panel-head h3 {
+  font-size: 18px;
+}
+
+.appointment-card,
+.inquiry-card,
+.case-card,
+.task-card {
+  padding: 16px;
+}
+
+.card-head h3 {
+  font-size: 17px;
+}
+
+.card-head p {
+  font-size: 12px;
+}
+
+.card-summary {
+  font-size: 14px;
+}
+
+.meta-box span {
+  font-size: 11px;
+}
+
+.meta-box strong {
+  font-size: 13px;
+}
+
+.status {
+  min-height: 31px;
+  font-size: 11px;
+}
+
+.small-button {
+  min-height: 45px;
+  font-size: 13px;
+}
+
+.contact-button {
+  min-height: 48px;
+  font-size: 13px;
+}
+
+.notice {
+  font-size: 13px;
+}
+
+.permission-row span {
+  font-size: 14px;
+}
+
+.permission-row strong {
+  font-size: 13px;
+}
+
+.nav-button {
+  min-height: 62px;
+  font-size: 11px;
+}
+
+.nav-button span:first-child {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+}
+
+.drawer-head h2,
+.modal-head h2 {
+  font-size: 20px;
+}
+
+.detail-card h3 {
+  font-size: 17px;
+}
+
+.detail-row dt {
+  font-size: 12px;
+}
+
+.detail-row dd {
+  font-size: 14px;
+}
+
+.document-row strong {
+  font-size: 14px;
+}
+
+.document-row span {
+  font-size: 12px;
+}
+
+@media (max-width: 400px) {
+  html {
+    font-size: 16px;
+  }
+
+  .brand-name {
+    font-size: 15px;
+  }
+
+  .metric-label {
+    font-size: 12px;
+  }
+
+  .card-head h3 {
+    font-size: 16px;
+  }
+
+  .card-summary {
+    font-size: 13px;
+  }
+}
+</style>
 </head>
 <body>
   <header class="topbar">
@@ -1357,7 +1546,8 @@
     </div>
   </div>
 
-  <script src="./config.js"></script>
+  <!-- STEP SHIHO-9-R1: スタッフモバイル文字・ボタン拡大 -->
+<script src="./config.js"></script>
   <script>
     (() => {
       "use strict";
