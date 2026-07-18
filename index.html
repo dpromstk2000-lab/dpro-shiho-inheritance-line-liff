@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1F3046">
+  <meta name="description" content="DPRO 司法書士・相続登記 LINE 公開準備・API接続確認">
+  <title>DPRO 司法書士・相続登記 LINE</title>
+  <link rel="stylesheet" href="./assets/dpro-base.css">
+  <script src="./config.js" defer></script>
+  <script defer>
+    window.addEventListener("DOMContentLoaded", async () => {
+      const dot = document.getElementById("api-status-dot");
+      const label = document.getElementById("api-status-label");
+      const detail = document.getElementById("api-status-detail");
+      const officeName = document.getElementById("office-name");
+      const version = document.getElementById("api-version");
+      const counts = document.getElementById("db-counts");
+      const apiUrl = document.getElementById("api-url");
+      const retryButton = document.getElementById("retry-button");
+
+      apiUrl.textContent = window.DPRO_SHIHO_CONFIG.api.baseUrl;
+
+      async function checkApi() {
+        dot.dataset.status = "checking";
+        label.textContent = "API接続を確認しています";
+        detail.textContent = "WorkerとSupabaseの状態を確認中です。";
+        retryButton.disabled = true;
+
+        try {
+          const result = await window.DPRO_SHIHO.apiFetch(
+            window.DPRO_SHIHO_CONFIG.api.endpoints.health,
+          );
+
+          dot.dataset.status = "ok";
+          label.textContent = "公開基盤は正常です";
+          detail.textContent =
+            "GitHub PagesからCloudflare Worker・Supabaseへ接続できました。";
+          officeName.textContent =
+            result.database?.office?.office_name ||
+            result.database?.database?.office?.office_name ||
+            window.DPRO_SHIHO_CONFIG.system.officeName;
+          version.textContent = result.version || "—";
+
+          const databaseCounts =
+            result.database?.database?.counts ||
+            result.database?.counts ||
+            {};
+          const caseCount = databaseCounts.cases ?? "—";
+          const clientCount = databaseCounts.clients ?? "—";
+          const inquiryCount = databaseCounts.inquiries ?? "—";
+          counts.textContent =
+            `案件 ${caseCount}件・顧客 ${clientCount}件・相談 ${inquiryCount}件`;
+        } catch (error) {
+          dot.dataset.status = "error";
+          label.textContent = "APIへ接続できません";
+          detail.textContent =
+            error?.message ||
+            "Worker URLまたはCloudflareの環境変数をご確認ください。";
+          officeName.textContent = "—";
+          version.textContent = "—";
+          counts.textContent = "—";
+        } finally {
+          retryButton.disabled = false;
+        }
+      }
+
+      retryButton.addEventListener("click", checkApi);
+      await checkApi();
+    });
+  </script>
+</head>
+<body>
+  <header class="dpro-header">
+    <div class="dpro-shell dpro-header__inner">
+      <a class="dpro-brand" href="./index.html" aria-label="トップへ">
+        <span class="dpro-brand__mark" aria-hidden="true">司</span>
+        <span>
+          <span class="dpro-brand__title">DPRO 司法書士・相続登記 LINE</span>
+          <span class="dpro-brand__subtitle">GitHub Pages 公開基盤</span>
+        </span>
+      </a>
+      <span class="dpro-badge">STEP SHIHO-4</span>
+    </div>
+  </header>
+
+  <main class="dpro-main">
+    <div class="dpro-shell">
+      <section class="dpro-hero" aria-labelledby="page-title">
+        <article class="dpro-card">
+          <div class="dpro-card__body">
+            <p class="dpro-eyebrow">DPRO JUDICIAL SCRIVENER</p>
+            <h1 class="dpro-title" id="page-title">
+              相続相談から登記完了までを、<br>
+              LINEで分かりやすく。
+            </h1>
+            <p class="dpro-lead">
+              相続相談、必要書類、相続人・不動産の確認状況、
+              面談、申請、補正、完了後のご案内までを一元管理する
+              司法書士事務所向けシステムです。
+            </p>
+            <div class="dpro-notice">
+              現在は公開基盤の接続確認画面です。
+              お客様用相談受付はSTEP SHIHO-5から順次追加します。
+              法的判断や期限の確定は、必ず司法書士が行います。
+            </div>
+            <div class="dpro-actions">
+              <button class="dpro-button" id="retry-button" type="button">
+                API接続を再確認
+              </button>
+              <a
+                class="dpro-button dpro-button--secondary"
+                href="https://dpro-shiho-inheritance-line-api.dpromstk2000.workers.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Worker JSONを開く
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <aside class="dpro-card dpro-status" aria-labelledby="status-title">
+          <div class="dpro-status__head">
+            <h2 class="dpro-status__title" id="status-title">システム接続状態</h2>
+          </div>
+          <div class="dpro-status__body">
+            <div class="dpro-status-line" aria-live="polite">
+              <span
+                class="dpro-status-dot"
+                id="api-status-dot"
+                data-status="checking"
+                aria-hidden="true"
+              ></span>
+              <span id="api-status-label">API接続を確認しています</span>
+            </div>
+            <p id="api-status-detail">
+              WorkerとSupabaseの状態を確認中です。
+            </p>
+            <div class="dpro-status-details">
+              <div class="dpro-status-row">
+                <span>事務所</span>
+                <strong id="office-name">確認中</strong>
+              </div>
+              <div class="dpro-status-row">
+                <span>Worker版</span>
+                <strong id="api-version">確認中</strong>
+              </div>
+              <div class="dpro-status-row">
+                <span>デモデータ</span>
+                <strong id="db-counts">確認中</strong>
+              </div>
+              <div class="dpro-status-row">
+                <span>予約枠</span>
+                <strong>30分単位</strong>
+              </div>
+            </div>
+            <p class="dpro-code" id="api-url"></p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="dpro-grid" aria-label="今後追加する画面">
+        <article class="dpro-card dpro-feature">
+          <span class="dpro-feature__number">1</span>
+          <h2>お客様用相談受付</h2>
+          <p>
+            相談分野別ヒアリング、既存顧客連携、30分単位の相談予約を実装します。
+          </p>
+        </article>
+        <article class="dpro-card dpro-feature">
+          <span class="dpro-feature__number">2</span>
+          <h2>お客様マイページ</h2>
+          <p>
+            現在の進捗、今必要なこと、必要書類、次回予定を分かりやすく表示します。
+          </p>
+        </article>
+        <article class="dpro-card dpro-feature">
+          <span class="dpro-feature__number">3</span>
+          <h2>事務所管理画面</h2>
+          <p>
+            相談、案件、相続関係者、不動産、書類、申請、補正、期限を管理します。
+          </p>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <footer class="dpro-footer">
+    <div class="dpro-shell">
+      DPRO 司法書士・相続登記 LINE<br>
+      この画面はデモ・公開確認用です。
+    </div>
+  </footer>
+</body>
+</html>
