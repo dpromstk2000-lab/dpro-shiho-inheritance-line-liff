@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1F3046">
+<meta name="description" content="DPRO司法書士・相続登記 LINE 事務所オーナーPC管理画面">
+<title>事務所管理｜DPRO司法書士・相続登記 LINE</title>
+<link rel="stylesheet" href="./dpro-base.css">
+<style>
+:root{
+ --navy:#1f3046;--deep:#132238;--gold:#a17b35;--ivory:#f6f3ec;
+ --text:#1c2733;--muted:#657181;--border:#ddd7ca;--success:#2f7a55;
+ --warning:#a96713;--danger:#b42318;--shadow:0 16px 40px rgba(19,34,56,.11);
+ --side:258px;
+}
+*{box-sizing:border-box}
+html{min-width:320px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;font-size:16px;line-height:1.65;background:var(--ivory);color:var(--text)}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 100% 0%,rgba(161,123,53,.11),transparent 34rem),linear-gradient(180deg,#fbfaf6 0%,var(--ivory) 100%)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}.hidden{display:none!important}
+header{position:sticky;z-index:80;top:0;display:flex;min-height:72px;align-items:center;justify-content:space-between;gap:18px;padding:0 22px;border-bottom:1px solid rgba(161,123,53,.23);background:rgba(255,255,255,.97);backdrop-filter:blur(14px)}
+.brand{display:flex;min-width:0;align-items:center;gap:12px;color:inherit;text-decoration:none}.mark{display:grid;width:45px;height:45px;flex:0 0 auto;place-items:center;border-radius:14px;color:#fff;background:linear-gradient(145deg,var(--navy),var(--deep));box-shadow:0 9px 22px rgba(19,34,56,.22);font-size:19px;font-weight:900}.brand-name{display:block;overflow:hidden;color:var(--deep);font-size:clamp(15px,2vw,20px);font-weight:900;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}.brand-sub{display:block;margin-top:2px;color:var(--muted);font-size:12px;font-weight:700}
+.h-actions{display:flex;align-items:center;gap:9px}.badge{display:inline-flex;min-height:38px;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(161,123,53,.3);border-radius:999px;background:#fbfaf6;color:#344257;font-size:13px;font-weight:900;white-space:nowrap}.dot{width:10px;height:10px;border-radius:99px;background:var(--warning);box-shadow:0 0 0 4px rgba(169,103,19,.11)}.badge[data-status=ok] .dot{background:var(--success);box-shadow:0 0 0 4px rgba(47,122,85,.12)}.badge[data-status=error] .dot{background:var(--danger)}
+.hbtn,.menu-btn{min-height:42px;border:1px solid #c7ced6;border-radius:11px;background:#fff;color:#354456;font-size:13px;font-weight:900}.hbtn{padding:8px 13px}.menu-btn{display:none;width:44px;font-size:20px}
+.login-shell{display:grid;min-height:calc(100vh - 72px);padding:36px 18px 70px;place-items:start center}.login-card{width:min(600px,100%);margin-top:54px;padding:clamp(28px,5vw,48px);border:1px solid rgba(161,123,53,.25);border-radius:22px;background:rgba(255,255,255,.98);box-shadow:var(--shadow)}.login-icon{display:grid;width:74px;height:74px;margin:0 auto 20px;place-items:center;border-radius:22px;color:#fff;background:var(--navy);font-size:31px;font-weight:900}.login-card h1{margin:0;color:var(--deep);font-size:clamp(26px,4vw,34px);text-align:center}.login-card>p{margin:12px auto 0;color:var(--muted);text-align:center}.login-form{display:grid;gap:17px;margin-top:28px}
+.field label{display:block;margin-bottom:7px;color:#253348;font-weight:900}.control{width:100%;min-height:50px;padding:11px 13px;border:2px solid #d8d3c8;border-radius:12px;background:#fff;color:var(--text);outline:none}.control:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(161,123,53,.18)}textarea.control{min-height:120px;resize:vertical}.help{margin:6px 0 0;color:var(--muted);font-size:12px}.code-row{display:grid;grid-template-columns:1fr auto;gap:9px}.clear-btn{min-width:88px;border:1px solid #c7ced6;border-radius:12px;background:#fff;color:#435164;font-weight:900}
+.primary,.secondary,.danger,.small{display:inline-flex;min-height:48px;align-items:center;justify-content:center;gap:8px;padding:10px 17px;border-radius:12px;font-weight:900;text-decoration:none}.primary{border:1px solid var(--navy);background:var(--navy);color:#fff;box-shadow:0 9px 20px rgba(31,48,70,.17)}.secondary{border:1px solid #bdc5ce;background:#fff;color:#354456}.danger{border:1px solid #e4b9b5;background:#fff5f4;color:#982119}.small{min-height:38px;padding:6px 10px;border:1px solid #c2cad2;background:#fff;color:#354456;font-size:12px}.small.primary{border-color:var(--navy);background:var(--navy);color:#fff}
+.msg{display:none;padding:13px 14px;border-radius:11px;font-size:13px;font-weight:900}.msg.show{display:block}.msg[data-tone=success]{color:#205c40;background:#eaf6ef}.msg[data-tone=error]{color:#922018;background:#fff0ef}.demo-note{display:none;margin-top:18px;padding:14px 16px;border-left:5px solid var(--gold);border-radius:11px;background:#fff8e9;color:#57492e;font-size:13px}.demo-note.show{display:block}
+.app{display:none;min-height:calc(100vh - 72px)}.app.show{display:grid;grid-template-columns:var(--side) minmax(0,1fr)}aside{position:sticky;top:72px;align-self:start;height:calc(100vh - 72px);overflow-y:auto;border-right:1px solid rgba(161,123,53,.22);background:rgba(255,255,255,.96)}.profile{padding:22px 18px 17px;border-bottom:1px solid #e5e0d7}.profile strong{display:block;color:var(--deep);font-size:15px}.profile span{display:block;margin-top:5px;color:var(--muted);font-size:12px}.nav{display:grid;gap:5px;padding:15px 12px 24px}.nav-btn{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;min-height:50px;align-items:center;width:100%;padding:8px 10px;border:1px solid transparent;border-radius:12px;background:transparent;color:#4a5869;text-align:left;font-weight:900}.nav-btn:hover{background:#f5f3ee}.nav-btn.active{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(31,48,70,.17)}.nav-icon{display:grid;width:32px;height:32px;place-items:center;border-radius:10px;background:var(--gold);color:#fff;font-size:13px;font-weight:900}.nav-btn.active .nav-icon{background:#fff;color:var(--navy)}.nav-count{display:grid;min-width:25px;min-height:25px;place-items:center;padding:2px 7px;border-radius:99px;background:#fff2dc;color:#6d4b13;font-size:11px}.nav-btn.active .nav-count{background:#fff;color:var(--navy)}
+.content{min-width:0;padding:28px clamp(18px,3vw,34px) 70px}.section{display:none}.section.active{display:block}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:19px}.eyebrow{margin:0 0 5px;color:var(--gold);font-size:12px;font-weight:900;letter-spacing:.11em}.section-head h1{margin:0;color:var(--deep);font-size:clamp(27px,4vw,39px);line-height:1.3}.section-head p{margin:7px 0 0;color:var(--muted);font-size:14px}.section-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:9px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.metric{min-height:122px;padding:19px;border:1px solid rgba(161,123,53,.22);border-radius:17px;background:#fff;box-shadow:0 10px 26px rgba(19,34,56,.07)}.metric-label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;font-weight:900}.metric-icon{display:grid;width:31px;height:31px;place-items:center;border-radius:10px;background:var(--gold);color:#fff;font-size:13px;font-weight:900}.metric strong{display:block;margin-top:13px;color:var(--deep);font-size:clamp(24px,3vw,29px);line-height:1.25}.metric small{display:block;margin-top:5px;color:var(--muted);font-size:11px}
+.dash-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(330px,.8fr);gap:18px}.panel{overflow:hidden;border:1px solid rgba(161,123,53,.23);border-radius:18px;background:#fff;box-shadow:0 12px 30px rgba(19,34,56,.08)}.panel+.panel{margin-top:17px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px;border-bottom:1px solid #e4dfd6;background:linear-gradient(180deg,#fff 0%,#fcfbf7 100%)}.panel-head h2{margin:0;color:var(--deep);font-size:19px}.panel-body{padding:18px 20px 21px}.stack{display:grid;gap:10px}.compact{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 14px;border:1px solid #ded9cf;border-radius:13px;background:#fff}.cicon{display:grid;width:39px;height:39px;place-items:center;border-radius:12px;background:var(--warning);color:#fff;font-size:13px;font-weight:900}.ctext strong{display:block;color:var(--deep);font-size:14px}.ctext span{display:block;margin-top:2px;color:var(--muted);font-size:12px}.cdate{color:#6c5a42;font-size:11px;font-weight:900;text-align:right;white-space:nowrap}.empty{display:grid;min-height:125px;place-items:center;padding:20px;color:var(--muted);text-align:center}.empty strong{display:block;color:var(--deep);font-size:17px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px;padding:13px;border:1px solid rgba(161,123,53,.22);border-radius:15px;background:#fff}.toolbar .control{min-height:45px;width:auto;min-width:160px;padding:8px 11px}.search{min-width:min(360px,100%)!important;flex:1 1 300px}
+.table-wrap{overflow-x:auto;border:1px solid rgba(161,123,53,.23);border-radius:17px;background:#fff;box-shadow:0 12px 30px rgba(19,34,56,.07)}table{width:100%;min-width:880px;border-collapse:collapse}th,td{padding:13px 12px;border-bottom:1px solid #e8e4dc;text-align:left;vertical-align:middle}th{color:#5e6a77;background:#faf9f5;font-size:12px;font-weight:900;white-space:nowrap}td{color:#344257;font-size:13px}tbody tr:hover{background:#fffdf8}.main-cell{color:var(--deep);font-weight:900}.subtext{display:block;margin-top:2px;color:var(--muted);font-size:11px}.status{display:inline-flex;min-height:30px;align-items:center;padding:5px 9px;border-radius:99px;background:#eaf0f5;color:#3c566b;font-size:11px;font-weight:900;white-space:nowrap}.status[data-tone=success]{background:#eaf6ef;color:#205c40}.status[data-tone=warning]{background:#fff3df;color:#76470e}.status[data-tone=danger]{background:#fff0ef;color:#912117}.status[data-tone=purple]{background:#f2eafb;color:#5f3b7c}.actions{display:flex;flex-wrap:wrap;gap:6px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.detail-card{padding:18px;border:1px solid #ded9cf;border-radius:15px;background:#fff}.detail-card.full{grid-column:1/-1}.detail-card h3{margin:0 0 12px;color:var(--deep);font-size:17px}.dlist{display:grid;margin:0}.drow{display:grid;grid-template-columns:145px minmax(0,1fr);gap:14px;padding:9px 0;border-bottom:1px dashed #e4dfd6}.drow:last-child{border-bottom:0}.drow dt{color:var(--muted);font-size:12px;font-weight:900}.drow dd{margin:0;color:#344257;font-size:13px;font-weight:800;overflow-wrap:anywhere}.sub-list{display:grid;gap:9px}.sub-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 13px;border:1px solid #e1ddd4;border-radius:12px;background:#fcfbf8}.sub-item strong{display:block;color:var(--deep);font-size:13px}.sub-item span{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+.settings-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.65fr);gap:18px}.settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.full{grid-column:1/-1}.note{padding:15px 17px;border-left:5px solid var(--gold);border-radius:11px;background:#faf7ef;color:#435164}.checks{display:grid;gap:9px}.check{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;border:1px solid #ded9cf;border-radius:12px;background:#fff}.check span{color:#435164;font-size:13px;font-weight:800}.check strong{color:var(--success);font-size:12px}.check strong[data-ok=false]{color:var(--danger)}
+.drawer-bg,.modal-bg{position:fixed;z-index:120;inset:0;display:none;background:rgba(19,34,56,.56);backdrop-filter:blur(4px)}.drawer-bg.show,.modal-bg.show{display:block}.drawer{position:absolute;top:0;right:0;width:min(820px,100%);height:100%;overflow-y:auto;background:#f8f6f0;box-shadow:-18px 0 50px rgba(19,34,56,.24)}.drawer-head{position:sticky;z-index:2;top:0;display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #ddd7ca;background:rgba(255,255,255,.97)}.drawer-head h2{margin:0;color:var(--deep);font-size:21px}.drawer-body{padding:20px}.close{display:grid;width:42px;height:42px;place-items:center;border:1px solid #c7ced6;border-radius:11px;background:#fff;color:#354456;font-size:19px;font-weight:900}
+.modal-bg{padding:20px;place-items:center}.modal-bg.show{display:grid}.modal{width:min(580px,100%);overflow:hidden;border-radius:19px;background:#fff;box-shadow:0 24px 70px rgba(19,34,56,.3)}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 21px;border-bottom:1px solid #e4dfd6}.modal-head h2{margin:0;color:var(--deep);font-size:21px}.modal-body{padding:21px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:16px 21px 21px}.overlay{position:fixed;z-index:69;inset:72px 0 0;display:none;background:rgba(19,34,56,.45)}.overlay.show{display:block}
+@media(max-width:1100px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-grid,.settings-grid{grid-template-columns:1fr}}
+@media(max-width:820px){header{min-height:68px;padding-inline:12px}.brand-sub,.badge span:last-child{display:none}.menu-btn{display:grid}.app.show{grid-template-columns:1fr}aside{position:fixed;z-index:70;top:68px;bottom:0;left:0;width:min(var(--side),88vw);height:auto;transform:translateX(-105%);transition:.18s;box-shadow:16px 0 40px rgba(19,34,56,.2)}aside.open{transform:none}.content{padding:22px 14px 65px}.section-head{display:grid}.section-actions{justify-content:flex-start}.detail-grid,.settings-form{grid-template-columns:1fr}.detail-card.full,.full{grid-column:auto}}
+@media(max-width:560px){.brand-name{max-width:205px}.hbtn{display:none}.metrics{grid-template-columns:1fr}.compact{grid-template-columns:auto 1fr}.cdate{grid-column:2;text-align:left}.toolbar{display:grid}.toolbar .control{width:100%;min-width:0!important}.drow{grid-template-columns:1fr;gap:3px}.modal-actions{display:grid;grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:10px;min-width:0">
+    <button class="menu-btn hidden" id="menu-toggle" type="button" aria-label="メニュー">☰</button>
+    <a class="brand" href="./owner.html">
+      <span class="mark">司</span>
+      <span><span class="brand-name" id="header-office">DPRO司法書士・相続登記事務所</span><span class="brand-sub">事務所オーナーPC管理画面</span></span>
+    </a>
+  </div>
+  <div class="h-actions">
+    <div class="badge" id="connection-badge" data-status="checking"><span class="dot"></span><span id="connection-text">未ログイン</span></div>
+    <button class="hbtn hidden" id="refresh-button" type="button">更新</button>
+    <button class="hbtn hidden" id="logout-button" type="button">ログアウト</button>
+  </div>
+</header>
+
+<main>
+<section class="login-shell" id="login-shell">
+  <div class="login-card">
+    <div class="login-icon">管</div>
+    <h1>事務所管理画面</h1>
+    <p>相談受付、顧客、案件、予約、期限、LINE連携を管理します。</p>
+    <form class="login-form" id="login-form">
+      <div class="field">
+        <label for="admin-code">管理コード</label>
+        <div class="code-row">
+          <input class="control" id="admin-code" type="password" inputmode="numeric" maxlength="200" placeholder="管理コードを入力" required>
+          <button class="clear-btn" id="clear-code" type="button">削除</button>
+        </div>
+        <p class="help">デモURLの「?demo=1」でのみ1234を自動入力します。</p>
+      </div>
+      <div class="msg" id="login-message"></div>
+      <button class="primary" id="login-button" type="submit">管理画面を開く</button>
+    </form>
+    <div class="demo-note" id="demo-note">デモモードです。管理コード1234でログインします。本番では1234を使用できません。</div>
+  </div>
+</section>
+
+<section class="app" id="owner-app">
+<aside id="sidebar">
+  <div class="profile"><strong id="side-office">—</strong><span id="side-staff">—</span></div>
+  <nav class="nav">
+    <button class="nav-btn active" data-target="dashboard"><span class="nav-icon">概</span><span>ダッシュボード</span><span></span></button>
+    <button class="nav-btn" data-target="inquiries"><span class="nav-icon">相</span><span>相談受付</span><span class="nav-count" id="nav-inquiry">0</span></button>
+    <button class="nav-btn" data-target="clients"><span class="nav-icon">顧</span><span>顧客</span><span></span></button>
+    <button class="nav-btn" data-target="cases"><span class="nav-icon">案</span><span>案件</span><span class="nav-count" id="nav-case">0</span></button>
+    <button class="nav-btn" data-target="appointments"><span class="nav-icon">予</span><span>予約・予定</span><span></span></button>
+    <button class="nav-btn" data-target="line"><span class="nav-icon">L</span><span>LINE連携承認</span><span class="nav-count" id="nav-line">0</span></button>
+    <button class="nav-btn" data-target="staff"><span class="nav-icon">担</span><span>スタッフ</span><span></span></button>
+    <button class="nav-btn" data-target="settings"><span class="nav-icon">設</span><span>事務所設定</span><span></span></button>
+  </nav>
+</aside>
+<div class="overlay" id="overlay"></div>
+
+<div class="content">
+<section class="section active" data-section="dashboard">
+  <div class="section-head">
+    <div><p class="eyebrow">OWNER DASHBOARD</p><h1>今日の確認事項</h1><p id="today-label">—</p></div>
+    <div class="section-actions">
+      <button class="secondary" id="system-check" type="button">system-check</button>
+      <button class="secondary" id="demo-prepare" type="button">デモデータ再生成</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <article class="metric"><div class="metric-label"><span class="metric-icon">新</span>新規相談</div><strong id="m-new">0件</strong><small>未確認の相談受付</small></article>
+    <article class="metric"><div class="metric-label"><span class="metric-icon">予</span>本日の予約</div><strong id="m-today">0件</strong><small>予約・確定・来所・相談中</small></article>
+    <article class="metric"><div class="metric-label"><span class="metric-icon">書</span>書類対応待ち</div><strong id="m-docs">0件</strong><small>未提出・不足・差し替え</small></article>
+    <article class="metric"><div class="metric-label"><span class="metric-icon">期</span>7日以内の期限</div><strong id="m-deadline">0件</strong><small>候補日・確定日を含む</small></article>
+    <article class="metric"><div class="metric-label"><span class="metric-icon">補</span>補正対応</div><strong id="m-correction">0件</strong><small>法務局からの補正</small></article>
+    <article class="metric"><div class="metric-label"><span class="metric-icon">案</span>対応期限超過案件</div><strong id="m-case-due">0件</strong><small>次の対応日を超過</small></article>
+    <article class="metric"><div class="metric-label"><span class="metric-icon">作</span>期限超過タスク</div><strong id="m-task">0件</strong><small>未完了タスク</small></article>
+    <article class="metric"><div class="metric-label"><span class="metric-icon">L</span>LINE承認待ち</div><strong id="m-line">0件</strong><small>顧客との紐付け申請</small></article>
+  </div>
+  <div class="dash-grid">
+    <div>
+      <section class="panel"><div class="panel-head"><h2>新着・確認中の相談</h2><button class="small" data-jump="inquiries">一覧</button></div><div class="panel-body"><div class="stack" id="dash-inquiries"></div></div></section>
+      <section class="panel"><div class="panel-head"><h2>進行中の案件</h2><button class="small" data-jump="cases">一覧</button></div><div class="panel-body"><div class="stack" id="dash-cases"></div></div></section>
+    </div>
+    <div>
+      <section class="panel"><div class="panel-head"><h2>本日以降の予約</h2><button class="small" data-jump="appointments">一覧</button></div><div class="panel-body"><div class="stack" id="dash-appointments"></div></div></section>
+      <section class="panel"><div class="panel-head"><h2>期限・タスク</h2></div><div class="panel-body"><div class="stack" id="dash-deadlines"></div></div></section>
+    </div>
+  </div>
+</section>
+
+<section class="section" data-section="inquiries">
+  <div class="section-head"><div><p class="eyebrow">INQUIRIES</p><h1>相談受付</h1><p>新規相談、状態、緊急度、担当者を管理します。</p></div></div>
+  <div class="toolbar">
+    <input class="control search" id="inq-q" type="search" placeholder="受付番号・相談内容">
+    <select class="control" id="inq-status"><option value="">すべての状態</option><option value="new">新規</option><option value="reviewing">確認中</option><option value="scheduling">日程調整中</option><option value="appointment_confirmed">相談日時確定</option><option value="consulted">相談済み</option><option value="engagement_pending">受任待ち</option><option value="engaged">受任済み</option><option value="on_hold">保留</option><option value="cancelled">取消</option></select>
+    <button class="primary" id="inq-search">検索</button>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>受付</th><th>顧客</th><th>相談分野</th><th>緊急度</th><th>状態</th><th>担当</th><th>受付日時</th><th>操作</th></tr></thead><tbody id="inq-body"></tbody></table></div>
+</section>
+
+<section class="section" data-section="clients">
+  <div class="section-head"><div><p class="eyebrow">CLIENTS</p><h1>顧客</h1><p>氏名・フリガナ・顧客番号・電話番号で検索できます。</p></div></div>
+  <div class="toolbar">
+    <input class="control search" id="client-q" type="search" placeholder="氏名・フリガナ・顧客番号">
+    <input class="control" id="client-phone" type="tel" placeholder="電話番号">
+    <button class="primary" id="client-search">検索</button>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>顧客番号</th><th>氏名</th><th>電話</th><th>連絡方法</th><th>LINE</th><th>案件</th><th>最終更新</th></tr></thead><tbody id="client-body"></tbody></table></div>
+</section>
+
+<section class="section" data-section="cases">
+  <div class="section-head"><div><p class="eyebrow">CASES</p><h1>案件</h1><p>相続関係者、不動産、書類、申請、補正、期限を確認します。</p></div></div>
+  <div class="toolbar">
+    <input class="control search" id="case-q" type="search" placeholder="案件番号・案件名・顧客名・被相続人">
+    <select class="control" id="case-status"><option value="">すべての状態</option><option value="initial_review">初期確認</option><option value="engaged">受任済み</option><option value="collecting_family_registers">戸籍収集中</option><option value="checking_heirs">相続関係確認</option><option value="checking_properties">不動産確認</option><option value="waiting_documents">書類待ち</option><option value="drafting_application">申請準備</option><option value="submitted">申請済み</option><option value="correction">補正対応</option><option value="completed">完了</option></select>
+    <button class="primary" id="case-search">検索</button>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>案件</th><th>顧客</th><th>被相続人</th><th>状態</th><th>優先度</th><th>次の対応</th><th>書類待ち</th><th>期限30日</th><th>操作</th></tr></thead><tbody id="case-body"></tbody></table></div>
+</section>
+
+<section class="section" data-section="appointments">
+  <div class="section-head"><div><p class="eyebrow">APPOINTMENTS</p><h1>相談予約・次回予定</h1><p>来所、電話、オンライン、書類受渡しの予定です。</p></div></div>
+  <div class="toolbar">
+    <input class="control" id="appt-date" type="date">
+    <select class="control" id="appt-status"><option value="">すべての状態</option><option value="reserved">予約受付</option><option value="confirmed">確定</option><option value="arrived">来所済み</option><option value="in_progress">相談中</option><option value="completed">完了</option><option value="change_requested">変更希望</option><option value="cancel_requested">取消希望</option><option value="cancelled">取消済み</option></select>
+    <button class="primary" id="appt-search">表示</button>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>日時</th><th>顧客</th><th>種別</th><th>方法</th><th>担当</th><th>状態</th><th>場所・備考</th></tr></thead><tbody id="appt-body"></tbody></table></div>
+</section>
+
+<section class="section" data-section="line">
+  <div class="section-head"><div><p class="eyebrow">LINE LINK APPROVAL</p><h1>LINE連携承認</h1><p>顧客情報とLINEアカウントの紐付け申請を確認します。</p></div></div>
+  <div class="toolbar"><select class="control" id="line-status"><option value="pending">承認待ち</option><option value="approved">承認済み</option><option value="rejected">却下</option><option value="expired">期限切れ</option></select><button class="primary" id="line-search">表示</button></div>
+  <div class="table-wrap"><table><thead><tr><th>申請日時</th><th>顧客</th><th>電話</th><th>現在のLINE状態</th><th>有効期限</th><th>申請状態</th><th>操作</th></tr></thead><tbody id="line-body"></tbody></table></div>
+</section>
+
+<section class="section" data-section="staff">
+  <div class="section-head"><div><p class="eyebrow">STAFF</p><h1>スタッフ</h1><p>役割、期限確定権限、機密書類閲覧権限を確認します。</p></div></div>
+  <div class="table-wrap"><table><thead><tr><th>スタッフ</th><th>役割</th><th>電話</th><th>期限確定</th><th>機密書類</th><th>設定変更</th><th>状態</th></tr></thead><tbody id="staff-body"></tbody></table></div>
+</section>
+
+<section class="section" data-section="settings">
+  <div class="section-head"><div><p class="eyebrow">SETTINGS</p><h1>事務所設定</h1><p>事務所情報と安全設定を管理します。</p></div></div>
+  <div class="settings-grid">
+    <section class="panel"><div class="panel-head"><h2>基本情報</h2></div><div class="panel-body">
+      <form class="settings-form" id="settings-form">
+        <div class="field full"><label for="s-name">事務所名</label><input class="control" id="s-name" maxlength="200"></div>
+        <div class="field full"><label for="s-subtitle">サブタイトル</label><input class="control" id="s-subtitle" maxlength="300"></div>
+        <div class="field"><label for="s-representative">代表者名</label><input class="control" id="s-representative" maxlength="100"></div>
+        <div class="field"><label for="s-phone">電話番号</label><input class="control" id="s-phone" type="tel"></div>
+        <div class="field"><label for="s-email">メール</label><input class="control" id="s-email" type="email"></div>
+        <div class="field"><label for="s-website">Webサイト</label><input class="control" id="s-website" type="url"></div>
+        <div class="field"><label for="s-pref">都道府県</label><input class="control" id="s-pref"></div>
+        <div class="field"><label for="s-city">市区町村</label><input class="control" id="s-city"></div>
+        <div class="field full"><label for="s-address">住所</label><input class="control" id="s-address"></div>
+        <div class="field"><label for="s-booking">予約受付日数</label><input class="control" id="s-booking" type="number" min="1" max="365"></div>
+        <div class="field"><label for="s-url-seconds">書類閲覧URL有効秒数</label><input class="control" id="s-url-seconds" type="number" min="60" max="1800"></div>
+        <div class="msg full" id="settings-message"></div>
+        <div class="full"><button class="primary" id="settings-save" type="submit">設定を保存</button></div>
+      </form>
+    </div></section>
+    <div>
+      <section class="panel"><div class="panel-head"><h2>安全設定</h2></div><div class="panel-body"><div class="note">法的期限、相続人、相続分、遺言の有効性はシステムで確定しません。期限確定は権限を持つ司法書士が行います。</div><div class="checks" style="margin-top:15px"><div class="check"><span>予約枠</span><strong>30分固定</strong></div><div class="check"><span>LINE連携</span><strong>事務所承認制</strong></div><div class="check"><span>機密書類</span><strong>非公開Storage</strong></div><div class="check"><span>管理コード1234</span><strong>デモのみ</strong></div></div></div></section>
+      <section class="panel"><div class="panel-head"><h2>system-check結果</h2></div><div class="panel-body"><div class="checks" id="check-list"><div class="empty"><div><strong>未実行</strong>上部のsystem-checkを押してください。</div></div></div></div></section>
+    </div>
+  </div>
+</section>
+</div>
+</section>
+</main>
+
+<div class="drawer-bg" id="case-drawer"><div class="drawer"><div class="drawer-head"><h2>案件詳細</h2><button class="close" id="drawer-close">×</button></div><div class="drawer-body" id="drawer-body"></div></div></div>
+
+<div class="modal-bg" id="inquiry-modal"><div class="modal"><div class="modal-head"><h2>相談受付を更新</h2><button class="close" id="inq-modal-close">×</button></div><div class="modal-body">
+  <div style="display:grid;gap:14px">
+    <div class="field"><label for="mi-status">状態</label><select class="control" id="mi-status"><option value="new">新規</option><option value="reviewing">確認中</option><option value="scheduling">日程調整中</option><option value="appointment_confirmed">相談日時確定</option><option value="consulted">相談済み</option><option value="engagement_pending">受任待ち</option><option value="engaged">受任済み</option><option value="declined">辞退</option><option value="on_hold">保留</option><option value="cancelled">取消</option></select></div>
+    <div class="field"><label for="mi-urgency">緊急度</label><select class="control" id="mi-urgency"><option value="low">低</option><option value="normal">通常</option><option value="high">高</option><option value="urgent">至急</option></select></div>
+    <div class="field"><label for="mi-staff">担当者</label><select class="control" id="mi-staff"><option value="">未割当</option></select></div>
+    <div class="field"><label for="mi-public">お客様向けメッセージ</label><textarea class="control" id="mi-public"></textarea></div>
+    <div class="field"><label for="mi-internal">内部メモ</label><textarea class="control" id="mi-internal"></textarea></div>
+    <div class="msg" id="mi-message"></div>
+  </div>
+</div><div class="modal-actions"><button class="secondary" id="mi-cancel">閉じる</button><button class="primary" id="mi-save">保存</button></div></div></div>
+
+<div class="modal-bg" id="line-modal"><div class="modal"><div class="modal-head"><h2>LINE連携申請を確認</h2><button class="close" id="line-modal-close">×</button></div><div class="modal-body"><p id="line-summary" style="margin-top:0;color:#526071"></p><div class="field"><label for="line-reason">却下理由（却下時のみ）</label><textarea class="control" id="line-reason"></textarea></div><div class="msg" id="line-message"></div></div><div class="modal-actions"><button class="secondary" id="line-cancel">閉じる</button><button class="danger" id="line-reject">却下</button><button class="primary" id="line-approve">承認</button></div></div></div>
+
+<script src="./config.js"></script>
+<script>
+
+(() => {
+"use strict";
+const SESSION="dpro_shiho_admin_session";
+const S={
+ token:null,expires:0,office:null,staff:null,staffList:[],section:"dashboard",
+ inquiries:[],currentInquiry:null,currentLine:null,demo:false
+};
+const $=id=>document.getElementById(id);
+const E={};
+const LABELS={
+ inquiry:{
+  new:["新規","warning"],reviewing:["確認中","neutral"],scheduling:["日程調整中","purple"],
+  appointment_confirmed:["相談日時確定","success"],consulted:["相談済み","neutral"],
+  engagement_pending:["受任待ち","warning"],engaged:["受任済み","success"],
+  declined:["辞退","danger"],on_hold:["保留","danger"],cancelled:["取消","danger"]
+ },
+ case:{
+  initial_review:["初期確認","neutral"],engaged:["受任済み","success"],
+  collecting_family_registers:["戸籍収集中","warning"],checking_heirs:["相続関係確認","neutral"],
+  checking_properties:["不動産確認","neutral"],waiting_inheritance_agreement:["遺産分割待ち","warning"],
+  waiting_documents:["書類待ち","warning"],drafting_application:["申請準備","neutral"],
+  submitted:["申請済み","success"],correction:["補正対応","warning"],
+  registration_completed:["登記完了","success"],completed:["完了","success"],
+  on_hold:["保留","danger"],cancelled:["取消","danger"]
+ },
+ appointment:{
+  reserved:["予約受付","neutral"],confirmed:["確定","success"],arrived:["来所済み","neutral"],
+  in_progress:["相談中","warning"],completed:["完了","success"],
+  change_requested:["変更希望","warning"],cancel_requested:["取消希望","warning"],
+  cancelled:["取消済み","danger"],no_show:["未来所","danger"]
+ },
+ line:{unlinked:["未連携","neutral"],pending:["承認待ち","warning"],approved:["連携済み","success"],rejected:["却下","danger"],disabled:["無効","danger"]},
+ link:{pending:["承認待ち","warning"],approved:["承認済み","success"],rejected:["却下","danger"],expired:["期限切れ","danger"],used:["使用済み","success"],cancelled:["取消","danger"]},
+ urgency:{low:["低","neutral"],normal:["通常","neutral"],high:["高","warning"],urgent:["至急","danger"]}
+};
+const ROLE={representative:"代表司法書士",judicial_scrivener:"司法書士",manager:"管理者",staff:"スタッフ",reception:"受付"};
+const METHOD={office:"来所",phone:"電話",online:"オンライン",visit:"訪問",other:"その他"};
+const APPT_TYPE={initial_consultation:"初回相談",followup_consultation:"継続相談",document_delivery:"書類お預かり",document_return:"原本返却",online_consultation:"オンライン相談",phone_consultation:"電話相談",other:"その他"};
+
+document.addEventListener("DOMContentLoaded",init);
+
+function init(){
+ [
+  "header-office","connection-badge","connection-text","refresh-button","logout-button","menu-toggle",
+  "login-shell","login-form","admin-code","clear-code","login-button","login-message","demo-note",
+  "owner-app","sidebar","overlay","side-office","side-staff","system-check","demo-prepare",
+  "inq-q","inq-status","inq-search","inq-body","client-q","client-phone","client-search","client-body",
+  "case-q","case-status","case-search","case-body","appt-date","appt-status","appt-search","appt-body",
+  "line-status","line-search","line-body","staff-body","settings-form","settings-message","settings-save",
+  "case-drawer","drawer-close","drawer-body","inquiry-modal","inq-modal-close","mi-status","mi-urgency",
+  "mi-staff","mi-public","mi-internal","mi-message","mi-cancel","mi-save","line-modal",
+  "line-modal-close","line-summary","line-reason","line-message","line-cancel","line-reject","line-approve"
+ ].forEach(id=>E[id.replaceAll("-","_")]=$(id));
+ bind();
+ S.demo=window.DPRO_SHIHO.isDemoMode();
+ if(S.demo){
+  E.admin_code.value=window.DPRO_SHIHO_CONFIG.demo.adminCode;
+  E.demo_note.classList.add("show");
+ }
+ const saved=readSession();
+ if(saved){
+  Object.assign(S,{token:saved.token,expires:saved.expires,office:saved.office,staff:saved.staff});
+  openApp();
+  loadInitial().catch(error=>{
+   if([401,403].includes(Number(error?.status))) logout(false);
+   else setConnection("error","接続エラー");
+  });
+ }
+}
+
+function bind(){
+ E.login_form.addEventListener("submit",login);
+ E.clear_code.addEventListener("click",()=>{E.admin_code.value="";E.admin_code.focus()});
+ E.refresh_button.addEventListener("click",refresh);
+ E.logout_button.addEventListener("click",()=>logout(true));
+ E.menu_toggle.addEventListener("click",()=>toggleMenu());
+ E.overlay.addEventListener("click",closeMenu);
+ document.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.target)));
+ document.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>showSection(b.dataset.jump)));
+ E.system_check.addEventListener("click",runSystemCheck);
+ E.demo_prepare.addEventListener("click",runDemoPrepare);
+ E.inq_search.addEventListener("click",loadInquiries);
+ E.client_search.addEventListener("click",loadClients);
+ E.case_search.addEventListener("click",loadCases);
+ E.appt_search.addEventListener("click",loadAppointments);
+ E.line_search.addEventListener("click",loadLineLinks);
+ E.settings_form.addEventListener("submit",saveSettings);
+ E.drawer_close.addEventListener("click",closeDrawer);
+ E.case_drawer.addEventListener("click",e=>{if(e.target===E.case_drawer)closeDrawer()});
+ E.inq_modal_close.addEventListener("click",closeInquiryModal);
+ E.mi_cancel.addEventListener("click",closeInquiryModal);
+ E.mi_save.addEventListener("click",saveInquiry);
+ E.inquiry_modal.addEventListener("click",e=>{if(e.target===E.inquiry_modal)closeInquiryModal()});
+ E.line_modal_close.addEventListener("click",closeLineModal);
+ E.line_cancel.addEventListener("click",closeLineModal);
+ E.line_approve.addEventListener("click",()=>processLine("approve"));
+ E.line_reject.addEventListener("click",()=>processLine("reject"));
+ E.line_modal.addEventListener("click",e=>{if(e.target===E.line_modal)closeLineModal()});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeDrawer();closeInquiryModal();closeLineModal();closeMenu()}});
+ window.addEventListener("resize",()=>{if(innerWidth>820)closeMenu()});
+}
+
+async function login(e){
+ e.preventDefault();
+ const code=E.admin_code.value.trim();
+ if(!code){message(E.login_message,"管理コードを入力してください。","error");return}
+ E.login_button.disabled=true;E.login_button.textContent="確認中";hideMessage(E.login_message);
+ try{
+  const r=await window.DPRO_SHIHO.apiFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminLogin,{method:"POST",body:{code}});
+  Object.assign(S,{token:r.token,expires:Date.now()+Math.max(60,Number(r.expires_in||28800)-30)*1000,office:r.office,staff:r.staff});
+  sessionStorage.setItem(SESSION,JSON.stringify({token:S.token,expires:S.expires,office:S.office,staff:S.staff}));
+  openApp();await loadInitial();
+ }catch(error){message(E.login_message,error?.message||"ログインできませんでした。","error")}
+ finally{E.login_button.disabled=false;E.login_button.textContent="管理画面を開く"}
+}
+function readSession(){
+ try{
+  const r=JSON.parse(sessionStorage.getItem(SESSION)||"null");
+  if(r?.token&&Number(r.expires)>Date.now()+30000)return r;
+ }catch{}
+ sessionStorage.removeItem(SESSION);return null;
+}
+function openApp(){
+ E.login_shell.classList.add("hidden");E.owner_app.classList.add("show");
+ E.refresh_button.classList.remove("hidden");E.logout_button.classList.remove("hidden");E.menu_toggle.classList.remove("hidden");
+ const name=S.office?.office_name||window.DPRO_SHIHO_CONFIG.system.officeName;
+ E.header_office.textContent=name;E.side_office.textContent=name;
+ E.side_staff.textContent=S.staff?`${S.staff.display_name}（${ROLE[S.staff.role]||S.staff.role}）`:"担当者";
+ setConnection("ok","管理者ログイン済み");
+}
+async function adminFetch(path,options={}){
+ if(!S.token)throw Object.assign(new Error("管理者認証が必要です。"),{status:401});
+ try{return await window.DPRO_SHIHO.apiFetch(path,{...options,token:S.token})}
+ catch(error){if([401,403].includes(Number(error?.status)))logout(false);throw error}
+}
+async function loadInitial(){
+ setConnection("checking","データ取得中");
+ await Promise.all([loadStaff(),loadDashboard(),loadLineCount()]);
+ setConnection("ok","管理者ログイン済み");
+}
+
+async function loadDashboard(){
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminDashboard);
+ const c=r.counts||{},inq=Array.isArray(r.inquiries)?r.inquiries:[],cases=Array.isArray(r.cases)?r.cases:[],appts=Array.isArray(r.appointments)?r.appointments:[],dead=Array.isArray(r.deadlines)?r.deadlines:[],tasks=Array.isArray(r.tasks)?r.tasks:[];
+ $("today-label").textContent=new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"long",day:"numeric",weekday:"long"}).format(new Date());
+ text("m-new",`${Number(c.new_inquiries||0)}件`);text("m-today",`${Number(c.today_appointments||0)}件`);text("m-docs",`${Number(c.open_document_requests||0)}件`);text("m-deadline",`${Number(c.deadline_7d||0)}件`);text("m-correction",`${Number(c.correction_applications||0)}件`);text("m-case-due",`${Number(c.action_due_cases||0)}件`);text("m-task",`${Number(c.overdue_tasks||0)}件`);
+ text("nav-inquiry",Number(c.new_inquiries||0));text("nav-case",cases.filter(x=>!["completed","cancelled"].includes(x.status)).length);
+ renderCompact($("dash-inquiries"),inq.slice(0,6).map(x=>({icon:"相",title:`${x.inquiry_no} ${x.client?.full_name||"顧客未確認"}`,detail:x.summary||x.category?.category_name||"相談内容確認中",date:dateTime(x.submitted_at)})),"現在、新着相談はありません。");
+ renderCompact($("dash-cases"),cases.slice(0,7).map(x=>({icon:"案",title:`${x.case_no} ${x.case_title}`,detail:`${x.client_name||"顧客未確認"}・${label("case",x.status)[0]}${x.next_action?`・次：${x.next_action}`:""}`,date:x.next_action_due_date?`目安 ${dateOnly(x.next_action_due_date)}`:"期限なし"})),"現在、進行中の案件はありません。");
+ renderCompact($("dash-appointments"),appts.slice(0,7).map(x=>({icon:"予",title:`${dateTime(x.start_at)} ${x.client?.full_name||"顧客"}`,detail:`${APPT_TYPE[x.appointment_type]||"相談"}・${METHOD[x.method]||"相談"}・${x.staff?.display_name||"担当未設定"}`,date:label("appointment",x.status)[0]})),"本日以降の予約はありません。");
+ const rows=[...dead.map(x=>({icon:"期",title:x.title,detail:`${x.confirmation_status==="confirmed"?"確定期限":"確認候補"}・${x.public_note||""}`,date:x.due_date?dateOnly(x.due_date):"日付未確認"})),...tasks.map(x=>({icon:"作",title:x.title,detail:`${x.priority||"normal"}・${x.status}`,date:x.due_at?dateTime(x.due_at):"期限なし"}))].slice(0,10);
+ renderCompact($("dash-deadlines"),rows,"期限・タスクの表示対象はありません。");
+}
+async function loadLineCount(){
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminLineLinkRequests,{query:{status:"pending"}});
+ const n=Array.isArray(r.requests)?r.requests.length:0;text("nav-line",n);text("m-line",`${n}件`);
+}
+async function loadStaff(){
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminStaff);
+ S.staffList=Array.isArray(r.staff)?r.staff:[];renderStaff();fillStaffOptions();
+}
+function renderStaff(){
+ E.staff_body.replaceChildren();
+ if(!S.staffList.length){emptyRow(E.staff_body,7,"スタッフが登録されていません。");return}
+ S.staffList.forEach(x=>{
+  const tr=document.createElement("tr");
+  tr.append(primaryCell(x.display_name,x.staff_code),td(ROLE[x.role]||x.role),td(x.phone||"—"),badgeCell(x.can_confirm_legal_deadline?"可":"不可",x.can_confirm_legal_deadline?"success":"neutral"),badgeCell(x.can_view_sensitive_documents?"可":"不可",x.can_view_sensitive_documents?"success":"neutral"),badgeCell(x.can_manage_settings?"可":"不可",x.can_manage_settings?"success":"neutral"),badgeCell(x.is_active?"有効":"無効",x.is_active?"success":"danger"));
+  E.staff_body.append(tr);
+ });
+}
+function fillStaffOptions(){
+ E.mi_staff.replaceChildren(new Option("未割当",""));
+ S.staffList.filter(x=>x.is_active).forEach(x=>E.mi_staff.append(new Option(`${x.display_name}（${ROLE[x.role]||x.role}）`,x.id)));
+}
+
+async function loadInquiries(){
+ setConnection("checking","相談一覧取得中");
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminInquiries,{query:{page:1,limit:100,status:E.inq_status.value||undefined,q:E.inq_q.value.trim()||undefined}});
+ S.inquiries=Array.isArray(r.inquiries)?r.inquiries:[];E.inq_body.replaceChildren();
+ if(!S.inquiries.length)emptyRow(E.inq_body,8,"該当する相談受付はありません。");
+ S.inquiries.forEach(x=>{
+  const tr=document.createElement("tr");
+  tr.append(primaryCell(x.inquiry_no,x.summary||""),primaryCell(x.client?.full_name||"顧客未確認",x.client?.client_no||""),td(x.category?.category_name||"未設定"),badgeCell(...label("urgency",x.urgency)),badgeCell(...label("inquiry",x.status)),td(x.assigned_staff?.display_name||"未割当"),td(dateTime(x.submitted_at)),actionCell([["更新",()=>openInquiry(x)]]));
+  E.inq_body.append(tr);
+ });
+ setConnection("ok","管理者ログイン済み");
+}
+function openInquiry(x){
+ S.currentInquiry=x;E.mi_status.value=x.status||"new";E.mi_urgency.value=x.urgency||"normal";E.mi_staff.value=x.assigned_staff_id||"";E.mi_public.value=x.client_visible_message||"";E.mi_internal.value=x.internal_note||"";hideMessage(E.mi_message);E.inquiry_modal.classList.add("show");
+}
+function closeInquiryModal(){E.inquiry_modal.classList.remove("show");S.currentInquiry=null}
+async function saveInquiry(){
+ if(!S.currentInquiry)return;
+ E.mi_save.disabled=true;E.mi_save.textContent="保存中";
+ try{
+  const r=await adminFetch(`${window.DPRO_SHIHO_CONFIG.api.endpoints.adminInquiries}/${S.currentInquiry.id}`,{method:"PATCH",body:{status:E.mi_status.value,urgency:E.mi_urgency.value,assigned_staff_id:E.mi_staff.value||null,client_visible_message:E.mi_public.value.trim()||null,internal_note:E.mi_internal.value.trim()||null,first_reviewed_at:S.currentInquiry.first_reviewed_at||new Date().toISOString()}});
+  message(E.mi_message,"相談受付を更新しました。","success");const i=S.inquiries.findIndex(x=>x.id===r.inquiry.id);if(i>=0)S.inquiries[i]={...S.inquiries[i],...r.inquiry};setTimeout(()=>{closeInquiryModal();loadInquiries();loadDashboard()},700);
+ }catch(error){message(E.mi_message,error?.message||"更新できませんでした。","error")}
+ finally{E.mi_save.disabled=false;E.mi_save.textContent="保存"}
+}
+
+async function loadClients(){
+ setConnection("checking","顧客一覧取得中");
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminClients,{query:{q:E.client_q.value.trim()||undefined,phone:E.client_phone.value.trim()||undefined,limit:100}});
+ const rows=Array.isArray(r.clients)?r.clients:[];E.client_body.replaceChildren();
+ if(!rows.length)emptyRow(E.client_body,7,"該当する顧客はありません。");
+ rows.forEach(x=>{
+  const tr=document.createElement("tr");
+  tr.append(td(x.client_no||"—","main-cell"),primaryCell(x.full_name,x.full_name_kana||""),primaryCell(x.phone||"—",x.phone_normalized||""),td(contactLabel(x.preferred_contact_method)),badgeCell(...label("line",x.line_link_status)),td(`${Array.isArray(x.cases)?x.cases.length:0}件`),td(dateTime(x.updated_at)));
+  E.client_body.append(tr);
+ });
+ setConnection("ok","管理者ログイン済み");
+}
+
+async function loadCases(){
+ setConnection("checking","案件一覧取得中");
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminCases,{query:{q:E.case_q.value.trim()||undefined,status:E.case_status.value||undefined,limit:100}});
+ const rows=Array.isArray(r.cases)?r.cases:[];E.case_body.replaceChildren();
+ if(!rows.length)emptyRow(E.case_body,9,"該当する案件はありません。");
+ rows.forEach(x=>{
+  const tr=document.createElement("tr");
+  tr.append(primaryCell(x.case_no,x.case_title),primaryCell(x.client_name,x.client_no||""),td(x.decedent_name||"未登録"),badgeCell(...label("case",x.status)),badgeCell(...label("urgency",x.priority)),primaryCell(x.next_action||"未設定",x.next_action_due_date?`目安 ${dateOnly(x.next_action_due_date)}`:""),td(`${Number(x.open_document_count||0)}件`),td(`${Number(x.deadline_30d_count||0)}件`),actionCell([["詳細",()=>openCase(x.case_id)]]));
+  E.case_body.append(tr);
+ });
+ setConnection("ok","管理者ログイン済み");
+}
+async function openCase(id){
+ E.case_drawer.classList.add("show");E.drawer_body.replaceChildren(emptyState("案件情報を取得しています。"));
+ try{
+  const r=await adminFetch(`${window.DPRO_SHIHO_CONFIG.api.endpoints.adminCases}/${id}`);
+  renderCaseDetail(r);
+ }catch(error){E.drawer_body.replaceChildren(emptyState(error?.message||"案件情報を取得できませんでした。"))}
+}
+function closeDrawer(){E.case_drawer.classList.remove("show")}
+function renderCaseDetail(r){
+ const c=r.case||{},cl=r.client||{},d=r.decedent||{},parties=arr(r.parties),props=arr(r.properties),docs=arr(r.document_requests),apps=arr(r.applications),cors=arr(r.corrections),dead=arr(r.deadlines),tasks=arr(r.tasks);
+ const wrap=document.createElement("div");wrap.className="detail-grid";
+ wrap.append(
+  detailCard("案件概要",[["案件番号",c.case_no],["案件名",c.case_title],["状態",label("case",c.status)[0]],["公開進捗",c.member_progress_code],["優先度",c.priority],["次の対応",c.next_action],["対応目安日",c.next_action_due_date?dateOnly(c.next_action_due_date):"未設定"],["期限確認状態",c.legal_deadline_review_status],["公開概要",c.public_summary],["内部概要",c.internal_summary]]),
+  detailCard("顧客・被相続人",[["顧客番号",cl.client_no],["顧客名",cl.full_name],["電話",cl.phone],["メール",cl.email],["被相続人",d.full_name||"未登録"],["死亡日",d.death_date?dateOnly(d.death_date):"未登録"],["最後の住所",d.last_address||"未登録"]]),
+  listCard("相続関係者",parties.map(x=>({title:`${x.full_name}（${x.relation_to_decedent||"続柄未確認"}）`,detail:`${x.legal_heir_confirmed?"相続人確認済み":"確認前"}・${x.contact_status||"連絡状況未確認"}`,badge:x.legal_heir_confirmed?["確認済み","success"]:["確認前","warning"]}))),
+  listCard("不動産",props.map(x=>({title:`${x.property_no||""} ${x.location_text||x.registry_location||"所在地未確認"}`.trim(),detail:`${propertyLabel(x.property_type)}・${x.registration_status||"状態未確認"}`,badge:x.registry_checked?["登記簿確認済み","success"]:["確認前","warning"]}))),
+  listCard("必要書類",docs.map(x=>({title:x.document_name,detail:`${x.status||"状態未確認"}${x.due_date?`・目安 ${dateOnly(x.due_date)}`:""}`,badge:docBadge(x.status)}))),
+  listCard("申請・補正",[
+   ...apps.map(x=>({title:`${x.application_no} ${applicationLabel(x.application_type)}`,detail:`${x.status}${x.receipt_number?`・${x.receipt_number}`:""}`,badge:appBadge(x.status)})),
+   ...cors.map(x=>({title:`補正 ${x.correction_no}`,detail:`${x.description}${x.due_date?`・期限 ${dateOnly(x.due_date)}`:""}`,badge:x.status==="resolved"?["解消済み","success"]:["対応中","warning"]}))
+  ]),
+  listCard("期限・タスク",[
+   ...dead.map(x=>({title:x.title,detail:`${x.confirmation_status==="confirmed"?"確定":"候補"}・${x.due_date?dateOnly(x.due_date):"日付未設定"}`,badge:x.confirmation_status==="confirmed"?["司法書士確認済み","success"]:["確認前","warning"]})),
+   ...tasks.map(x=>({title:x.title,detail:`${x.status}${x.due_at?`・${dateTime(x.due_at)}`:""}`,badge:x.status==="completed"?["完了","success"]:["未完了","neutral"]}))
+  ])
+ );
+ E.drawer_body.replaceChildren(wrap);
+}
+
+async function loadAppointments(){
+ setConnection("checking","予約一覧取得中");
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminAppointments,{query:{date:E.appt_date.value||undefined,status:E.appt_status.value||undefined}});
+ const rows=Array.isArray(r.appointments)?r.appointments:[];E.appt_body.replaceChildren();
+ if(!rows.length)emptyRow(E.appt_body,7,"該当する予約はありません。");
+ rows.forEach(x=>{
+  const tr=document.createElement("tr");
+  tr.append(primaryCell(dateTime(x.start_at),timeRange(x.start_at,x.end_at)),primaryCell(x.client?.full_name||"顧客未確認",x.client?.client_no||""),td(APPT_TYPE[x.appointment_type]||x.appointment_type||"相談"),td(METHOD[x.method]||x.method||"—"),td(x.staff?.display_name||"担当未設定"),badgeCell(...label("appointment",x.status)),primaryCell(x.location_text||"—",x.client_note||""));
+  E.appt_body.append(tr);
+ });
+ setConnection("ok","管理者ログイン済み");
+}
+
+async function loadLineLinks(){
+ setConnection("checking","LINE連携申請取得中");
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminLineLinkRequests,{query:{status:E.line_status.value||"pending"}});
+ const rows=Array.isArray(r.requests)?r.requests:[];E.line_body.replaceChildren();
+ if(!rows.length)emptyRow(E.line_body,7,"該当するLINE連携申請はありません。");
+ rows.forEach(x=>{
+  const tr=document.createElement("tr");
+  const acts=x.status==="pending"?[["確認",()=>openLine(x)]]:[];
+  tr.append(td(dateTime(x.requested_at)),primaryCell(x.client?.full_name||"顧客未確認",x.client?.client_no||""),primaryCell(x.client?.phone||"—",x.client?.phone_normalized||""),badgeCell(...label("line",x.client?.line_link_status)),td(dateTime(x.expires_at)),badgeCell(...label("link",x.status)),actionCell(acts));
+  E.line_body.append(tr);
+ });
+ setConnection("ok","管理者ログイン済み");
+}
+function openLine(x){
+ S.currentLine=x;E.line_summary.textContent=`${x.client?.client_no||"—"} ${x.client?.full_name||"顧客未確認"}様のLINE連携申請です。`;E.line_reason.value="";hideMessage(E.line_message);E.line_modal.classList.add("show");
+}
+function closeLineModal(){E.line_modal.classList.remove("show");S.currentLine=null}
+async function processLine(action){
+ if(!S.currentLine)return;
+ const b=action==="approve"?E.line_approve:E.line_reject,original=b.textContent;b.disabled=true;b.textContent="処理中";
+ try{
+  await adminFetch(`${window.DPRO_SHIHO_CONFIG.api.endpoints.adminLineLinkRequests}/${S.currentLine.id}`,{method:"PATCH",body:{action,reason:action==="reject"?E.line_reason.value.trim()||null:null}});
+  message(E.line_message,action==="approve"?"LINE連携を承認しました。":"LINE連携申請を却下しました。","success");
+  await Promise.all([loadLineLinks(),loadLineCount()]);setTimeout(closeLineModal,700);
+ }catch(error){message(E.line_message,error?.message||"処理できませんでした。","error")}
+ finally{b.disabled=false;b.textContent=original}
+}
+
+async function loadSettings(){
+ const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminSettings),o=r.office||{},s=r.settings||{};
+ value("s-name",o.office_name);value("s-subtitle",o.subtitle);value("s-representative",o.representative_name);value("s-phone",o.phone);value("s-email",o.email);value("s-website",o.website_url);value("s-pref",o.prefecture);value("s-city",o.city);value("s-address",o.address_line);value("s-booking",s.booking_window_days);value("s-url-seconds",s.signed_url_expiry_seconds);
+}
+async function saveSettings(e){
+ e.preventDefault();E.settings_save.disabled=true;E.settings_save.textContent="保存中";hideMessage(E.settings_message);
+ try{
+  const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminSettings,{method:"PATCH",body:{office:{office_name:get("s-name"),subtitle:get("s-subtitle"),representative_name:get("s-representative"),phone:get("s-phone"),email:get("s-email"),website_url:get("s-website"),prefecture:get("s-pref"),city:get("s-city"),address_line:get("s-address")},settings:{booking_window_days:Number(get("s-booking"))||90,signed_url_expiry_seconds:Number(get("s-url-seconds"))||300}}});
+  if(r.office?.office_name){S.office={...S.office,...r.office};E.header_office.textContent=r.office.office_name;E.side_office.textContent=r.office.office_name}
+  message(E.settings_message,"事務所設定を保存しました。","success");
+ }catch(error){message(E.settings_message,error?.message||"設定を保存できませんでした。","error")}
+ finally{E.settings_save.disabled=false;E.settings_save.textContent="設定を保存"}
+}
+
+async function runSystemCheck(){
+ E.system_check.disabled=true;E.system_check.textContent="検査中";
+ try{const r=await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminSystemCheck);renderChecks(r);await showSection("settings")}
+ catch(error){renderChecks({ok:false,message:error?.message});await showSection("settings")}
+ finally{E.system_check.disabled=false;E.system_check.textContent="system-check"}
+}
+function renderChecks(r){
+ const db=r.database||{},inner=db.database||{},checks={
+  "Worker・DB総合":!!r.ok,
+  "Supabase接続":!!db.ok,
+  "電話番号正規化":!!(inner.phone_normalization??inner.database?.phone_normalization),
+  "30分予約枠":!!(inner.slot_30_minutes??inner.database?.slot_30_minutes),
+  "production_guard":!!(db.office?.production_guard??inner.office?.production_guard),
+  "本番1234拒否":!!r.environment?.checks?.production_default_admin_code_blocked,
+  "LINE設定":!!r.environment?.checks?.production_line_channel,
+  "非公開書類パス":Number(inner.sensitive_public_path_count??inner.database?.sensitive_public_path_count??0)===0
+ };
+ const list=$("check-list");list.replaceChildren();
+ Object.entries(checks).forEach(([k,ok])=>{const row=document.createElement("div");row.className="check";const s=document.createElement("span");s.textContent=k;const strong=document.createElement("strong");strong.dataset.ok=String(ok);strong.textContent=ok?"OK":"要確認";row.append(s,strong);list.append(row)});
+}
+async function runDemoPrepare(){
+ if(!S.office?.is_demo){alert("本番事務所では実行できません。");return}
+ if(!confirm("デモ事務所のデータを初期状態へ戻します。続けますか？"))return;
+ E.demo_prepare.disabled=true;E.demo_prepare.textContent="再生成中";
+ try{await adminFetch(window.DPRO_SHIHO_CONFIG.api.endpoints.adminDemoPrepare,{method:"POST",body:{}});alert("デモデータを再生成しました。再ログインします。");logout(false)}
+ catch(error){alert(error?.message||"再生成できませんでした。")}
+ finally{E.demo_prepare.disabled=false;E.demo_prepare.textContent="デモデータ再生成"}
+}
+
+async function showSection(name){
+ S.section=name;
+ document.querySelectorAll("[data-target]").forEach(b=>b.classList.toggle("active",b.dataset.target===name));
+ document.querySelectorAll("[data-section]").forEach(s=>s.classList.toggle("active",s.dataset.section===name));
+ closeMenu();scrollTo({top:0,behavior:"smooth"});
+ const h={dashboard:loadDashboard,inquiries:loadInquiries,clients:loadClients,cases:loadCases,appointments:loadAppointments,line:loadLineLinks,staff:loadStaff,settings:loadSettings};
+ try{await (h[name]||loadDashboard)()}catch{setConnection("error","取得エラー")}
+}
+async function refresh(){E.refresh_button.disabled=true;E.refresh_button.textContent="更新中";try{await showSection(S.section)}finally{E.refresh_button.disabled=false;E.refresh_button.textContent="更新"}}
+function toggleMenu(){E.sidebar.classList.toggle("open");E.overlay.classList.toggle("show")}
+function closeMenu(){E.sidebar.classList.remove("open");E.overlay.classList.remove("show")}
+function logout(reload=true){sessionStorage.removeItem(SESSION);S.token=null;if(reload)location.reload();else location.href=location.pathname+(S.demo?"?demo=1":"")}
+function setConnection(status,t){E.connection_badge.dataset.status=status;E.connection_text.textContent=t}
+
+function renderCompact(container,rows,empty){
+ container.replaceChildren();if(!rows.length){container.append(emptyState(empty));return}
+ rows.forEach(x=>{const a=document.createElement("article");a.className="compact";const i=document.createElement("div");i.className="cicon";i.textContent=x.icon;const c=document.createElement("div");c.className="ctext";const st=document.createElement("strong");st.textContent=x.title;const sp=document.createElement("span");sp.textContent=x.detail||"";c.append(st,sp);const d=document.createElement("div");d.className="cdate";d.textContent=x.date||"";a.append(i,c,d);container.append(a)});
+}
+function detailCard(title,rows){
+ const c=document.createElement("section");c.className="detail-card";const h=document.createElement("h3");h.textContent=title;const dl=document.createElement("dl");dl.className="dlist";
+ rows.forEach(([k,v])=>{const r=document.createElement("div");r.className="drow";const dt=document.createElement("dt");dt.textContent=k;const dd=document.createElement("dd");dd.textContent=v||"—";r.append(dt,dd);dl.append(r)});c.append(h,dl);return c;
+}
+function listCard(title,items){
+ const c=document.createElement("section");c.className="detail-card full";const h=document.createElement("h3");h.textContent=title;const list=document.createElement("div");list.className="sub-list";
+ if(!items.length)list.append(emptyState("登録情報はありません。"));
+ items.forEach(x=>{const r=document.createElement("article");r.className="sub-item";const t=document.createElement("div");const st=document.createElement("strong");st.textContent=x.title||"—";const sp=document.createElement("span");sp.textContent=x.detail||"";t.append(st,sp);r.append(t,statusBadge(x.badge?.[0]||"確認中",x.badge?.[1]||"neutral"));list.append(r)});c.append(h,list);return c;
+}
+function td(v,cls=""){const e=document.createElement("td");e.textContent=v??"—";if(cls)e.className=cls;return e}
+function primaryCell(a,b=""){const e=document.createElement("td"),s=document.createElement("span");s.className="main-cell";s.textContent=a||"—";e.append(s);if(b){const x=document.createElement("span");x.className="subtext";x.textContent=b;e.append(x)}return e}
+function badgeCell(a,b){const e=document.createElement("td");e.append(statusBadge(a,b));return e}
+function statusBadge(a,b="neutral"){const e=document.createElement("span");e.className="status";e.dataset.tone=b;e.textContent=a;return e}
+function actionCell(specs){const e=document.createElement("td"),w=document.createElement("div");w.className="actions";specs.forEach(([txt,fn])=>{const b=document.createElement("button");b.className="small primary";b.type="button";b.textContent=txt;b.addEventListener("click",fn);w.append(b)});e.append(w);return e}
+function emptyRow(tbody,n,msg){const tr=document.createElement("tr"),d=document.createElement("td");d.colSpan=n;d.append(emptyState(msg));tr.append(d);tbody.append(tr)}
+function emptyState(msg){const e=document.createElement("div");e.className="empty";const d=document.createElement("div"),s=document.createElement("strong");s.textContent="現在の表示";d.append(s,document.createTextNode(msg));e.append(d);return e}
+function label(group,code){return LABELS[group]?.[code]||[code||"未確認","neutral"]}
+function message(el,msg,tone){el.textContent=msg;el.dataset.tone=tone;el.classList.add("show")}
+function hideMessage(el){el.textContent="";el.classList.remove("show")}
+function text(id,v){const e=$(id);if(e)e.textContent=v}
+function value(id,v){const e=$(id);if(e)e.value=v??""}
+function get(id){return $(id)?.value?.trim()||""}
+function arr(v){return Array.isArray(v)?v:[]}
+function dateTime(v){if(!v)return"—";return new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"numeric",day:"numeric",weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(v))}
+function dateOnly(v){if(!v)return"—";const d=String(v).includes("T")?new Date(v):new Date(`${v}T12:00:00+09:00`);return new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"numeric",day:"numeric",weekday:"short"}).format(d)}
+function timeRange(a,b){if(!a||!b)return"—";const f=new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",hour:"2-digit",minute:"2-digit",hour12:false});return`${f.format(new Date(a))}～${f.format(new Date(b))}`}
+function contactLabel(v){return{line:"LINE",phone:"電話",email:"メール",mail:"郵送",in_person:"来所"}[v]||v||"未設定"}
+function propertyLabel(v){return{land:"土地",building:"建物",condominium:"区分建物",unknown:"種類未確認",other:"その他"}[v]||v||"未確認"}
+function applicationLabel(v){return{inheritance_registration:"相続登記",heir_declaration_registration:"相続人申告登記",address_change_registration:"住所変更登記",name_change_registration:"氏名変更登記",legal_heir_information:"法定相続情報",mortgage_cancellation:"抵当権抹消",other_registration:"その他登記",other:"その他"}[v]||v||"申請"}
+function docBadge(v){const m={not_submitted:["未提出","warning"],partially_submitted:["一部提出","warning"],received:["受領済み","neutral"],reviewing:["確認中","neutral"],insufficient:["不足あり","danger"],replacement_requested:["差し替え","danger"],verified:["確認完了","success"],original_required:["原本必要","warning"],original_received:["原本受領","success"],returned:["返却済み","success"]};return m[v]||[v||"確認中","neutral"]}
+function appBadge(v){const m={not_prepared:["未準備","neutral"],preparing:["準備中","warning"],final_review:["最終確認","purple"],ready:["申請可能","success"],submitted:["申請済み","success"],receipt_registered:["受付登録済み","success"],correction:["補正中","warning"],withdrawn:["取下げ","danger"],completed:["完了","success"],rejected:["却下","danger"],on_hold:["保留","danger"]};return m[v]||[v||"確認中","neutral"]}
+})();
+</script>
+</body>
+</html>
