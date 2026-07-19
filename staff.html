@@ -1547,6 +1547,7 @@ html {
   </div>
 
   <!-- STEP SHIHO-9-R1: スタッフモバイル文字・ボタン拡大 -->
+<!-- STEP SHIHO-12-R1: demo-only autologin -->
 <script src="./config.js"></script>
   <script>
     (() => {
@@ -1688,6 +1689,11 @@ html {
           state.staff = session.staff;
           openApp();
           loadInitial().catch(handleLoadError);
+        } else if (
+          state.demoMode &&
+          new URLSearchParams(window.location.search).get("autologin") === "1"
+        ) {
+          window.setTimeout(() => dom.loginForm.requestSubmit(), 0);
         }
       }
 

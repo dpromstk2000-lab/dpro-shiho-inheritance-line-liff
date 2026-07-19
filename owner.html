@@ -404,6 +404,7 @@ td {
 
 <div class="modal-bg" id="line-modal"><div class="modal"><div class="modal-head"><h2>LINE連携申請を確認</h2><button class="close" id="line-modal-close">×</button></div><div class="modal-body"><p id="line-summary" style="margin-top:0;color:#526071"></p><div class="field"><label for="line-reason">却下理由（却下時のみ）</label><textarea class="control" id="line-reason"></textarea></div><div class="msg" id="line-message"></div></div><div class="modal-actions"><button class="secondary" id="line-cancel">閉じる</button><button class="danger" id="line-reject">却下</button><button class="primary" id="line-approve">承認</button></div></div></div>
 
+<!-- STEP SHIHO-12-R1: demo-only autologin and section deep link -->
 <script src="./config.js"></script>
 <script>
 
@@ -474,6 +475,8 @@ function init(){
    if([401,403].includes(Number(error?.status))) logout(false);
    else setConnection("error","接続エラー");
   });
+ }else if(S.demo&&new URLSearchParams(location.search).get("autologin")==="1"){
+  setTimeout(()=>E.login_form.requestSubmit(),0);
  }
 }
 
@@ -546,6 +549,9 @@ async function loadInitial(){
  setConnection("checking","データ取得中");
  await Promise.all([loadStaff(),loadDashboard(),loadLineCount()]);
  setConnection("ok","管理者ログイン済み");
+ const requested=new URLSearchParams(location.search).get("section");
+ const allowed=["dashboard","inquiries","clients","cases","appointments","line","staff","settings"];
+ if(requested&&allowed.includes(requested)&&requested!==S.section){await showSection(requested)}
 }
 
 async function loadDashboard(){
