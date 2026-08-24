@@ -14,6 +14,10 @@
     "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff";
   const API_BASE_URL =
     "https://dpro-shiho-inheritance-line-api.dpromstk2000.workers.dev";
+  const PRODUCT_READY_R2_BASE_URL =
+    "https://cbknucemarcpbscirzyv.supabase.co/functions/v1/dpro-shiho-product-ready-v2";
+  const MEMBER_R2_BASE_URL =
+    "https://cbknucemarcpbscirzyv.supabase.co/functions/v1/dpro-shiho-member-r2";
 
   const CONFIG = Object.freeze({
     system: Object.freeze({
@@ -22,7 +26,7 @@
       shortName: "司法書士・相続登記",
       subtitle:
         "相続相談・必要書類・相続人／不動産整理・登記進捗・期限案内をLINEで一元管理",
-      version: "SHIHO-4-GITHUB-PAGES-BASE-20260718",
+      version: "SHIHO-FRONT-PR-R2-20260824",
       officeCode: "dpro_shiho_demo",
       officeName: "DPRO司法書士・相続登記事務所",
       timezone: "Asia/Tokyo",
@@ -41,6 +45,23 @@
         "https://github.com/dpromstk2000-lab/dpro-shiho-inheritance-line-liff/settings/pages",
     }),
 
+    productReady: Object.freeze({
+      version: "SHIHO-FRONT-PR-R2-20260824",
+      gatewayBaseUrl: PRODUCT_READY_R2_BASE_URL,
+      memberGatewayBaseUrl: MEMBER_R2_BASE_URL,
+      canonicalDemoUrl: `${SITE_BASE_URL}/owner.html?demo=1`,
+      storageBinding: true,
+      supportRecovery: false,
+      websiteSync: false,
+      serviceBinding: false,
+    }),
+
+    line: Object.freeze({
+      liffId: "",
+      bindingStatus: "deferred_until_contract",
+      identityAuthority: "LIFF_ID_TOKEN_SERVER_VERIFY",
+    }),
+
     api: Object.freeze({
       baseUrl: API_BASE_URL,
       timeoutMs: 15000,
@@ -51,7 +72,8 @@
         publicCategories: "/api/public/categories",
         publicAvailability: "/api/public/availability",
         publicInquiry: "/api/public/inquiry",
-        memberSession: "/api/public/member/session",
+        memberSession: "/api/member/session",
+        memberSessionRevoke: "/api/member/session/revoke",
         memberSummary: "/api/member/summary",
         memberDocuments: "/api/member/documents",
         memberAppointments: "/api/member/appointments",
@@ -136,7 +158,9 @@
 
   function apiUrl(path, query = undefined) {
     const normalizedPath = `/${trimSlashes(path)}`;
-    const url = new URL(`${CONFIG.api.baseUrl}${normalizedPath}`);
+    const memberR2 = normalizedPath === "/api/member/session" || normalizedPath.startsWith("/api/member/");
+    const baseUrl = memberR2 ? CONFIG.productReady.memberGatewayBaseUrl : CONFIG.api.baseUrl;
+    const url = new URL(`${baseUrl}${normalizedPath}`);
 
     if (query && typeof query === "object") {
       Object.entries(query).forEach(([key, value]) => {
@@ -278,4 +302,12 @@
     configurable: false,
     enumerable: true,
   });
+
+  if (!document.querySelector('script[data-dpro-shiho-r2]')) {
+    const bridge = document.createElement("script");
+    bridge.src = `${SITE_BASE_URL}/product-ready-r2.js?v=SHIHO-FRONT-PR-R2-20260824`;
+    bridge.defer = true;
+    bridge.dataset.dproShihoR2 = "1";
+    (document.head || document.documentElement).appendChild(bridge);
+  }
 })();

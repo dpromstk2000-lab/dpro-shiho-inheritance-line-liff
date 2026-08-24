@@ -1415,6 +1415,7 @@
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="./config.js"></script>
+  <!-- SHIHO-FRONT-PR-R2-20260824 / LIFF ID Token authority -->
   <script>
     (() => {
       "use strict";
@@ -1637,7 +1638,7 @@
             method: "POST",
             body: {
               demo: true,
-              line_user_id: window.DPRO_SHIHO_CONFIG.demo.lineUserId,
+              demo_line_user_id: window.DPRO_SHIHO_CONFIG.demo.lineUserId,
             },
           },
         );
@@ -1662,10 +1663,10 @@
           throw new Error("LINEログイン画面へ移動します。");
         }
 
-        const accessToken = window.liff.getAccessToken();
-        if (!accessToken) {
-          const error = new Error("LINE認証情報を取得できませんでした。");
-          error.code = "LINE_ACCESS_TOKEN_MISSING";
+        const idToken = window.liff.getIDToken();
+        if (!idToken) {
+          const error = new Error("LINE ID Tokenを取得できませんでした。");
+          error.code = "LINE_ID_TOKEN_MISSING";
           throw error;
         }
 
@@ -1673,7 +1674,7 @@
           window.DPRO_SHIHO_CONFIG.api.endpoints.memberSession,
           {
             method: "POST",
-            body: { access_token: accessToken },
+            body: { line_id_token: idToken },
           },
         );
         acceptSession(result);
@@ -2351,7 +2352,18 @@
         });
       }
 
-      function logout() {
+      async function logout() {
+        const token = state.token;
+        if (token) {
+          try {
+            await window.DPRO_SHIHO.apiFetch(
+              window.DPRO_SHIHO_CONFIG.api.endpoints.memberSessionRevoke,
+              { method: "POST", token, body: {} },
+            );
+          } catch {
+            // ローカル破棄を優先し、通信失敗時も端末側セッションを残さない。
+          }
+        }
         clearSession();
         if (!state.demoMode && window.liff?.isLoggedIn?.()) {
           try {
