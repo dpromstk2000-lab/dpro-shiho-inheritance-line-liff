@@ -1,0 +1,25 @@
+HTTP/2 204 
+date: Mon, 24 Aug 2026 11:06:56 GMT
+cf-ray: a301e3f16ba4ec4c-SEA
+cf-cache-status: DYNAMIC
+access-control-allow-origin: https://dpromstk2000-lab.github.io
+cache-control: no-store
+server: cloudflare
+vary: Accept-Encoding, Origin
+access-control-allow-headers: Content-Type,Authorization,X-Member-Session,X-Line-ID-Token,X-Request-ID
+access-control-allow-methods: GET,POST,OPTIONS
+access-control-max-age: 86400
+endpoint-load-metrics: application_utilization:6,named_metrics.queue_depth:6
+referrer-policy: no-referrer
+sb-gateway-version: 1
+sb-project-ref: cbknucemarcpbscirzyv
+sb-request-id: 01a03373-b2f3-7bfa-873b-ca32350f39c7
+x-content-type-options: nosniff
+x-deno-execution-id: 968c6505-6db5-4db2-86a6-b9437e59c8fa
+x-dpro-version: SHIHO-PR2-MEMBER-CORS-R1-20260824
+x-sb-edge-region: us-west-2
+x-served-by: supabase-edge-runtime
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+set-cookie: __cf_bm=D79mtN1EesLEm2lOMN1b9Emy5V..WdXmZlrNkhnnwk8-1787569615.5864723-1.0.1.1-DwD2mLhZKYQ3hsgA_VS_K9bglFnaR6DEQ.wXaIJKP5pPzuq48Yuv3QveRaQvsyW6YtrY.OxEUZjPqAOWs_lmoZ4OtSawCpJ2lUDu1fmljYAsQvhwyTlhaiZaD9174ldq; HttpOnly; SameSite=None; Secure; Path=/; Domain=supabase.co; Expires=Mon, 24 Aug 2026 11:36:56 GMT
+alt-svc: h3=":443"; ma=86400
+

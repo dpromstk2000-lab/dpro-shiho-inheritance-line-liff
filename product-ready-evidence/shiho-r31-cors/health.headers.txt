@@ -1,0 +1,26 @@
+HTTP/2 200 
+date: Mon, 24 Aug 2026 11:06:56 GMT
+content-type: application/json; charset=utf-8
+cf-ray: a301e3f46932a368-SEA
+cf-cache-status: DYNAMIC
+access-control-allow-origin: https://dpromstk2000-lab.github.io
+cache-control: no-store
+set-cookie: __cf_bm=wNHEH2WrFdfahCqxWUOKHaQ9pXZ8OtVzaIjfrLLwGEc-1787569616.071569-1.0.1.1-qMtDKKw0lzsOgod_4mgKCuDUnIkm7BVqS39TzWkUXbdrTM786r0fYbz5HWZepCR6w2v1tb3ZZ0E6jMmZxk4bnhD301PfsNyAPGxKNQvKAzfPr6TEEuaCj5c1Y_lXFtPc; HttpOnly; SameSite=None; Secure; Path=/; Domain=supabase.co; Expires=Mon, 24 Aug 2026 11:36:56 GMT
+server: cloudflare
+vary: Accept-Encoding, Origin
+access-control-allow-headers: Content-Type,Authorization,X-Member-Session,X-Line-ID-Token,X-Request-ID
+access-control-allow-methods: GET,POST,OPTIONS
+access-control-max-age: 86400
+endpoint-load-metrics: application_utilization:6,named_metrics.queue_depth:6
+referrer-policy: no-referrer
+sb-gateway-version: 1
+sb-project-ref: cbknucemarcpbscirzyv
+sb-request-id: 01a03373-b4cf-7678-ad22-33cd44e86acb
+x-content-type-options: nosniff
+x-deno-execution-id: 597b3de6-c1ea-4f48-bfbf-8dbb81264e81
+x-dpro-version: SHIHO-PR2-MEMBER-CORS-R1-20260824
+x-sb-edge-region: us-west-2
+x-served-by: supabase-edge-runtime
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+alt-svc: h3=":443"; ma=86400
+
