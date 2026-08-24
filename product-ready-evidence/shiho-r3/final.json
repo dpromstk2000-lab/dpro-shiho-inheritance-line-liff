@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "checkedAt": "2026-08-24T10:51:04.117548+00:00",
+  "sourceHead": "84e2fedd58f27635f6a46de54c03d9596c48ad75",
+  "closesReadyItems": [
+    "READY-006",
+    "READY-018",
+    "READY-019",
+    "READY-020",
+    "READY-021",
+    "READY-023",
+    "READY-028"
+  ],
+  "ready039AlreadyCentralPass": true,
+  "ready041AlreadyCentralPass": true,
+  "nonblockingReady030": "recorded_only",
+  "finalLockSelfConfirmed": false
+}
