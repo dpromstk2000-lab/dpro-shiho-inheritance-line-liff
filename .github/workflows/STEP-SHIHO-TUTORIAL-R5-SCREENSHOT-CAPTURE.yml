@@ -1,0 +1,78 @@
+name: DPRO SHIHO R5 Screenshot Capture
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/STEP-SHIHO-TUTORIAL-R5-SCREENSHOT-CAPTURE.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shiho-r5-screenshot-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify R4 product lock and no product drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          R4_LOCK='65bd0afff4456f7d5872d9c200e1c2fce8a6289d'
+          R4_TREE='46fd860f7210c4108fce80583fe75ca8a667d843'
+          git merge-base --is-ancestor "$R4_LOCK" HEAD
+          test "$(git rev-parse "$R4_LOCK^{tree}")" = "$R4_TREE"
+          unexpected="$(git diff --name-only "$R4_LOCK"..HEAD | grep -Ev '^\.github/workflows/(STEP-SHIHO-TUTORIAL-R4-FINAL-REGRESSION-VERIFY|STEP-SHIHO-TUTORIAL-R5-SCREENSHOT-CAPTURE)\.yml$' || true)"
+          test -z "$unexpected"
+          grep -q 'STANDARD V1.1 / R4' guide-center.html
+          grep -q 'R3-RECOVERY3-POINTER-PASSTHROUGH' tutorial.css
+          echo "R4_LOCK=$R4_LOCK" > screenshot-source-lock.txt
+          echo "R4_TREE=$R4_TREE" >> screenshot-source-lock.txt
+          echo "ENTRY_HEAD=$(git rev-parse HEAD)" >> screenshot-source-lock.txt
+          echo "PRODUCT_SOURCE_DRIFT=0" >> screenshot-source-lock.txt
+
+      - name: Install Playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/shiho-r5 && cd /tmp/shiho-r5
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+          echo 'CmltcG9ydCB7IGNocm9taXVtIH0gZnJvbSAncGxheXdyaWdodCc7CmltcG9ydCBmcyBmcm9tICdmcyc7CmNvbnN0IEJBU0U9J2h0dHBzOi8vZHByb21zdGsyMDAwLWxhYi5naXRodWIuaW8vZHByby1zaGloby1pbmhlcml0YW5jZS1saW5lLWxpZmYvJzsKY29uc3QgT1VUPXByb2Nlc3MuZW52Lk9VVCB8fCAnc2NyZWVucyc7CmZzLm1rZGlyU3luYyhPVVQse3JlY3Vyc2l2ZTp0cnVlfSk7CmNvbnN0IG11dGF0aW9ucz1bXTsKY29uc3QgYWxsb3dlZD11ID0+IC9cL2FwaVwvbWVtYmVyXC9zZXNzaW9uKD86XD98JCkvLnRlc3QodSkgfHwgL1wvYXBpXC9hZG1pblwvbG9naW4oPzpcP3wkKS8udGVzdCh1KTsKY29uc3QgbWV0YT1bXTsKCmNvbnN0IGJyb3dzZXI9YXdhaXQgY2hyb21pdW0ubGF1bmNoKHtoZWFkbGVzczp0cnVlfSk7CmNvbnN0IGN0eD1hd2FpdCBicm93c2VyLm5ld0NvbnRleHQoe3ZpZXdwb3J0Ont3aWR0aDoxNDQwLGhlaWdodDoxMDAwfSxkZXZpY2VTY2FsZUZhY3RvcjoxfSk7CmNvbnN0IHA9YXdhaXQgY3R4Lm5ld1BhZ2UoKTsKcC5zZXREZWZhdWx0VGltZW91dCgxNTAwMCk7CnAuc2V0RGVmYXVsdE5hdmlnYXRpb25UaW1lb3V0KDI1MDAwKTsKcC5vbigncmVxdWVzdCcscj0+ewogIGlmKFsnUE9TVCcsJ1BVVCcsJ1BBVENIJywnREVMRVRFJ10uaW5jbHVkZXMoci5tZXRob2QoKSkpCiAgICBtdXRhdGlvbnMucHVzaCh7bWV0aG9kOnIubWV0aG9kKCksdXJsOnIudXJsKCl9KTsKfSk7CnAub24oJ3BhZ2VlcnJvcicsZT0+bWV0YS5wdXNoKHtraW5kOidwYWdlZXJyb3InLG1lc3NhZ2U6U3RyaW5nKGU/LnN0YWNrfHxlKX0pKTsKCmFzeW5jIGZ1bmN0aW9uIHNob3QobmFtZSx1cmwse3dhaXRTZWw9bnVsbCxhZnRlcj1udWxsLGZ1bGxQYWdlPWZhbHNlfT17fSl7CiAgYXdhaXQgcC5nb3RvKEJBU0UrdXJsLHt3YWl0VW50aWw6J2RvbWNvbnRlbnRsb2FkZWQnfSk7CiAgaWYod2FpdFNlbCkgYXdhaXQgcC5sb2NhdG9yKHdhaXRTZWwpLndhaXRGb3Ioe3N0YXRlOid2aXNpYmxlJyx0aW1lb3V0OjI1MDAwfSk7CiAgaWYoYWZ0ZXIpIGF3YWl0IGFmdGVyKCk7CiAgYXdhaXQgcC53YWl0Rm9yVGltZW91dCg1MDApOwogIGF3YWl0IHAuc2NyZWVuc2hvdCh7cGF0aDpgJHtPVVR9LyR7bmFtZX0ucG5nYCxmdWxsUGFnZX0pOwogIG1ldGEucHVzaCh7bmFtZSx1cmw6cC51cmwoKSx0aXRsZTphd2FpdCBwLnRpdGxlKCksc2l6ZTphd2FpdCBwLmV2YWx1YXRlKCgpPT4oe3c6aW5uZXJXaWR0aCxoOmlubmVySGVpZ2h0LHN3OmRvY3VtZW50LmRvY3VtZW50RWxlbWVudC5zY3JvbGxXaWR0aCxzaDpkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuc2Nyb2xsSGVpZ2h0fSkpfSk7Cn0KCi8vIEd1aWRlIC8gRmlyc3QxMAphd2FpdCBzaG90KCcwMV9kZW1vX2d1aWRlJywnZGVtby1ndWlkZS5odG1sP2RlbW89MScpOwphd2FpdCBzaG90KCcwMl9ndWlkZV9jZW50ZXInLCdndWlkZS1jZW50ZXIuaHRtbD9kZW1vPTEnKTsKYXdhaXQgc2hvdCgnMDNfZmlyc3QxMF9zdGVwMScsJ2RlbW8tZ3VpZGUuaHRtbD9kZW1vPTEmdHV0b3JpYWw9c3RhcnQnLHsKICB3YWl0U2VsOicuZHByby10dXRvcmlhbC1jYXJkLmlzLXZpc2libGUnCn0pOwoKLy8gQ29uc3VsdGF0aW9uIGludGFrZQphd2FpdCBzaG90KCcwNF9jb25zdWx0YXRpb25faW50YWtlJywnaW5kZXguaHRtbD9kZW1vPTEnLHt3YWl0U2VsOicjd2l6YXJkLXByb2dyZXNzJ30pOwoKLy8gTWVtYmVyIGF1dG8gZGVtbyBzZXNzaW9uIChwYWdlIGJlaGF2aW9yKQphd2FpdCBzaG90KCcwNV9tZW1iZXJfZGFzaGJvYXJkJywnbWVtYmVyLmh0bWw/ZGVtbz0xJyx7d2FpdFNlbDonI2Rhc2hib2FyZC5pcy12aXNpYmxlJ30pOwphd2FpdCBwLmxvY2F0b3IoJ1tkYXRhLXNlY3Rpb24tdGFyZ2V0PSJkb2N1bWVudHMiXScpLmNsaWNrKCk7CmF3YWl0IHAud2FpdEZvclRpbWVvdXQoMzAwKTsKYXdhaXQgcC5zY3JlZW5zaG90KHtwYXRoOmAke09VVH0vMDZfbWVtYmVyX2RvY3VtZW50cy5wbmdgLGZ1bGxQYWdlOmZhbHNlfSk7Cm1ldGEucHVzaCh7bmFtZTonMDZfbWVtYmVyX2RvY3VtZW50cycsdXJsOnAudXJsKCksdGl0bGU6YXdhaXQgcC50aXRsZSgpfSk7CgovLyBTdGFmZjogY2FwdHVyZSBsb2dpbiwgdGhlbiBub3JtYWwgdXNlci1lcXVpdmFsZW50IGxvZ2luIGZvciBzY3JlZW5zaG90IG9ubHkKYXdhaXQgcC5nb3RvKEJBU0UrJ3N0YWZmLmh0bWw/ZGVtbz0xJyx7d2FpdFVudGlsOidkb21jb250ZW50bG9hZGVkJ30pOwphd2FpdCBwLmxvY2F0b3IoJyNsb2dpbi1mb3JtJykud2FpdEZvcih7c3RhdGU6J3Zpc2libGUnLHRpbWVvdXQ6MTUwMDB9KTsKYXdhaXQgcC5zY3JlZW5zaG90KHtwYXRoOmAke09VVH0vMDdfc3RhZmZfbG9naW4ucG5nYCxmdWxsUGFnZTpmYWxzZX0pOwphd2FpdCBwLmxvY2F0b3IoJyNhZG1pbi1jb2RlJykuZmlsbCgnMTIzNCcpOwphd2FpdCBwLmxvY2F0b3IoJyNsb2dpbi1idXR0b24nKS5jbGljayh7dGltZW91dDo4MDAwfSk7CmF3YWl0IHAubG9jYXRvcignI3N0YWZmLWFwcC5zaG93Jykud2FpdEZvcih7c3RhdGU6J3Zpc2libGUnLHRpbWVvdXQ6MjUwMDB9KTsKYXdhaXQgcC53YWl0Rm9yVGltZW91dCg1MDApOwphd2FpdCBwLnNjcmVlbnNob3Qoe3BhdGg6YCR7T1VUfS8wOF9zdGFmZl9kYXNoYm9hcmQucG5nYCxmdWxsUGFnZTpmYWxzZX0pOwptZXRhLnB1c2goe25hbWU6JzA4X3N0YWZmX2Rhc2hib2FyZCcsdXJsOnAudXJsKCksdGl0bGU6YXdhaXQgcC50aXRsZSgpfSk7CgovLyBPd25lcjogY2FwdHVyZSBsb2dpbiBpZiBzaG93biwgdGhlbiBub3JtYWwgdXNlci1lcXVpdmFsZW50IGxvZ2luIGlmIG5lZWRlZAphd2FpdCBwLmdvdG8oQkFTRSsnb3duZXIuaHRtbD9kZW1vPTEnLHt3YWl0VW50aWw6J2RvbWNvbnRlbnRsb2FkZWQnfSk7CmlmKGF3YWl0IHAubG9jYXRvcignI2xvZ2luLWZvcm0nKS5pc1Zpc2libGUoKS5jYXRjaCgoKT0+ZmFsc2UpKXsKICBhd2FpdCBwLnNjcmVlbnNob3Qoe3BhdGg6YCR7T1VUfS8wOV9vd25lcl9sb2dpbi5wbmdgLGZ1bGxQYWdlOmZhbHNlfSk7CiAgYXdhaXQgcC5sb2NhdG9yKCcjYWRtaW4tY29kZScpLmZpbGwoJzEyMzQnKTsKICBhd2FpdCBwLmxvY2F0b3IoJyNsb2dpbi1idXR0b24nKS5jbGljayh7dGltZW91dDo4MDAwfSk7Cn0KYXdhaXQgcC5sb2NhdG9yKCcjb3duZXItYXBwLnNob3cnKS53YWl0Rm9yKHtzdGF0ZTondmlzaWJsZScsdGltZW91dDoyNTAwMH0pOwphd2FpdCBwLndhaXRGb3JUaW1lb3V0KDUwMCk7CmF3YWl0IHAuc2NyZWVuc2hvdCh7cGF0aDpgJHtPVVR9LzEwX293bmVyX2Rhc2hib2FyZC5wbmdgLGZ1bGxQYWdlOmZhbHNlfSk7Cm1ldGEucHVzaCh7bmFtZTonMTBfb3duZXJfZGFzaGJvYXJkJyx1cmw6cC51cmwoKSx0aXRsZTphd2FpdCBwLnRpdGxlKCl9KTsKCi8vIE93bmVyIGlQYWQ6IHNhbWUgYXV0aGVudGljYXRlZCBjb250ZXh0IHdoZXJlIHBvc3NpYmxlCmF3YWl0IHAuZ290byhCQVNFKydvd25lci1pcGFkLmh0bWw/ZGVtbz0xJyx7d2FpdFVudGlsOidkb21jb250ZW50bG9hZGVkJ30pOwphd2FpdCBwLndhaXRGb3JUaW1lb3V0KDEyMDApOwphd2FpdCBwLnNjcmVlbnNob3Qoe3BhdGg6YCR7T1VUfS8xMV9vd25lcl9pcGFkLnBuZ2AsZnVsbFBhZ2U6ZmFsc2V9KTsKbWV0YS5wdXNoKHtuYW1lOicxMV9vd25lcl9pcGFkJyx1cmw6cC51cmwoKSx0aXRsZTphd2FpdCBwLnRpdGxlKCl9KTsKCi8vIFN5c3RlbSBjaGVjawphd2FpdCBwLmdvdG8oQkFTRSsnc3lzdGVtLWNoZWNrLmh0bWw/ZGVtbz0xJyx7d2FpdFVudGlsOidkb21jb250ZW50bG9hZGVkJ30pOwphd2FpdCBwLndhaXRGb3JUaW1lb3V0KDEyMDApOwphd2FpdCBwLnNjcmVlbnNob3Qoe3BhdGg6YCR7T1VUfS8xMl9zeXN0ZW1fY2hlY2sucG5nYCxmdWxsUGFnZTpmYWxzZX0pOwptZXRhLnB1c2goe25hbWU6JzEyX3N5c3RlbV9jaGVjaycsdXJsOnAudXJsKCksdGl0bGU6YXdhaXQgcC50aXRsZSgpfSk7CgovLyBNb2JpbGUgc2FtcGxlIGZvciBmaXJzdC11c2UgZG9jcwphd2FpdCBwLnNldFZpZXdwb3J0U2l6ZSh7d2lkdGg6MzkwLGhlaWdodDo4NDR9KTsKYXdhaXQgc2hvdCgnMTNfbWVtYmVyX21vYmlsZScsJ21lbWJlci5odG1sP2RlbW89MScse3dhaXRTZWw6JyNkYXNoYm9hcmQuaXMtdmlzaWJsZSd9KTsKYXdhaXQgc2hvdCgnMTRfZ3VpZGVfY2VudGVyX21vYmlsZScsJ2d1aWRlLWNlbnRlci5odG1sP2RlbW89MScpOwoKY29uc3QgYnVzaW5lc3M9bXV0YXRpb25zLmZpbHRlcih4PT4hYWxsb3dlZCh4LnVybCkpOwpmcy53cml0ZUZpbGVTeW5jKGAke09VVH0vU0NSRUVOU0hPVF9DQVBUVVJFX0VWSURFTkNFLmpzb25gLEpTT04uc3RyaW5naWZ5KHsKICBvazpidXNpbmVzcy5sZW5ndGg9PT0wLAogIGNhcHR1cmVkQXQ6bmV3IERhdGUoKS50b0lTT1N0cmluZygpLAogIHNvdXJjZTonY3VycmVudCBHaXRIdWIgUGFnZXMnLAogIHNjcmVlbnNob3RzOm1ldGEsCiAgYWxsTXV0YXRpb25zOm11dGF0aW9ucywKICBidXNpbmVzc011dGF0aW9uQ291bnQ6YnVzaW5lc3MubGVuZ3RoLAogIGJ1c2luZXNzTXV0YXRpb25zOmJ1c2luZXNzLAogIG5vdGU6J21lbWJlciBzZXNzaW9uIGFuZCBzdGFmZi9vd25lciBhZG1pbiBsb2dpbiBhcmUgYXV0aGVudGljYXRpb24vc2Vzc2lvbiBhY3Rpb25zIHVzZWQgb25seSB0byByZW5kZXIgY3VycmVudCBkZW1vIHNjcmVlbnMnCn0sbnVsbCwyKSsnXG4nKTsKYXdhaXQgYnJvd3Nlci5jbG9zZSgpOwppZihidXNpbmVzcy5sZW5ndGgpIHByb2Nlc3MuZXhpdCgyKTsK' | base64 -d > capture.mjs
+          node --check capture.mjs
+
+      - name: Capture current Pages screens
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-r5
+          timeout --signal=TERM --kill-after=10s 3m env OUT="$GITHUB_WORKSPACE/r5-screens" node capture.mjs
+          test -f "$GITHUB_WORKSPACE/r5-screens/SCREENSHOT_CAPTURE_EVIDENCE.json"
+          python - <<'PY'
+          import json
+          d=json.load(open('r5-screens/SCREENSHOT_CAPTURE_EVIDENCE.json'))
+          assert d['ok'] is True
+          assert d['businessMutationCount']==0
+          print('screens=',len([x for x in d['screenshots'] if 'name' in x]))
+          print('businessMutationCount=',d['businessMutationCount'])
+          PY
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHIHO-R5-CURRENT-SCREENSHOTS
+          path: |
+            r5-screens/*.png
+            r5-screens/SCREENSHOT_CAPTURE_EVIDENCE.json
+            screenshot-source-lock.txt
+          if-no-files-found: error
+          retention-days: 14
