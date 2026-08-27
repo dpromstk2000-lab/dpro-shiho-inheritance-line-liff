@@ -269,7 +269,8 @@
     document.addEventListener("keydown", onKeyCapture, true); document.addEventListener("keydown", onKeyBubble);
     addEventListener("resize", reclamp); addEventListener("orientationchange", reclamp); addEventListener("scroll", () => target && trackTarget(), {passive:true});
     visualViewport?.addEventListener("resize", reclamp); visualViewport?.addEventListener("scroll", reclamp);
-    new MutationObserver(() => { if(state?.status === "active" && currentFile() === stepFor(state.step).file && !target) findAndTrackTarget(stepFor(state.step)); }).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["class","hidden"]});
+    // R3-RECOVERY2-WHOLE-DOCUMENT-MUTATION-OBSERVER-REMOVED
+    // Target readiness is handled only by findAndTrackTarget() 350ms polling.
     if (processActionQuery()) return;
     if (state?.status === "active" && currentFile() === stepFor(state.step).file) renderStep();
   }

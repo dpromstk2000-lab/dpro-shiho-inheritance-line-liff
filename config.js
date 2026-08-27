@@ -325,13 +325,13 @@
       if (!document.querySelector('link[data-dpro-shiho-tutorial]')) {
         const tutorialCss = document.createElement("link");
         tutorialCss.rel = "stylesheet";
-        tutorialCss.href = `${SITE_BASE_URL}/tutorial.css?v=SHIHO-TUTORIAL-R3-RECOVERY1-20260827`;
+        tutorialCss.href = `${SITE_BASE_URL}/tutorial.css?v=SHIHO-TUTORIAL-R3-RECOVERY2-20260827`;
         tutorialCss.dataset.dproShihoTutorial = "1";
         (document.head || document.documentElement).appendChild(tutorialCss);
       }
       if (!document.querySelector('script[data-dpro-shiho-tutorial]')) {
         const tutorialScript = document.createElement("script");
-        tutorialScript.src = `${SITE_BASE_URL}/tutorial.js?v=SHIHO-TUTORIAL-R3-RECOVERY1-20260827`;
+        tutorialScript.src = `${SITE_BASE_URL}/tutorial.js?v=SHIHO-TUTORIAL-R3-RECOVERY2-20260827`;
         tutorialScript.async = false;
         tutorialScript.dataset.dproShihoTutorial = "1";
         (document.head || document.documentElement).appendChild(tutorialScript);
