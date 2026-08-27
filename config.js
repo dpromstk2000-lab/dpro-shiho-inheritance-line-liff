@@ -310,4 +310,34 @@
     bridge.dataset.dproShihoR2 = "1";
     (document.head || document.documentElement).appendChild(bridge);
   }
+
+  /* DPRO SHIHO Tutorial STANDARD V1.1 / R3 loader */
+  try {
+    let tutorialStateExists = false;
+    try {
+      tutorialStateExists = !!sessionStorage.getItem("dpro_tutorial_shiho_v1_1_state");
+    } catch {}
+    const tutorialRequested =
+      isDemoMode() ||
+      new URLSearchParams(window.location.search).has("tutorial") ||
+      tutorialStateExists;
+    if (tutorialRequested) {
+      if (!document.querySelector('link[data-dpro-shiho-tutorial]')) {
+        const tutorialCss = document.createElement("link");
+        tutorialCss.rel = "stylesheet";
+        tutorialCss.href = `${SITE_BASE_URL}/tutorial.css?v=SHIHO-TUTORIAL-R3-20260827`;
+        tutorialCss.dataset.dproShihoTutorial = "1";
+        (document.head || document.documentElement).appendChild(tutorialCss);
+      }
+      if (!document.querySelector('script[data-dpro-shiho-tutorial]')) {
+        const tutorialScript = document.createElement("script");
+        tutorialScript.src = `${SITE_BASE_URL}/tutorial.js?v=SHIHO-TUTORIAL-R3-20260827`;
+        tutorialScript.async = false;
+        tutorialScript.dataset.dproShihoTutorial = "1";
+        (document.head || document.documentElement).appendChild(tutorialScript);
+      }
+    }
+  } catch {
+    // Tutorial layer must never block the business application.
+  }
 })();
