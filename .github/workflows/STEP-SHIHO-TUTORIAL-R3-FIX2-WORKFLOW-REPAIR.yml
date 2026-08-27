@@ -1,0 +1,78 @@
+name: DPRO SHIHO Tutorial R3 FIX2 Workflow Repair
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/STEP-SHIHO-TUTORIAL-R3-FIX2-WORKFLOW-REPAIR.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shiho-tutorial-r3-fix2-workflow-repair
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Repair SHIHO R3-R4 gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('.github/workflows/STEP-SHIHO-TUTORIAL-R3-FIX1-R4-GATE.yml')
+          s = p.read_text()
+
+          old = "          for old,new in replacements.items():\n              if old not in s:\n                  raise SystemExit(f'missing expected R3 source: {old}')\n              s=s.replace(old,new)\n"
+          new = "          for old,new in replacements.items():\n              if old in s:\n                  s=s.replace(old,new)\n              elif new not in s:\n                  raise SystemExit(f'missing expected R3 source: {old}')\n"
+          if old not in s and new not in s:
+              raise SystemExit('cannot locate R3 idempotency block')
+          s = s.replace(old, new)
+
+          old = "          git add tutorial.js config.js demo-guide.html\n          git commit -m \"Fix SHIHO Tutorial R3 cross-page Resume\"\n          git pull --rebase\n          git push\n          echo \"FIX_HEAD=$(git rev-parse HEAD)\" >> \"$GITHUB_ENV\"\n"
+          new = "          git add tutorial.js config.js demo-guide.html\n          if git diff --cached --quiet; then\n            echo \"R3 FIX1 source is already current; no duplicate source commit\"\n          else\n            git commit -m \"Fix SHIHO Tutorial R3 cross-page Resume\"\n            git pull --rebase\n            git push\n          fi\n          echo \"FIX_HEAD=$(git rev-parse HEAD)\" >> \"$GITHUB_ENV\"\n"
+          if old not in s and new not in s:
+              raise SystemExit('cannot locate R3 commit block')
+          s = s.replace(old, new)
+
+          old = "            if curl --max-time 8 -fsSL \"https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/tutorial.js?fix=${FIX_HEAD}&n=$i\" | grep -q 'R3-FIX1-CROSS-PAGE-RESUME'; then ok=1; break; fi\n"
+          new = "            tmp=\"$(mktemp)\"\n            if curl --max-time 8 -fsSL \"https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/tutorial.js?fix=${FIX_HEAD}&n=$i\" -o \"$tmp\" && grep -q 'R3-FIX1-CROSS-PAGE-RESUME' \"$tmp\"; then rm -f \"$tmp\"; ok=1; break; fi\n            rm -f \"$tmp\"\n"
+          if old not in s and new not in s:
+              raise SystemExit('cannot locate FIX1 Pages wait block')
+          s = s.replace(old, new)
+
+          old = "            if curl --max-time 8 -fsSL \"https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html?r4=${R4_HEAD}&n=$i\" | grep -q 'DPRO SHIHO / GUIDE CENTER / STANDARD V1.1'; then ok=1; break; fi\n"
+          new = "            tmp=\"$(mktemp)\"\n            if curl --max-time 8 -fsSL \"https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html?r4=${R4_HEAD}&n=$i\" -o \"$tmp\" && grep -q 'DPRO SHIHO / GUIDE CENTER / STANDARD V1.1' \"$tmp\"; then rm -f \"$tmp\"; ok=1; break; fi\n            rm -f \"$tmp\"\n"
+          if old not in s and new not in s:
+              raise SystemExit('cannot locate R4 Pages wait block')
+          s = s.replace(old, new)
+
+          p.write_text(s)
+          PY
+
+          git diff --check
+          grep -q 'R3 FIX1 source is already current' .github/workflows/STEP-SHIHO-TUTORIAL-R3-FIX1-R4-GATE.yml
+          grep -q -- '-o "$tmp"' .github/workflows/STEP-SHIHO-TUTORIAL-R3-FIX1-R4-GATE.yml
+
+      - name: Publish repaired gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "dpro-tutorial-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add .github/workflows/STEP-SHIHO-TUTORIAL-R3-FIX1-R4-GATE.yml
+          if git diff --cached --quiet; then
+            echo "Gate already repaired"
+            exit 0
+          fi
+          git commit -m "Fix SHIHO Tutorial QA wait false-negative"
+          git pull --rebase
+          git push
