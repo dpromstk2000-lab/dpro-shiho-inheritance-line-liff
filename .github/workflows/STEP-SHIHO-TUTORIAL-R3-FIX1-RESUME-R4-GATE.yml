@@ -1,0 +1,190 @@
+name: DPRO SHIHO Tutorial R3 FIX1 Resume R4 Gate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/STEP-SHIHO-TUTORIAL-R3-FIX1-RESUME-R4-GATE.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shiho-r3-fix1-resume-r4
+  cancel-in-progress: false
+
+jobs:
+  resume-r4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify FIX1 baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          FIX='93c73e454bb51a623826b556cab7fa59efc70653'
+          git merge-base --is-ancestor "$FIX" HEAD
+          grep -q 'R3-FIX1-CROSS-PAGE-RESUME' tutorial.js
+          grep -q 'routeUrl(nextStep.file, "resume")' tutorial.js
+          grep -q 'SHIHO-TUTORIAL-R3-FIX1-20260827' config.js
+          node --check tutorial.js
+          echo "BASE_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Verify FIX1 Pages safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 24); do
+            if curl --max-time 8 -fsSL               "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/tutorial.js?resume=${GITHUB_RUN_ID}&n=$i"               -o /tmp/tutorial-live.js; then
+              if grep -q 'R3-FIX1-CROSS-PAGE-RESUME' /tmp/tutorial-live.js; then
+                ok=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          echo "FIX1_PAGES=PASS"
+
+      - name: Install browser QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/shiho-resume && cd /tmp/shiho-resume
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+          echo 'aW1wb3J0IHsgY2hyb21pdW0gfSBmcm9tICdwbGF5d3JpZ2h0JzsKaW1wb3J0IGZzIGZyb20gJ2ZzJzsKCmNvbnN0IEJBU0U9J2h0dHBzOi8vZHByb21zdGsyMDAwLWxhYi5naXRodWIuaW8vZHByby1zaGloby1pbmhlcml0YW5jZS1saW5lLWxpZmYvJzsKY29uc3Qgc3RhcnRlZD1EYXRlLm5vdygpLCBjaGVja3BvaW50cz1bXSwgbXV0YXRpb25zPVtdLCBlcnJvcnM9W107CmNvbnN0IG1hcms9KG5hbWUsZXh0cmE9e30pPT57Y29uc3Qgcj17YXQ6bmV3IERhdGUoKS50b0lTT1N0cmluZygpLGVsYXBzZWRNczpEYXRlLm5vdygpLXN0YXJ0ZWQsbmFtZSwuLi5leHRyYX07Y2hlY2twb2ludHMucHVzaChyKTtjb25zb2xlLmxvZygnQ0hFQ0tQT0lOVCcsbmFtZSxKU09OLnN0cmluZ2lmeShleHRyYSkpO307CmNvbnN0IHdyaXRlPShvayxleHRyYT17fSk9PmZzLndyaXRlRmlsZVN5bmMocHJvY2Vzcy5lbnYuT1VULEpTT04uc3RyaW5naWZ5KHtvayxjaGVja2VkQXQ6bmV3IERhdGUoKS50b0lTT1N0cmluZygpLGVsYXBzZWRNczpEYXRlLm5vdygpLXN0YXJ0ZWQsY2hlY2twb2ludHMsbXV0YXRpb25zLGVycm9ycywuLi5leHRyYX0sbnVsbCwyKSsnXG4nKTsKCmFzeW5jIGZ1bmN0aW9uIHN0ZXAocCxuKXsKICBtYXJrKGBzdGVwLSR7bn0td2FpdGAse3VybDpwLnVybCgpfSk7CiAgYXdhaXQgcC53YWl0Rm9yRnVuY3Rpb24obj0+d2luZG93LkRQUk9fVFVUT1JJQUxfU0hJSE8/LmdldFN0YXRlPy4oKT8uc3RlcD09PW4sbix7dGltZW91dDoxNTAwMH0pOwogIGF3YWl0IHAubG9jYXRvcignLmRwcm8tdHV0b3JpYWwtY2FyZC5pcy12aXNpYmxlJykud2FpdEZvcih7c3RhdGU6J3Zpc2libGUnLHRpbWVvdXQ6MTAwMDB9KTsKICBtYXJrKGBzdGVwLSR7bn0tcGFzc2Ase3VybDpwLnVybCgpfSk7Cn0KYXN5bmMgZnVuY3Rpb24gbmV4dChwLG4sZmlsZSl7CiAgbWFyayhgbmV4dC0ke259LWNsaWNrYCx7dXJsOnAudXJsKCl9KTsKICBhd2FpdCBwLmxvY2F0b3IoJyNkcHJvLXR1dG9yaWFsLW5leHQnKS5jbGljayh7dGltZW91dDoxMDAwMCxub1dhaXRBZnRlcjp0cnVlfSk7CiAgaWYoZmlsZSl7CiAgICBhd2FpdCBwLndhaXRGb3JGdW5jdGlvbihmPT5sb2NhdGlvbi5wYXRobmFtZS5lbmRzV2l0aCgnLycrZil8fGxvY2F0aW9uLnBhdGhuYW1lLmVuZHNXaXRoKGYpLGZpbGUse3RpbWVvdXQ6MTUwMDB9KTsKICAgIG1hcmsoYHBhdGgtJHtmaWxlfS1wYXNzYCx7dXJsOnAudXJsKCl9KTsKICB9CiAgYXdhaXQgc3RlcChwLG4pOwp9CmFzeW5jIGZ1bmN0aW9uIGxvZ2luKHAsYXBwLGxhYmVsKXsKICBtYXJrKGAke2xhYmVsfS1sb2dpbi13YWl0YCk7CiAgY29uc3QgYz1wLmxvY2F0b3IoJyNhZG1pbi1jb2RlJyk7CiAgYXdhaXQgYy53YWl0Rm9yKHtzdGF0ZTondmlzaWJsZScsdGltZW91dDoxMjAwMH0pOwogIGlmKChhd2FpdCBjLmlucHV0VmFsdWUoKSkhPT0nMTIzNCcpIGF3YWl0IGMuZmlsbCgnMTIzNCcpOwogIGF3YWl0IHAubG9jYXRvcignI2xvZ2luLWJ1dHRvbicpLmNsaWNrKHt0aW1lb3V0OjEwMDAwLG5vV2FpdEFmdGVyOnRydWV9KTsKICBhd2FpdCBwLmxvY2F0b3IoYXBwKS53YWl0Rm9yKHtzdGF0ZTondmlzaWJsZScsdGltZW91dDoyMDAwMH0pOwogIG1hcmsoYCR7bGFiZWx9LWxvZ2luLXBhc3NgKTsKfQoKbGV0IGJyb3dzZXI7CnRyeXsKICBicm93c2VyPWF3YWl0IGNocm9taXVtLmxhdW5jaCh7aGVhZGxlc3M6dHJ1ZX0pOwogIGNvbnN0IGN0eD1hd2FpdCBicm93c2VyLm5ld0NvbnRleHQoe3ZpZXdwb3J0Ont3aWR0aDozOTAsaGVpZ2h0Ojg0NH19KTsKICBjdHguc2V0RGVmYXVsdFRpbWVvdXQoMTIwMDApOwogIGN0eC5zZXREZWZhdWx0TmF2aWdhdGlvblRpbWVvdXQoMjAwMDApOwogIGNvbnN0IHA9YXdhaXQgY3R4Lm5ld1BhZ2UoKTsKCiAgcC5vbigncmVxdWVzdCcscj0+ewogICAgY29uc3QgbT1yLm1ldGhvZCgpOwogICAgaWYoWydQT1NUJywnUFVUJywnUEFUQ0gnLCdERUxFVEUnXS5pbmNsdWRlcyhtKSkgbXV0YXRpb25zLnB1c2goe21ldGhvZDptLHVybDpyLnVybCgpfSk7CiAgfSk7CiAgcC5vbigncGFnZWVycm9yJyxlPT5lcnJvcnMucHVzaCh7dHlwZToncGFnZWVycm9yJyxtZXNzYWdlOlN0cmluZyhlKX0pKTsKICBwLm9uKCdjb25zb2xlJyxtPT57aWYobS50eXBlKCk9PT0nZXJyb3InJiYhL2Zhdmljb25cLmljby9pLnRlc3QobS50ZXh0KCkpKSBlcnJvcnMucHVzaCh7dHlwZTonY29uc29sZScsbWVzc2FnZTptLnRleHQoKX0pO30pOwoKICBtYXJrKCdnb3RvLWRlbW8nKTsKICBjb25zdCByPWF3YWl0IHAuZ290byhCQVNFKydkZW1vLWd1aWRlLmh0bWw/ZGVtbz0xJnR1dG9yaWFsPXN0YXJ0JnJlc3VtZXFhPScrRGF0ZS5ub3coKSx7d2FpdFVudGlsOidkb21jb250ZW50bG9hZGVkJyx0aW1lb3V0OjIwMDAwfSk7CiAgaWYocj8uc3RhdHVzKCkhPT0yMDApIHRocm93IG5ldyBFcnJvcignZGVtby1ndWlkZSBIVFRQICcrcj8uc3RhdHVzKCkpOwoKICBhd2FpdCBzdGVwKHAsMSk7CiAgaWYoKGF3YWl0IHAuZXZhbHVhdGUoKCk9PndpbmRvdy5EUFJPX1RVVE9SSUFMX1NISUhPPy5zdGVwQ291bnQpKSE9PTEwKSB0aHJvdyBuZXcgRXJyb3IoJ3N0ZXBDb3VudCAhPSAxMCcpOwoKICBhd2FpdCBuZXh0KHAsMiwnaW5kZXguaHRtbCcpOwogIGF3YWl0IG5leHQocCwzKTsKCiAgYXdhaXQgbmV4dChwLDQsJ21lbWJlci5odG1sJyk7CiAgaWYoIS90dXRvcmlhbD1yZXN1bWUvLnRlc3QocC51cmwoKSkpIHRocm93IG5ldyBFcnJvcignbWVtYmVyIG1pc3NpbmcgdHV0b3JpYWw9cmVzdW1lOiAnK3AudXJsKCkpOwogIGF3YWl0IHAubG9jYXRvcignI2Rhc2hib2FyZC5pcy12aXNpYmxlJykud2FpdEZvcih7c3RhdGU6J3Zpc2libGUnLHRpbWVvdXQ6MjAwMDB9KTsKICBtYXJrKCdtZW1iZXItZGFzaGJvYXJkLXBhc3MnKTsKCiAgYXdhaXQgbmV4dChwLDUpOwogIGF3YWl0IG5leHQocCw2LCdzdGFmZi5odG1sJyk7CiAgaWYoIS90dXRvcmlhbD1yZXN1bWUvLnRlc3QocC51cmwoKSkpIHRocm93IG5ldyBFcnJvcignc3RhZmYgbWlzc2luZyB0dXRvcmlhbD1yZXN1bWU6ICcrcC51cmwoKSk7CiAgYXdhaXQgbG9naW4ocCwnI3N0YWZmLWFwcC5zaG93Jywnc3RhZmYnKTsKCiAgYXdhaXQgbmV4dChwLDcpOwogIGF3YWl0IG5leHQocCw4LCdvd25lci5odG1sJyk7CiAgaWYoIS90dXRvcmlhbD1yZXN1bWUvLnRlc3QocC51cmwoKSkpIHRocm93IG5ldyBFcnJvcignb3duZXIgbWlzc2luZyB0dXRvcmlhbD1yZXN1bWU6ICcrcC51cmwoKSk7CiAgYXdhaXQgbG9naW4ocCwnI293bmVyLWFwcC5zaG93Jywnb3duZXInKTsKCiAgYXdhaXQgbmV4dChwLDkpOwoKICAvLyBFeGlzdGluZyBidXNpbmVzcyBtb2RhbCBtdXN0IHdpbiBFc2MuCiAgYXdhaXQgcC5ldmFsdWF0ZSgoKT0+ZG9jdW1lbnQucXVlcnlTZWxlY3RvcignI2lucXVpcnktbW9kYWwnKT8uY2xhc3NMaXN0LmFkZCgnc2hvdycpKTsKICBhd2FpdCBwLmtleWJvYXJkLnByZXNzKCdFc2NhcGUnKTsKICBhd2FpdCBwLndhaXRGb3JUaW1lb3V0KDE1MCk7CiAgaWYoYXdhaXQgcC5sb2NhdG9yKCcjaW5xdWlyeS1tb2RhbC5zaG93JykuY291bnQoKSkgdGhyb3cgbmV3IEVycm9yKCdidXNpbmVzcyBtb2RhbCBkaWQgbm90IGNsb3NlJyk7CiAgaWYoIShhd2FpdCBwLmxvY2F0b3IoJy5kcHJvLXR1dG9yaWFsLWNhcmQuaXMtdmlzaWJsZScpLmNvdW50KCkpKSB0aHJvdyBuZXcgRXJyb3IoJ3R1dG9yaWFsIGNsb3NlZCBvbiBwcm90ZWN0ZWQgRXNjJyk7CiAgbWFyaygnZXNjLXByZWNlZGVuY2UtcGFzcycpOwoKICBhd2FpdCBuZXh0KHAsMTApOwogIGF3YWl0IHAubG9jYXRvcignI2Rwcm8tdHV0b3JpYWwtZm9jdXMtdGFyZ2V0JykuY2xpY2soe3RpbWVvdXQ6MTAwMDB9KTsKICBjb25zdCBmb2N1c2VkPWF3YWl0IHAuZXZhbHVhdGUoKCk9PmRvY3VtZW50LmFjdGl2ZUVsZW1lbnQ/LmlkfHwnJyk7CiAgaWYoZm9jdXNlZCE9PSdzeXN0ZW0tY2hlY2snKSB0aHJvdyBuZXcgRXJyb3IoJ2ZvY3VzIHRhcmdldCBtaXNtYXRjaDogJytmb2N1c2VkKTsKCiAgYXdhaXQgcC5sb2NhdG9yKCcjZHByby10dXRvcmlhbC1uZXh0JykuY2xpY2soe3RpbWVvdXQ6MTAwMDB9KTsKICBhd2FpdCBwLndhaXRGb3JGdW5jdGlvbigoKT0+d2luZG93LkRQUk9fVFVUT1JJQUxfU0hJSE8/LmdldFN0YXRlPy4oKT8uc3RhdHVzPT09J2NvbXBsZXRlJyx7dGltZW91dDoxMjAwMH0pOwogIG1hcmsoJ2NvbXBsZXRlLXBhc3MnKTsKCiAgY29uc3Qgb3Y9YXdhaXQgcC5ldmFsdWF0ZSgoKT0+KHtpbm5lcldpZHRoLHNjcm9sbFdpZHRoOk1hdGgubWF4KGRvY3VtZW50LmRvY3VtZW50RWxlbWVudC5zY3JvbGxXaWR0aCxkb2N1bWVudC5ib2R5Py5zY3JvbGxXaWR0aHx8MCl9KSk7CiAgaWYob3Yuc2Nyb2xsV2lkdGg+b3YuaW5uZXJXaWR0aCsxKSB0aHJvdyBuZXcgRXJyb3IoJzM5MCBvdmVyZmxvdycpOwoKICAvLyBNb2JpbGUgMzIwICsgZGVza3RvcCBzbW9rZS4KICBmb3IoY29uc3QgcyBvZiBbe2tleTonbW9iaWxlMzIwJyx3OjMyMCxoOjcyMH0se2tleTonZGVza3RvcDE0NDAnLHc6MTQ0MCxoOjEwMDB9XSl7CiAgICBjb25zdCBjPWF3YWl0IGJyb3dzZXIubmV3Q29udGV4dCh7dmlld3BvcnQ6e3dpZHRoOnMudyxoZWlnaHQ6cy5ofX0pOwogICAgY29uc3QgcT1hd2FpdCBjLm5ld1BhZ2UoKTsKICAgIGNvbnN0IHJyPWF3YWl0IHEuZ290byhCQVNFKydkZW1vLWd1aWRlLmh0bWw/ZGVtbz0xJnR1dG9yaWFsPXN0YXJ0JnNtb2tlPScrRGF0ZS5ub3coKSx7d2FpdFVudGlsOidkb21jb250ZW50bG9hZGVkJyx0aW1lb3V0OjIwMDAwfSk7CiAgICBhd2FpdCBxLndhaXRGb3JGdW5jdGlvbigoKT0+d2luZG93LkRQUk9fVFVUT1JJQUxfU0hJSE8/LmdldFN0YXRlPy4oKT8uc3RlcD09PTEse3RpbWVvdXQ6MTUwMDB9KTsKICAgIGNvbnN0IG89YXdhaXQgcS5ldmFsdWF0ZSgoKT0+KHtpbm5lcldpZHRoLHNjcm9sbFdpZHRoOk1hdGgubWF4KGRvY3VtZW50LmRvY3VtZW50RWxlbWVudC5zY3JvbGxXaWR0aCxkb2N1bWVudC5ib2R5Py5zY3JvbGxXaWR0aHx8MCl9KSk7CiAgICBpZihycj8uc3RhdHVzKCkhPT0yMDB8fG8uc2Nyb2xsV2lkdGg+by5pbm5lcldpZHRoKzEpIHRocm93IG5ldyBFcnJvcihgJHtzLmtleX0gc21va2UgZmFpbGVkYCk7CiAgICBtYXJrKGAke3Mua2V5fS1wYXNzYCxvKTsKICAgIGF3YWl0IGMuY2xvc2UoKTsKICB9CgogIGNvbnN0IGJ1c2luZXNzPW11dGF0aW9ucy5maWx0ZXIoeD0+ISgKICAgIC9cL2FwaVwvYWRtaW5cL2xvZ2luKD86XD98JCkvLnRlc3QoeC51cmwpIHx8CiAgICAvXC9hcGlcL21lbWJlclwvc2Vzc2lvbig/Olw/fCQpLy50ZXN0KHgudXJsKQogICkpOwogIGlmKGJ1c2luZXNzLmxlbmd0aCkgdGhyb3cgbmV3IEVycm9yKCdidXNpbmVzcyBtdXRhdGlvbiBjb3VudD0nK2J1c2luZXNzLmxlbmd0aCk7CiAgaWYoZXJyb3JzLmxlbmd0aCkgdGhyb3cgbmV3IEVycm9yKCdicm93c2VyIGVycm9ycz0nK0pTT04uc3RyaW5naWZ5KGVycm9ycykpOwoKICB3cml0ZSh0cnVlLHtidXNpbmVzc011dGF0aW9uQ291bnQ6MCxvdmVyZmxvdzpvdixmaW5hbFVybDpwLnVybCgpfSk7CiAgY29uc29sZS5sb2coJ1IzX0ZJWDFfUkVTVU1FX1FBX1BBU1MnKTsKfWNhdGNoKGUpewogIGVycm9ycy5wdXNoKHt0eXBlOidmYXRhbCcsbWVzc2FnZTpTdHJpbmcoZT8uc3RhY2t8fGUpfSk7CiAgd3JpdGUoZmFsc2Use2J1c2luZXNzTXV0YXRpb25Db3VudDpudWxsfSk7CiAgY29uc29sZS5lcnJvcihTdHJpbmcoZT8uc3RhY2t8fGUpKTsKICBwcm9jZXNzLmV4aXRDb2RlPTI7Cn1maW5hbGx5ewogIHRyeXtpZihicm93c2VyKSBhd2FpdCBQcm9taXNlLnJhY2UoW2Jyb3dzZXIuY2xvc2UoKSxuZXcgUHJvbWlzZShyPT5zZXRUaW1lb3V0KHIsMzAwMCkpXSk7fWNhdGNoe30KfQo=' | base64 -d > r3.mjs
+          echo 'aW1wb3J0IHsgY2hyb21pdW0gfSBmcm9tICdwbGF5d3JpZ2h0JzsKaW1wb3J0IGZzIGZyb20gJ2ZzJzsKY29uc3QgQkFTRT0naHR0cHM6Ly9kcHJvbXN0azIwMDAtbGFiLmdpdGh1Yi5pby9kcHJvLXNoaWhvLWluaGVyaXRhbmNlLWxpbmUtbGlmZi8nOwpjb25zdCByZXN1bHRzPVtdLCBlcnJvcnM9W10sIG11dGF0aW9ucz1bXTsKY29uc3QgYnJvd3Nlcj1hd2FpdCBjaHJvbWl1bS5sYXVuY2goe2hlYWRsZXNzOnRydWV9KTsKdHJ5ewogIGZvcihjb25zdCBzIG9mIFt7a2V5OidkZXNrdG9wMTQ0MCcsdzoxNDQwLGg6MTAwMH0se2tleTondGFibGV0MTAyNCcsdzoxMDI0LGg6NzY4fSx7a2V5Oidtb2JpbGUzOTAnLHc6MzkwLGg6ODQ0fSx7a2V5Oidtb2JpbGUzMjAnLHc6MzIwLGg6NzIwfV0pewogICAgY29uc3QgYz1hd2FpdCBicm93c2VyLm5ld0NvbnRleHQoe3ZpZXdwb3J0Ont3aWR0aDpzLncsaGVpZ2h0OnMuaH19KTsKICAgIGNvbnN0IHA9YXdhaXQgYy5uZXdQYWdlKCk7CiAgICBwLm9uKCdyZXF1ZXN0JyxyPT57aWYoWydQT1NUJywnUFVUJywnUEFUQ0gnLCdERUxFVEUnXS5pbmNsdWRlcyhyLm1ldGhvZCgpKSltdXRhdGlvbnMucHVzaCh7Y2FzZTpzLmtleSxtZXRob2Q6ci5tZXRob2QoKSx1cmw6ci51cmwoKX0pfSk7CiAgICBwLm9uKCdwYWdlZXJyb3InLGU9PmVycm9ycy5wdXNoKHtjYXNlOnMua2V5LHR5cGU6J3BhZ2VlcnJvcicsbWVzc2FnZTpTdHJpbmcoZSl9KSk7CiAgICBjb25zdCByPWF3YWl0IHAuZ290byhCQVNFKydndWlkZS1jZW50ZXIuaHRtbD9xYT0nK0RhdGUubm93KCkse3dhaXRVbnRpbDonZG9tY29udGVudGxvYWRlZCcsdGltZW91dDoyMDAwMH0pOwogICAgY29uc3QgbT1hd2FpdCBwLmV2YWx1YXRlKCgpPT4oewogICAgICB3OmlubmVyV2lkdGgsc3c6TWF0aC5tYXgoZG9jdW1lbnQuZG9jdW1lbnRFbGVtZW50LnNjcm9sbFdpZHRoLGRvY3VtZW50LmJvZHk/LnNjcm9sbFdpZHRofHwwKSwKICAgICAgc3RhcnQ6ISFkb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcjZmlyc3QxMC1zdGFydCcpLAogICAgICByZXN1bWU6ISFkb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcjZmlyc3QxMC1yZXN1bWUnKSwKICAgICAgcmVwbGF5OiEhZG9jdW1lbnQucXVlcnlTZWxlY3RvcignI2ZpcnN0MTAtcmVwbGF5JyksCiAgICAgIHJvbGVzOmRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJyNyb2xlcyAuY2FyZCcpLmxlbmd0aCwKICAgICAgc3lzdGVtOiEhZG9jdW1lbnQucXVlcnlTZWxlY3RvcignI3N5c3RlbScpLAogICAgICBzYWZldHk6ISFkb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcjc2FmZXR5JyksCiAgICAgIHRyb3VibGU6ISFkb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcjdHJvdWJsZScpLAogICAgICBhY2Nlc3M6ISFkb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcjYWNjZXNzaWJpbGl0eScpLAogICAgICBtYW51YWxzOmRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJyNtYW51YWxzIC5jYXJkJykubGVuZ3RoCiAgICB9KSk7CiAgICBpZihyPy5zdGF0dXMoKSE9PTIwMHx8bS5zdz5tLncrMXx8IW0uc3RhcnR8fCFtLnJlc3VtZXx8IW0ucmVwbGF5fHxtLnJvbGVzPDR8fCFtLnN5c3RlbXx8IW0uc2FmZXR5fHwhbS50cm91YmxlfHwhbS5hY2Nlc3N8fG0ubWFudWFsczwyKSB0aHJvdyBuZXcgRXJyb3IoJ1I0IGZhaWxlZCAnK3Mua2V5KycgJytKU09OLnN0cmluZ2lmeShtKSk7CiAgICByZXN1bHRzLnB1c2goe2Nhc2U6cy5rZXksb2s6dHJ1ZSxodHRwU3RhdHVzOnIuc3RhdHVzKCksbWV0cmljczptfSk7CiAgICBhd2FpdCBjLmNsb3NlKCk7CiAgfQp9ZmluYWxseXthd2FpdCBicm93c2VyLmNsb3NlKCk7fQpjb25zdCBvdXQ9e29rOnJlc3VsdHMubGVuZ3RoPT09NCYmZXJyb3JzLmxlbmd0aD09PTAmJm11dGF0aW9ucy5sZW5ndGg9PT0wLGNoZWNrZWRBdDpuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkscmVzdWx0cyxlcnJvcnMsbXV0YXRpb25zLGJ1c2luZXNzTXV0YXRpb25Db3VudDptdXRhdGlvbnMubGVuZ3RofTsKZnMud3JpdGVGaWxlU3luYyhwcm9jZXNzLmVudi5PVVQsSlNPTi5zdHJpbmdpZnkob3V0LG51bGwsMikrJ1xuJyk7CmNvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtvazpvdXQub2ssY2FzZXM6cmVzdWx0cy5sZW5ndGgsZXJyb3JzOmVycm9ycy5sZW5ndGgsbXV0YXRpb25zOm11dGF0aW9ucy5sZW5ndGh9LG51bGwsMikpOwppZighb3V0Lm9rKSBwcm9jZXNzLmV4aXQoMik7Cg==' | base64 -d > r4.mjs
+          echo 'aW1wb3J0IHsgY2hyb21pdW0gfSBmcm9tICdwbGF5d3JpZ2h0JzsKaW1wb3J0IGZzIGZyb20gJ2ZzJzsKY29uc3QgQkFTRT0naHR0cHM6Ly9kcHJvbXN0azIwMDAtbGFiLmdpdGh1Yi5pby9kcHJvLXNoaWhvLWluaGVyaXRhbmNlLWxpbmUtbGlmZi8nOwpjb25zdCBicm93c2VyPWF3YWl0IGNocm9taXVtLmxhdW5jaCh7aGVhZGxlc3M6dHJ1ZX0pOwpjb25zdCByZXN1bHRzPVtdOwp0cnl7CiAgZm9yKGNvbnN0IHMgb2YgW3trZXk6J2Rlc2t0b3AxNDQwJyx3OjE0NDAsaDoxMDAwfSx7a2V5Oidtb2JpbGUzOTAnLHc6MzkwLGg6ODQ0fSx7a2V5Oidtb2JpbGUzMjAnLHc6MzIwLGg6NzIwfV0pewogICAgY29uc3QgYz1hd2FpdCBicm93c2VyLm5ld0NvbnRleHQoe3ZpZXdwb3J0Ont3aWR0aDpzLncsaGVpZ2h0OnMuaH19KTsKICAgIGNvbnN0IHA9YXdhaXQgYy5uZXdQYWdlKCk7CiAgICBjb25zdCByPWF3YWl0IHAuZ290byhCQVNFKydkZW1vLWd1aWRlLmh0bWw/ZGVtbz0xJnR1dG9yaWFsPXN0YXJ0JnJlZz0nK0RhdGUubm93KCkse3dhaXRVbnRpbDonZG9tY29udGVudGxvYWRlZCcsdGltZW91dDoyMDAwMH0pOwogICAgYXdhaXQgcC53YWl0Rm9yRnVuY3Rpb24oKCk9PndpbmRvdy5EUFJPX1RVVE9SSUFMX1NISUhPPy5nZXRTdGF0ZT8uKCk/LnN0ZXA9PT0xLHt0aW1lb3V0OjE1MDAwfSk7CiAgICBhd2FpdCBwLmxvY2F0b3IoJyNkcHJvLXR1dG9yaWFsLW5leHQnKS5jbGljayh7dGltZW91dDoxMDAwMCxub1dhaXRBZnRlcjp0cnVlfSk7CiAgICBhd2FpdCBwLndhaXRGb3JGdW5jdGlvbigoKT0+bG9jYXRpb24ucGF0aG5hbWUuZW5kc1dpdGgoJy9pbmRleC5odG1sJykse3RpbWVvdXQ6MTUwMDB9KTsKICAgIGF3YWl0IHAud2FpdEZvckZ1bmN0aW9uKCgpPT53aW5kb3cuRFBST19UVVRPUklBTF9TSElITz8uZ2V0U3RhdGU/LigpPy5zdGVwPT09Mix7dGltZW91dDoxNTAwMH0pOwogICAgY29uc3Qgbz1hd2FpdCBwLmV2YWx1YXRlKCgpPT4oe3c6aW5uZXJXaWR0aCxzdzpNYXRoLm1heChkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuc2Nyb2xsV2lkdGgsZG9jdW1lbnQuYm9keT8uc2Nyb2xsV2lkdGh8fDApfSkpOwogICAgaWYocj8uc3RhdHVzKCkhPT0yMDB8fG8uc3c+by53KzEpIHRocm93IG5ldyBFcnJvcigncmVncmVzc2lvbiAnK3Mua2V5KTsKICAgIHJlc3VsdHMucHVzaCh7Y2FzZTpzLmtleSxvazp0cnVlLG92ZXJmbG93Om99KTsKICAgIGF3YWl0IGMuY2xvc2UoKTsKICB9Cn1maW5hbGx5e2F3YWl0IGJyb3dzZXIuY2xvc2UoKTt9CmZzLndyaXRlRmlsZVN5bmMocHJvY2Vzcy5lbnYuT1VULEpTT04uc3RyaW5naWZ5KHtvazp0cnVlLGNoZWNrZWRBdDpuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCkscmVzdWx0c30sbnVsbCwyKSsnXG4nKTsKY29uc29sZS5sb2coJ1IzX1JFR1JFU1NJT05fUEFTUycpOwo=' | base64 -d > reg.mjs
+          node --check r3.mjs
+          node --check r4.mjs
+          node --check reg.mjs
+
+      - name: R3 FIX1 live QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-resume
+          timeout --signal=TERM --kill-after=10s 5m             env OUT="$GITHUB_WORKSPACE/r3-fix1-live.json" node r3.mjs
+
+      - name: Build R4 Guide Center
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          d=json.load(open('r3-fix1-live.json'))
+          assert d.get('ok') is True, d
+          assert d.get('businessMutationCount') == 0, d
+          PY
+
+          echo 'PCFkb2N0eXBlIGh0bWw+CjxodG1sIGxhbmc9ImphIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9InV0Zi04Ij48bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLGluaXRpYWwtc2NhbGU9MSx2aWV3cG9ydC1maXQ9Y292ZXIiPgo8dGl0bGU+RFBSTyBTSElITyDkvb/jgYTmlrnjgqzjgqTjg4k8L3RpdGxlPgo8c3R5bGU+Cip7Ym94LXNpemluZzpib3JkZXItYm94fWJvZHl7bWFyZ2luOjA7YmFja2dyb3VuZDojZjZmNGVmO2NvbG9yOiMxYzI3MzM7Zm9udC1mYW1pbHk6c3lzdGVtLXVpLC1hcHBsZS1zeXN0ZW0sIk5vdG8gU2FucyBKUCIsc2Fucy1zZXJpZjtsaW5lLWhlaWdodDoxLjd9Ci53cmFwe3dpZHRoOm1pbigxMDgwcHgsY2FsYygxMDAlIC0gMjRweCkpO21hcmdpbjphdXRvfS5oZXJve2JhY2tncm91bmQ6IzFmMzA0Njtjb2xvcjojZmZmO3BhZGRpbmc6MzZweCAwO2JvcmRlci1ib3R0b206NHB4IHNvbGlkICNhMTdiMzV9CmgxLGgyLGgze2xpbmUtaGVpZ2h0OjEuMzV9LmFjdGlvbnN7ZGlzcGxheTpmbGV4O2ZsZXgtd3JhcDp3cmFwO2dhcDo4cHh9LmJ0bntkaXNwbGF5OmlubGluZS1mbGV4O21pbi1oZWlnaHQ6NDRweDthbGlnbi1pdGVtczpjZW50ZXI7cGFkZGluZzo4cHggMTNweDtib3JkZXItcmFkaXVzOjlweDtiYWNrZ3JvdW5kOiNmZmY7Y29sb3I6IzEzMjIzODtmb250LXdlaWdodDo4MDA7dGV4dC1kZWNvcmF0aW9uOm5vbmV9Cm5hdntwb3NpdGlvbjpzdGlja3k7dG9wOjA7ei1pbmRleDozO2JhY2tncm91bmQ6I2ZhZjdlZjtib3JkZXItYm90dG9tOjFweCBzb2xpZCAjZGRkNWM3O292ZXJmbG93OmF1dG99bmF2IC53cmFwe2Rpc3BsYXk6ZmxleDtnYXA6MTRweDtwYWRkaW5nOjEwcHggMH1uYXYgYXt3aGl0ZS1zcGFjZTpub3dyYXA7Y29sb3I6IzFmMzA0Njtmb250LXdlaWdodDo4MDA7dGV4dC1kZWNvcmF0aW9uOm5vbmV9Cm1haW57cGFkZGluZzoyOHB4IDB9LmdyaWR7ZGlzcGxheTpncmlkO2dyaWQtdGVtcGxhdGUtY29sdW1uczpyZXBlYXQoMyxtaW5tYXgoMCwxZnIpKTtnYXA6MTNweH0uY2FyZHtiYWNrZ3JvdW5kOiNmZmY7Ym9yZGVyOjFweCBzb2xpZCAjZGRkNWM3O2JvcmRlci1yYWRpdXM6MTNweDtwYWRkaW5nOjE2cHh9Lm5vdGljZXtib3JkZXItbGVmdDo0cHggc29saWQgIzliMmQyMTtiYWNrZ3JvdW5kOiNmZmY7cGFkZGluZzoxNHB4O2JvcmRlci1yYWRpdXM6OHB4fQppbnB1dHt3aWR0aDoxMDAlO21pbi1oZWlnaHQ6NDRweDtwYWRkaW5nOjhweCAxMHB4O2JvcmRlcjoxcHggc29saWQgI2JiYjtib3JkZXItcmFkaXVzOjhweDtmb250OmluaGVyaXR9LmhpZGRlbntkaXNwbGF5Om5vbmUhaW1wb3J0YW50fTpmb2N1cy12aXNpYmxle291dGxpbmU6M3B4IHNvbGlkICMxZDYzYjc7b3V0bGluZS1vZmZzZXQ6M3B4fQpAbWVkaWEobWF4LXdpZHRoOjc2MHB4KXsuZ3JpZHtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIDFmcn19QG1lZGlhKG1heC13aWR0aDo1MjBweCl7LmdyaWR7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmcn0ud3JhcHt3aWR0aDptaW4oMTAwJSAtIDE2cHgsMTA4MHB4KX19Cjwvc3R5bGU+CjwvaGVhZD48Ym9keT4KPGhlYWRlciBjbGFzcz0iaGVybyI+PGRpdiBjbGFzcz0id3JhcCI+CjxwPkRQUk8gU0hJSE8gLyBHVUlERSBDRU5URVIgLyBTVEFOREFSRCBWMS4xPC9wPgo8aDE+5Y+45rOV5pu45aOr44O755u457aa55m76KiY44K344K544OG44OgIOS9v+OBhOaWueOCrOOCpOODiTwvaDE+CjxwPlR1dG9yaWFs44Gv5qWt5YuZ44OH44O844K/44KS6Ieq5YuV6YCB5L+h44O75pu05paw44GX44G+44Gb44KT44CCPC9wPgo8ZGl2IGNsYXNzPSJhY3Rpb25zIj4KPGEgaWQ9ImZpcnN0MTAtc3RhcnQiIGNsYXNzPSJidG4iIGhyZWY9Ii4vZGVtby1ndWlkZS5odG1sP2RlbW89MSZ0dXRvcmlhbD1zdGFydCI+Rmlyc3QxMOOCkumWi+WnizwvYT4KPGEgaWQ9ImZpcnN0MTAtcmVzdW1lIiBjbGFzcz0iYnRuIiBocmVmPSIuL2RlbW8tZ3VpZGUuaHRtbD9kZW1vPTEmdHV0b3JpYWw9cmVzdW1lIj7ntprjgY3jgYvjgonlho3plos8L2E+CjxhIGlkPSJmaXJzdDEwLXJlcGxheSIgY2xhc3M9ImJ0biIgaHJlZj0iLi9kZW1vLWd1aWRlLmh0bWw/ZGVtbz0xJnR1dG9yaWFsPXJlcGxheSI+5pyA5Yid44GL44KJ5YaN55SfPC9hPgo8L2Rpdj48L2Rpdj48L2hlYWRlcj4KCjxuYXY+PGRpdiBjbGFzcz0id3JhcCI+CjxhIGhyZWY9IiNxdWljayI+UXVpY2sgU3RhcnQ8L2E+PGEgaHJlZj0iI3JvbGVzIj7lvbnlibLliKU8L2E+PGEgaHJlZj0iI3N5c3RlbSI+U3lzdGVtIENoZWNrPC9hPjxhIGhyZWY9IiNzYWZldHkiPuWuieWFqDwvYT48YSBocmVmPSIjdHJvdWJsZSI+44OI44Op44OW44OrPC9hPjxhIGhyZWY9IiNhY2Nlc3NpYmlsaXR5Ij7jgq3jg7zjg5zjg7zjg4k8L2E+PGEgaHJlZj0iI21hbnVhbHMiPuODnuODi+ODpeOCouODqzwvYT4KPC9kaXY+PC9uYXY+Cgo8bWFpbiBjbGFzcz0id3JhcCI+CjxsYWJlbD7jgqzjgqTjg4nlhoXmpJzntKI8aW5wdXQgaWQ9InEiIHR5cGU9InNlYXJjaCIgcGxhY2Vob2xkZXI9IuW/heimgeabuOmhnuOAgUxJTkXjgIHmnJ/pmZDjgIHlj5fku5giPjwvbGFiZWw+Cgo8c2VjdGlvbiBpZD0icXVpY2siIGRhdGEta2V5PSJxdWljayBmaXJzdDEwIOWGjemWiyDlho3nlJ8iPjxoMj5RdWljayBTdGFydDwvaDI+PGRpdiBjbGFzcz0iZ3JpZCI+CjxkaXYgY2xhc3M9ImNhcmQiPjxoMz5GaXJzdDEwPC9oMz48cD7lhazplovjg4fjg6Ig4oaSIOebuOirh+WPl+S7mCDihpIg5L6d6aC86ICFIOKGkiDjgrnjgr/jg4Pjg5Ug4oaSIOeuoeeQhlBDIOKGkiBzeXN0ZW0tY2hlY2sg44KSMTDjgrnjg4bjg4Pjg5fjgafnorroqo3jgZfjgb7jgZnjgII8L3A+PC9kaXY+CjxkaXYgY2xhc3M9ImNhcmQiPjxoMz7ntprjgY3jgYvjgonlho3plosgLyBSZXBsYXk8L2gzPjxwPlR1dG9yaWFs5bCC55So44Gu6Z2eUElJ6YCy5o2X44Gg44GR44KS5Yip55So44GX44G+44GZ44CCPC9wPjwvZGl2Pgo8ZGl2IGNsYXNzPSJjYXJkIj48aDM+M+WIhuOBp+WFqOS9k+WDjzwvaDM+PHA+5L6d6aC844GL44KJ5b+F6KaB5pu46aGe44CB5ouF5b2T5Yem55CG44CB5pyf6ZmQ44O76KOc5q2j566h55CG44G+44Gn44KS5oqK5o+h44GX44G+44GZ44CCPC9wPjwvZGl2Pgo8L2Rpdj48L3NlY3Rpb24+Cgo8c2VjdGlvbiBpZD0icm9sZXMiIGRhdGEta2V5PSLkvp3poLzogIUg44K544K/44OD44OVIOWPl+S7mCBpcGFkIOeuoeeQhuiAhSDlj7jms5Xmm7jlo6siPjxoMj7lvbnlibLliKXjgqzjgqTjg4k8L2gyPjxkaXYgY2xhc3M9ImdyaWQiPgo8ZGl2IGNsYXNzPSJjYXJkIj48aDM+5L6d6aC86ICFPC9oMz48cD7nm7joq4flj5fku5jjgIHlv4XopoHmm7jpoZ7jgIHnm7joq4fkuojntITjgIHkuovli5nmiYDjgbjjga7pgKPntaHjgII8L3A+PC9kaXY+CjxkaXYgY2xhc3M9ImNhcmQiPjxoMz7jgrnjgr/jg4Pjg5U8L2gzPjxwPuS7iuaXpeOBruS6iOe0hOOAgeebuOirh+OAgeahiOS7tuOAgeW/heimgeabuOmhnuOAgeaLheW9k+OCv+OCueOCr+OAgjwvcD48L2Rpdj4KPGRpdiBjbGFzcz0iY2FyZCI+PGgzPuWPl+S7mCAvIGlQYWQ8L2gzPjxwPumbu+ipseODu+adpeaJgOWPl+S7mOOAgemhp+WuouaknOe0ouOAgeadpeaJgOeKtuazgeOAgeabuOmhnuWPl+mgmOOAgjwvcD48L2Rpdj4KPGRpdiBjbGFzcz0iY2FyZCI+PGgzPueuoeeQhuiAhSAvIOWPuOazleabuOWjqzwvaDM+PHA+5qGI5Lu244CB5pyf6ZmQ44O76KOc5q2j44CBTElOReaJv+iqjeOAgeOCueOCv+ODg+ODleOAgeioreWumuOAgjwvcD48L2Rpdj4KPC9kaXY+PC9zZWN0aW9uPgoKPHNlY3Rpb24gaWQ9InN5c3RlbSIgZGF0YS1rZXk9InN5c3RlbSBjaGVjayDllrbmpa3liY0g44OH44OiIj48aDI+U3lzdGVtIENoZWNrIC8gRGVtbzwvaDI+PGRpdiBjbGFzcz0iZ3JpZCI+CjxkaXYgY2xhc3M9ImNhcmQiPjxoMz7llrbmpa3liY3norroqo08L2gzPjxwPuWFrOmWi+ODmuODvOOCuOODu0FQSeODu+iqjeiovOODu+WuieWFqOioreWumuOBruiqreWPlueiuuiqjeOAgjwvcD48L2Rpdj4KPGRpdiBjbGFzcz0iY2FyZCI+PGgzPuODh+ODoueuoeeQhuOCs+ODvOODiTwvaDM+PHA+ZGVtbz0x44Gn44Gv44OH44Oi5bCC55SoMTIzNOOAguacrOeVquiqjeiovOOBqOOBr+WIpeOBp+OBmeOAgjwvcD48L2Rpdj4KPGRpdiBjbGFzcz0iY2FyZCI+PGgzPuODh+ODouWGjeeUn+aIkDwvaDM+PHA+VHV0b3JpYWzjga/noLTlo4rnmoTjgapkZW1vX3ByZXBhcmXjgpLoh6rli5Xlrp/ooYzjgZfjgb7jgZvjgpPjgII8L3A+PC9kaXY+CjwvZGl2Pjwvc2VjdGlvbj4KCjxzZWN0aW9uIGlkPSJzYWZldHkiIGRhdGEta2V5PSLlronlhagg5YCL5Lq65oOF5aCxIOazleeahOWIpOaWrSDnm7jntprkurog6YG66KiAIOacn+mZkCI+PGgyPuWuieWFqDwvaDI+CjxkaXYgY2xhc3M9Im5vdGljZSI+PHN0cm9uZz7lrp/lnKjjga7lgIvkurrmg4XloLHjg7vlrrbml4/plqLkv4Ljg7vkuI3li5XnlKPmg4XloLHjg7vmqZ/lr4bmm7jpoZ7jgpLlhazplovjg4fjg6LjgbjlhaXlipvjgZfjgarjgYTjgafjgY/jgaDjgZXjgYTjgII8L3N0cm9uZz48YnI+5rOV55qE5pyf6ZmQ44CB55u457aa5Lq644CB5rOV5a6a55u457aa5YiG44CB6YG66KiA44Gu5pyJ5Yq55oCn44Gq44Gp44Gv6Ieq5YuV56K65a6a44GX44G+44Gb44KT44CC5bCC6ZaA5a6244GM56K66KqN44GX44Gm44GP44Gg44GV44GE44CCPC9kaXY+Cjwvc2VjdGlvbj4KCjxzZWN0aW9uIGlkPSJ0cm91YmxlIiBkYXRhLWtleT0i44OI44Op44OW44OrIOWGjemWiyDooajnpLog44Ot44Kw44Kk44OzIj48aDI+44OI44Op44OW44Or44K344Ol44O844OG44Kj44Oz44KwPC9oMj48ZGl2IGNsYXNzPSJncmlkIj4KPGRpdiBjbGFzcz0iY2FyZCI+PGgzPuWvvuixoeOBjOWHuuOBquOBhDwvaDM+PHA+44Ot44Kw44Kk44Oz44O755S76Z2i5rqW5YKZ5b6M44Gr5YaN5o6i57Si44GX44G+44GZ44CCPC9wPjwvZGl2Pgo8ZGl2IGNsYXNzPSJjYXJkIj48aDM+6YCU5Lit44GL44KJ5YaN6ZaLPC9oMz48cD7lkIzjgZjjgr/jg5bjgafjgIzntprjgY3jgYvjgonlho3plovjgI3jgpLpgbjjgbPjgb7jgZnjgII8L3A+PC9kaXY+CjxkaXYgY2xhc3M9ImNhcmQiPjxoMz7ooajnpLrkvY3nva48L2gzPjxwPuWwgueUqOODj+ODs+ODieODq+OBoOOBkeOBp1R1dG9yaWFs44Kr44O844OJ44KS56e75YuV44Gn44GN44G+44GZ44CCPC9wPjwvZGl2Pgo8L2Rpdj48L3NlY3Rpb24+Cgo8c2VjdGlvbiBpZD0iYWNjZXNzaWJpbGl0eSIgZGF0YS1rZXk9ImtleWJvYXJkIOOCreODvOODnOODvOODiSB0YWIgZW50ZXIgZXNjYXBlIGVzYyI+PGgyPuOCouOCr+OCu+OCt+ODk+ODquODhuOCoyAvIOOCreODvOODnOODvOODiTwvaDI+PGRpdiBjbGFzcz0iZ3JpZCI+CjxkaXYgY2xhc3M9ImNhcmQiPjxoMz5UYWIgLyBTaGlmdCtUYWI8L2gzPjxwPuaTjeS9nOmgheebruOCkumghueVquOBq+enu+WLleOBp+OBjeOBvuOBmeOAgjwvcD48L2Rpdj4KPGRpdiBjbGFzcz0iY2FyZCI+PGgzPkVudGVyIC8gU3BhY2U8L2gzPjxwPuODleOCqeODvOOCq+OCueS4reOBrlR1dG9yaWFs5pON5L2c44KS5a6f6KGM44Gn44GN44G+44GZ44CCPC9wPjwvZGl2Pgo8ZGl2IGNsYXNzPSJjYXJkIj48aDM+RXNjPC9oMz48cD7mpa3li5njg6Ljg7zjg4Djg6vjgYzplovjgYTjgabjgYTjgovloLTlkIjjga/mpa3li5nnlLvpnaLjgpLlhKrlhYjjgZfjgb7jgZnjgII8L3A+PC9kaXY+CjwvZGl2Pjwvc2VjdGlvbj4KCjxzZWN0aW9uIGlkPSJtYW51YWxzIiBkYXRhLWtleT0iUjUgcXVpY2sgc3RhcnQgZGV0YWlsZWQgbWFudWFsIj48aDI+5Y2w5Yi344Oe44OL44Ol44Ki44OrPC9oMj48ZGl2IGNsYXNzPSJncmlkIj4KPGRpdiBjbGFzcz0iY2FyZCI+PGgzPlF1aWNrIFN0YXJ077yIUjXkuojlrprvvIk8L2gzPjxwPkZpcnN0MTDjgIHlronlhajjgarjg4fjg6LjgIHmnIDnn63mk43kvZzjgIHlho3plovjg7tSZXBsYXnjgIHjg4jjg6njg5bjg6vlr77lv5zjgII8L3A+PC9kaXY+CjxkaXYgY2xhc3M9ImNhcmQiPjxoMz5EZXRhaWxlZCBNYW51YWzvvIhSNeS6iOWumu+8iTwvaDM+PHA+55u46KuH5Y+X5LuY44CB5L6d6aC86ICF44CB44K544K/44OD44OV44CB566h55CG6ICF44CBaVBhZOOAgVN5c3RlbSBDaGVja+OAgeOCu+OCreODpeODquODhuOCo+OAgemBi+eUqOWJjeeiuuiqjeOAgjwvcD48L2Rpdj4KPC9kaXY+PC9zZWN0aW9uPgo8L21haW4+Cgo8c2NyaXB0PgooKCk9Pntjb25zdCBxPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdxJyksc3M9Wy4uLmRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJ21haW4gc2VjdGlvbicpXTsKcS5hZGRFdmVudExpc3RlbmVyKCdpbnB1dCcsKCk9Pntjb25zdCBzPXEudmFsdWUudG9Mb3dlckNhc2UoKS5ub3JtYWxpemUoJ05GS0MnKTtzcy5mb3JFYWNoKHg9PnguY2xhc3NMaXN0LnRvZ2dsZSgnaGlkZGVuJywhIXMmJiEoKHguZGF0YXNldC5rZXl8fCcnKSsnICcreC50ZXh0Q29udGVudCkudG9Mb3dlckNhc2UoKS5ub3JtYWxpemUoJ05GS0MnKS5pbmNsdWRlcyhzKSkpfSk7Cn0pKCk7Cjwvc2NyaXB0Pgo8L2JvZHk+PC9odG1sPg==' | base64 -d > guide-center.html
+          grep -q 'DPRO SHIHO / GUIDE CENTER / STANDARD V1.1' guide-center.html
+          grep -q 'id="first10-start"' guide-center.html
+          grep -q 'id="first10-resume"' guide-center.html
+          grep -q 'id="first10-replay"' guide-center.html
+          grep -q 'id="roles"' guide-center.html
+          grep -q 'id="system"' guide-center.html
+          grep -q 'id="safety"' guide-center.html
+          grep -q 'id="trouble"' guide-center.html
+          grep -q 'id="accessibility"' guide-center.html
+          grep -q 'R5予定' guide-center.html
+
+          git config user.name "dpro-tutorial-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add guide-center.html
+          if git diff --cached --quiet; then
+            echo "Guide Center already current"
+          else
+            git commit -m "Implement SHIHO Tutorial R4 Guide Center"
+            git pull --rebase
+            git push
+          fi
+          echo "R4_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Verify R4 Pages safely
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 24); do
+            if curl --max-time 8 -fsSL               "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html?resume=${GITHUB_RUN_ID}&n=$i"               -o /tmp/guide-live.html; then
+              if grep -q 'DPRO SHIHO / GUIDE CENTER / STANDARD V1.1' /tmp/guide-live.html; then
+                ok=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ok" = 1
+          echo "R4_PAGES=PASS"
+
+      - name: R4 live QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-resume
+          timeout --signal=TERM --kill-after=10s 2m             env OUT="$GITHUB_WORKSPACE/r4-live.json" node r4.mjs
+
+      - name: R3 regression after R4
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-resume
+          timeout --signal=TERM --kill-after=10s 2m             env OUT="$GITHUB_WORKSPACE/r3-regression-after-r4.json" node reg.mjs
+
+      - name: Publish final evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tutorial-evidence/shiho-r4
+          cp r3-fix1-live.json tutorial-evidence/shiho-r4/
+          cp r4-live.json tutorial-evidence/shiho-r4/
+          cp r3-regression-after-r4.json tutorial-evidence/shiho-r4/
+
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          final={
+            "ok":True,
+            "systemCode":"SHIHO",
+            "standard":"DPRO TUTORIAL STANDARD V1.1",
+            "r3":"PASS / FIX1 cross-page Resume",
+            "r4":"PASS / Guide Center + LIVE QA",
+            "r3RegressionAfterR4":"PASS",
+            "businessMutationCount":0,
+            "baseHead":os.environ.get("BASE_HEAD"),
+            "r4Head":os.environ.get("R4_HEAD"),
+            "workflowRunId":os.environ.get("GITHUB_RUN_ID"),
+            "r5":"NOT AUTHORIZED / STOP"
+          }
+          Path('tutorial-evidence/shiho-r4/final.json').write_text(json.dumps(final,ensure_ascii=False,indent=2)+'\n')
+          Path('tutorial-evidence/shiho-r4/STATUS.txt').write_text(
+            'DPRO SHIHO TUTORIAL R3-R4\n'
+            'R3 FIX1 LIVE QA: PASS\n'
+            'R4 GUIDE CENTER LIVE QA: PASS\n'
+            'R3 REGRESSION AFTER R4: PASS\n'
+            'BUSINESS MUTATION: 0\n'
+            'R5: STOP\n'
+          )
+          PY
+
+          git add tutorial-evidence/shiho-r4
+          git commit -m "Record SHIHO Tutorial R3-R4 final evidence"
+          git pull --rebase
+          git push
+
+      - name: Final summary
+        run: |
+          echo "R3 FIX1 LIVE QA = PASS"
+          echo "R4 GUIDE CENTER = PASS"
+          echo "R3 REGRESSION AFTER R4 = PASS"
+          echo "BUSINESS MUTATION = 0"
+          echo "R5 = STOP"
