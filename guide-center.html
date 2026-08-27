@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f3046"><title>DPRO SHIHO Guide Center</title>
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f6f4ef;color:#1c2733;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;line-height:1.7}
+.wrap{width:min(1080px,calc(100% - 24px));margin:auto}.hero{background:#1f3046;color:#fff;padding:36px 0;border-bottom:4px solid #a17b35}.hero h1{margin:.15em 0;line-height:1.3}
+.actions{display:flex;flex-wrap:wrap;gap:8px}.btn{display:inline-flex;min-height:44px;align-items:center;padding:9px 14px;border-radius:9px;background:#fff;color:#132238;font-weight:850;text-decoration:none}
+nav{position:sticky;top:0;z-index:3;background:#faf7ef;border-bottom:1px solid #ddd5c7;overflow:auto}nav .wrap{display:flex;gap:14px;padding:10px 0}nav a{white-space:nowrap;color:#1f3046;font-weight:800;text-decoration:none}
+main{padding:28px 0}.search{margin-bottom:22px}.search input{width:100%;min-height:46px;padding:9px 11px;border:1px solid #bbb;border-radius:9px;font:inherit;background:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.card{min-width:0;background:#fff;border:1px solid #ddd5c7;border-radius:13px;padding:16px}.notice{border-left:4px solid #9b2d21;background:#fff;padding:14px;border-radius:8px}
+section{scroll-margin-top:72px;margin-bottom:28px}.is-search-hidden{display:none!important}:focus-visible{outline:3px solid #1d63b7;outline-offset:3px}
+@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.grid{grid-template-columns:1fr}.wrap{width:min(100% - 16px,1080px)}}
+</style></head><body>
+<header class="hero"><div class="wrap"><p>DPRO SHIHO / GUIDE CENTER / STANDARD V1.1 / R4</p>
+<h1>司法書士・相続登記システム 使い方ガイド</h1>
+<p>First10で実際の公開デモを確認し、必要な役割別ガイドへ進めます。Tutorialは業務データを自動送信・更新しません。</p>
+<div class="actions">
+<a id="first10-start" class="btn" href="./demo-guide.html?demo=1&tutorial=start">First10を開始</a>
+<a id="first10-resume" class="btn" href="./demo-guide.html?demo=1&tutorial=resume">続きから再開</a>
+<a id="first10-replay" class="btn" href="./demo-guide.html?demo=1&tutorial=replay">最初から再生</a>
+</div></div></header>
+<nav><div class="wrap"><a href="#quick">Quick Start</a><a href="#roles">役割別</a><a href="#system">System Check</a><a href="#safety">安全</a><a href="#trouble">トラブル</a><a href="#accessibility">キーボード</a><a href="#manuals">マニュアル</a></div></nav>
+<main class="wrap">
+<div class="search"><label for="guide-search">ガイド内検索</label><input id="guide-search" type="search" placeholder="必要書類、LINE、期限、受付" autocomplete="off"></div>
+<section id="quick" data-search="quick first10 再開 replay 3分"><h2>Quick Start</h2><div class="grid">
+<article class="card"><h3>First10</h3><p>相談受付→依頼者マイページ→スタッフ→管理PC→system-checkを10ステップで確認します。</p></article>
+<article class="card"><h3>再開 / Replay</h3><p>Tutorial専用sessionStorageの非PII進捗だけを利用します。</p></article>
+<article class="card"><h3>3分で全体像</h3><p>依頼から必要書類、担当処理、期限・補正管理までを把握します。</p></article>
+</div></section>
+<section id="roles" data-search="役割 依頼者 スタッフ 受付 ipad 管理者 司法書士 必要書類"><h2>役割別ガイド</h2><div class="grid">
+<article class="card guide-role-card"><h3>依頼者</h3><p>相談受付、必要書類、相談予約、公開進捗、事務所への連絡。</p><p><a href="./index.html?demo=1">相談受付</a> / <a href="./member.html?demo=1">マイページ</a></p></article>
+<article class="card guide-role-card"><h3>スタッフ</h3><p>今日の予約、相談、案件、必要書類、担当タスク。</p><p><a href="./staff.html?demo=1">スタッフデモ</a></p></article>
+<article class="card guide-role-card"><h3>受付 / iPad</h3><p>電話・来所受付、顧客検索、来所状況、書類受領。</p><p><a href="./owner-ipad.html?demo=1">iPad受付</a></p></article>
+<article class="card guide-role-card"><h3>管理者 / 司法書士</h3><p>案件、期限・補正、LINE承認、スタッフ、設定。</p><p><a href="./owner.html?demo=1">管理PC</a></p></article>
+</div></section>
+<section id="system" data-search="system check 営業前 demo 1234"><h2>System Check / Demo</h2><div class="grid">
+<article class="card"><h3>営業前確認</h3><p>公開ページ・API・認証・安全設定を読取中心で確認します。</p><p><a href="./system-check.html?demo=1">System Check</a></p></article>
+<article class="card"><h3>デモ管理コード</h3><p><code>demo=1</code>ではデモ専用1234。本番認証とは別です。</p></article>
+<article class="card"><h3>デモ再生成</h3><p>Tutorialは破壊的な<code>demo_prepare</code>を自動実行しません。</p></article>
+</div></section>
+<section id="safety" data-search="安全 個人情報 法的判断 相続人 遺言 期限"><h2>安全</h2>
+<div class="notice"><strong>実在の氏名・住所・家族関係・不動産情報・戸籍等の機密書類を公開デモへ入力しないでください。</strong><br>法的期限、相続人、法定相続分、遺言の有効性は自動確定せず、司法書士等の専門家が確認します。</div></section>
+<section id="trouble" data-search="トラブル 再開 表示 ログイン"><h2>トラブルシューティング</h2><div class="grid">
+<article class="card"><h3>対象が出ない</h3><p>画面準備やログインが必要な場合は、本人操作後に自動で対象を再探索します。</p></article>
+<article class="card"><h3>途中から再開</h3><p>同じブラウザで「続きから再開」を選びます。</p></article>
+<article class="card"><h3>表示位置</h3><p>Tutorialカード上部の専用ハンドルだけで移動できます。</p></article>
+</div></section>
+<section id="accessibility" data-search="アクセシビリティ keyboard tab enter space escape esc"><h2>アクセシビリティ / キーボード</h2><div class="grid">
+<article class="card"><h3>Tab / Shift+Tab</h3><p>操作項目を順番に移動できます。</p></article>
+<article class="card"><h3>Enter / Space</h3><p>フォーカス中のTutorial操作を実行できます。対象フォーカスはクリックしません。</p></article>
+<article class="card"><h3>Esc</h3><p>業務モーダルが開いている場合は業務画面を優先します。</p></article>
+</div></section>
+<section id="manuals" data-search="R5 manual quick start detailed manual 印刷"><h2>印刷マニュアル</h2><div class="grid">
+<article class="card manual-placeholder"><h3>Quick Start（R5予定）</h3><p>First10、安全、役割別の最短操作、再開、トラブル対応をA4向けに整理予定です。</p></article>
+<article class="card manual-placeholder"><h3>Detailed Manual（R5予定）</h3><p>相談受付、依頼者、スタッフ、管理者、iPad、System Check、セキュリティ、運用前確認を詳細化予定です。</p></article>
+</div></section>
+</main>
+<script>
+(()=>{const input=document.getElementById('guide-search'),sections=[...document.querySelectorAll('main section')];const norm=s=>(s||'').toLowerCase().normalize('NFKC').replace(/\s+/g,' ');
+input.addEventListener('input',()=>{const q=norm(input.value).trim();sections.forEach(sec=>sec.classList.toggle('is-search-hidden',!!q&&!norm((sec.dataset.search||'')+' '+sec.textContent).includes(q)))});
+})();
+</script></body></html>
