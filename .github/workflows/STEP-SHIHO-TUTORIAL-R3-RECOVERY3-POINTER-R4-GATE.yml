@@ -1,0 +1,404 @@
+name: DPRO SHIHO Tutorial R3 Recovery3 Pointer Pass-through R4 Gate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/STEP-SHIHO-TUTORIAL-R3-RECOVERY3-POINTER-R4-GATE.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shiho-r3-recovery3-pointer-r4
+  cancel-in-progress: false
+
+jobs:
+  recovery3-r4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify Recovery3 source lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_LOCK='0b7473527eb2575af07fe6ebfbc974ffa5e55c28'
+          git merge-base --is-ancestor "$SOURCE_LOCK" HEAD
+          test "$(git rev-parse "$SOURCE_LOCK^{tree}")" = 'b5e6a2356335022072288314414eb2c88dec322f'
+          unexpected="$(git diff --name-only "$SOURCE_LOCK"..HEAD | grep -v '^\.github/workflows/STEP-SHIHO-TUTORIAL-R3-RECOVERY3-POINTER-R4-GATE\.yml$' || true)"
+          test -z "$unexpected"
+          node --check tutorial.js
+          grep -q 'R3-RECOVERY1-MUTATION-OBSERVER-SELF-LOOP-GUARD' tutorial.js
+          grep -q 'R3-RECOVERY2-WHOLE-DOCUMENT-MUTATION-OBSERVER-REMOVED' tutorial.js
+          ! grep -q 'new MutationObserver' tutorial.js
+          grep -q 'window.setTimeout(() => findAndTrackTarget(s), 350)' tutorial.js
+          grep -q 'SHIHO-TUTORIAL-R3-RECOVERY2-20260827' config.js
+          grep -q 'SHIHO-TUTORIAL-R3-RECOVERY2-20260827' demo-guide.html
+          grep -q 'pointer-events:auto' tutorial.css
+          test ! -f guide-center.html
+          echo "ENTRY_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Apply Recovery3 pointer pass-through repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('tutorial.css')
+          s=p.read_text()
+          if 'R3-RECOVERY3-POINTER-PASSTHROUGH' in s:
+              raise SystemExit('Recovery3 marker already present; refusing duplicate repair')
+
+          def one(pattern, repl, label):
+              global s
+              s2,n=re.subn(pattern,repl,s,count=1)
+              if n != 1:
+                  raise SystemExit(f'{label}: expected exactly one replacement, got {n}')
+              s=s2
+
+          one(r'(\.dpro-tutorial-card\{[^}]*?)pointer-events:auto;', r'\1pointer-events:none;', 'card pointer')
+          one(r'(\.dpro-tutorial-handle\{)', r'\1pointer-events:auto;', 'handle pointer')
+          one(r'(\.dpro-tutorial-actions\{)', r'\1pointer-events:none;', 'actions pointer')
+          one(r'(\.dpro-tutorial-actions button,\.dpro-tutorial-actions a\{)', r'\1pointer-events:auto;', 'action controls pointer')
+          s=s.replace('/* DPRO SHIHO Tutorial STANDARD V1.1 / R3 */',
+                      '/* DPRO SHIHO Tutorial STANDARD V1.1 / R3 */\n/* R3-RECOVERY3-POINTER-PASSTHROUGH */',1)
+          p.write_text(s)
+
+          for name in ['config.js','demo-guide.html']:
+              q=Path(name); t=q.read_text()
+              old='SHIHO-TUTORIAL-R3-RECOVERY2-20260827'
+              new='SHIHO-TUTORIAL-R3-RECOVERY3-20260827'
+              if old not in t:
+                  raise SystemExit(f'{old} missing in {name}')
+              q.write_text(t.replace(old,new))
+          PY
+
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('tutorial.css').read_text()
+          tests={
+            'marker': 'R3-RECOVERY3-POINTER-PASSTHROUGH' in s,
+            'card_none': bool(re.search(r'\.dpro-tutorial-card\{[^}]*pointer-events:none;',s)),
+            'handle_auto': bool(re.search(r'\.dpro-tutorial-handle\{[^}]*pointer-events:auto;',s)),
+            'actions_none': bool(re.search(r'\.dpro-tutorial-actions\{[^}]*pointer-events:none;',s)),
+            'buttons_auto': bool(re.search(r'\.dpro-tutorial-actions button,\.dpro-tutorial-actions a\{[^}]*pointer-events:auto;',s)),
+            'launcher_auto': bool(re.search(r'\.dpro-tutorial-launcher\{[^}]*pointer-events:auto;',s)),
+            'target_none': bool(re.search(r'\.dpro-tutorial-target\{[^}]*pointer-events:none;',s)),
+          }
+          assert all(tests.values()), tests
+          PY
+          node --check tutorial.js
+          grep -q 'R3-RECOVERY1-MUTATION-OBSERVER-SELF-LOOP-GUARD' tutorial.js
+          grep -q 'R3-RECOVERY2-WHOLE-DOCUMENT-MUTATION-OBSERVER-REMOVED' tutorial.js
+          ! grep -q 'new MutationObserver' tutorial.js
+          grep -q 'window.setTimeout(() => findAndTrackTarget(s), 350)' tutorial.js
+          grep -q 'SHIHO-TUTORIAL-R3-RECOVERY3-20260827' config.js
+          grep -q 'SHIHO-TUTORIAL-R3-RECOVERY3-20260827' demo-guide.html
+
+          git config user.name "dpro-tutorial-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tutorial.css config.js demo-guide.html
+          git commit -m "Fix SHIHO Tutorial Recovery3 pointer pass-through"
+          git pull --rebase
+          git push
+          echo "R3_REPAIR_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Wait for Recovery3 Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 22); do
+            css="https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/tutorial.css?r3=${R3_REPAIR_HEAD}&n=$i"
+            cfg="https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/config.js?r3=${R3_REPAIR_HEAD}&n=$i"
+            if curl --max-time 7 -fsSL "$css" -o /tmp/tutorial-r3.css && curl --max-time 7 -fsSL "$cfg" -o /tmp/config-r3.js; then
+              if grep -q 'R3-RECOVERY3-POINTER-PASSTHROUGH' /tmp/tutorial-r3.css && grep -q 'SHIHO-TUTORIAL-R3-RECOVERY3-20260827' /tmp/config-r3.js; then
+                ok=1; break
+              fi
+            fi
+            sleep 4
+          done
+          test "$ok" = 1
+
+      - name: Install Recovery3 browser QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/shiho-recovery3 && cd /tmp/shiho-recovery3
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+
+          cat > focused-login.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+          const BASE='https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/';
+          const allowed=u=>/\/api\/member\/session(?:\?|$)/.test(u)||/\/api\/admin\/login(?:\?|$)/.test(u);
+          const results=[], mutations=[];
+          let browser;
+
+          async function waitStep(p,n){
+            await p.waitForFunction(n=>window.DPRO_TUTORIAL_SHIHO?.getState?.()?.step===n,n,{timeout:12000});
+            await p.locator('.dpro-tutorial-card.is-visible').waitFor({state:'visible',timeout:10000});
+          }
+          async function next(p,n,file){
+            let nav=null;
+            if(file) nav=p.waitForURL(u=>u.pathname.endsWith('/'+file),{waitUntil:'commit',timeout:18000});
+            await p.locator('#dpro-tutorial-next').click({timeout:8000,noWaitAfter:true});
+            if(nav) await nav;
+            await waitStep(p,n);
+          }
+          async function run(size){
+            const ctx=await browser.newContext({viewport:{width:size.w,height:size.h}});
+            const p=await ctx.newPage();
+            p.on('request',r=>{ if(['POST','PUT','PATCH','DELETE'].includes(r.method())) mutations.push({case:size.key,method:r.method(),url:r.url()}); });
+            await p.goto(BASE+'demo-guide.html?demo=1&tutorial=start&recovery3='+Date.now(),{waitUntil:'domcontentloaded',timeout:20000});
+            await waitStep(p,1);
+            await next(p,2,'index.html');
+            await next(p,3);
+            await next(p,4,'member.html');
+            await p.locator('#dashboard.is-visible').waitFor({state:'visible',timeout:30000});
+            await next(p,5);
+            await next(p,6,'staff.html');
+
+            const before=mutations.filter(x=>x.case===size.key && /\/api\/admin\/login/.test(x.url)).length;
+            if(before!==0) throw new Error(size.key+' auto login detected');
+            const button=p.locator('#login-button');
+            await button.waitFor({state:'visible',timeout:10000});
+            if(!(await button.isEnabled())) throw new Error(size.key+' login button disabled');
+            await p.locator('#admin-code').fill('1234');
+            const hit=await p.evaluate(()=>{
+              const b=document.querySelector('#login-button');
+              const card=document.querySelector('.dpro-tutorial-card.is-visible');
+              const actions=document.querySelector('.dpro-tutorial-actions');
+              const r=b.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2;
+              const top=document.elementFromPoint(x,y);
+              const stack=document.elementsFromPoint(x,y).slice(0,8).map(e=>({tag:e.tagName,id:e.id,cls:e.className}));
+              const box=e=>{const q=e?.getBoundingClientRect();return q?{x:q.x,y:q.y,width:q.width,height:q.height}:null};
+              return {button:box(b),card:box(card),actions:box(actions),x,y,top:{tag:top?.tagName,id:top?.id,cls:top?.className},stack,
+                topIsButton:top===b||b.contains(top),
+                cardPointer:getComputedStyle(card).pointerEvents,
+                actionsPointer:getComputedStyle(actions).pointerEvents,
+                buttonPointer:getComputedStyle(b).pointerEvents,
+                state:window.DPRO_TUTORIAL_SHIHO?.getState?.()||null,
+                staffVisible:!!document.querySelector('#staff-app.show')};
+            });
+            console.log('RECOVERY3_HIT',size.key,JSON.stringify(hit));
+            if(hit.state?.step!==6||hit.state?.status!=='active') throw new Error(size.key+' step6 state mismatch');
+            if(hit.staffVisible) throw new Error(size.key+' staff app visible before本人 login');
+            if(hit.cardPointer!=='none'||hit.actionsPointer!=='none') throw new Error(size.key+' Tutorial background not pointer-transparent');
+            if(!hit.topIsButton) throw new Error(size.key+' button center hit-test blocked '+JSON.stringify(hit));
+
+            await button.click({timeout:8000});
+            await p.locator('#staff-app.show').waitFor({state:'visible',timeout:20000});
+            const st=await p.evaluate(()=>window.DPRO_TUTORIAL_SHIHO?.getState?.());
+            if(st?.step!==6||st?.status!=='active') throw new Error(size.key+' Tutorial advanced before本人 completion');
+            await next(p,7);
+            results.push({case:size.key,ok:true,hit,stateAfterLogin:st});
+            await ctx.close();
+          }
+
+          try{
+            browser=await chromium.launch({headless:true});
+            await run({key:'mobile390',w:390,h:844});
+            await run({key:'mobile320',w:320,h:720});
+            const business=mutations.filter(x=>!allowed(x.url));
+            if(business.length) throw new Error('business mutations '+JSON.stringify(business));
+            const out={ok:true,checkedAt:new Date().toISOString(),standard:'DPRO TUTORIAL STANDARD V1.1',results,businessMutationCount:0,mutations};
+            fs.writeFileSync(process.env.OUT,JSON.stringify(out,null,2)+'\n');
+            console.log('R3_RECOVERY3_FOCUSED_LOGIN_PASS');
+            await browser.close(); process.exit(0);
+          }catch(e){
+            const out={ok:false,checkedAt:new Date().toISOString(),error:String(e?.stack||e),results,mutations};
+            fs.writeFileSync(process.env.OUT,JSON.stringify(out,null,2)+'\n');
+            console.error('R3_RECOVERY3_FOCUSED_LOGIN_FAIL',String(e?.stack||e));
+            try{if(browser)await browser.close()}catch{}
+            process.exit(2);
+          }
+          JS
+
+          python - <<'PY'
+          from pathlib import Path
+          import re,base64
+          src=Path('/home/runner/work/dpro-shiho-inheritance-line-liff/dpro-shiho-inheritance-line-liff/.github/workflows/STEP-SHIHO-TUTORIAL-R3-RECOVERY2-R4-GATE.yml').read_text()
+          for name in ['full-r3.mjs','r4.mjs','reg.mjs']:
+              m=re.search(r"echo '([A-Za-z0-9+/=]+)'\s+\|\s+base64 -d > "+re.escape(name),src)
+              if not m: raise SystemExit('cannot extract '+name)
+              Path(name).write_bytes(base64.b64decode(m.group(1)))
+          p=Path('full-r3.mjs'); s=p.read_text()
+          needle="await runJourney(browser,{key:'mobile390',w:390,h:844},true);"
+          if needle not in s: raise SystemExit('mobile390 deep run anchor missing')
+          s=s.replace(needle,needle+"\n  await runJourney(browser,{key:'mobile390pointer',w:390,h:844},false);",1)
+          s=s.replace('R3_RECOVERY1_FULL_QA_PASS','R3_RECOVERY3_FULL_QA_PASS')
+          s=s.replace("keyboardOnlyDeepJourney:true","keyboardOnlyDeepJourney:true,recovery3Pointer390:true")
+          p.write_text(s)
+          PY
+          node --check focused-login.mjs
+          node --check full-r3.mjs
+          node --check r4.mjs
+          node --check reg.mjs
+
+      - name: Focused 390 and 320 staff login hit-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-recovery3
+          timeout --signal=TERM --kill-after=10s 95s env OUT="$GITHUB_WORKSPACE/r3-recovery3-focused-login.json" node focused-login.mjs
+          cat "$GITHUB_WORKSPACE/r3-recovery3-focused-login.json"
+
+      - name: Full R3 Recovery3 LIVE QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-recovery3
+          timeout --signal=TERM --kill-after=10s 210s env OUT="$GITHUB_WORKSPACE/r3-recovery3-live.json" node full-r3.mjs
+          cat "$GITHUB_WORKSPACE/r3-recovery3-live.json"
+
+      - name: Verify protected scope before R4
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,subprocess
+          for f in ['r3-recovery3-focused-login.json','r3-recovery3-live.json']:
+              d=json.load(open(f)); assert d.get('ok') is True,(f,d)
+          assert json.load(open('r3-recovery3-focused-login.json')).get('businessMutationCount')==0
+          assert json.load(open('r3-recovery3-live.json')).get('businessMutationCount')==0
+          allowed={'tutorial.css','config.js','demo-guide.html','.github/workflows/STEP-SHIHO-TUTORIAL-R3-RECOVERY3-POINTER-R4-GATE.yml'}
+          changed=set(subprocess.check_output(['git','diff','--name-only','0b7473527eb2575af07fe6ebfbc974ffa5e55c28..HEAD'],text=True).splitlines())
+          extra=changed-allowed
+          assert not extra,extra
+          PY
+
+      - name: Build R4 Guide Center only after R3 PASS
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re,base64
+          src=Path('.github/workflows/STEP-SHIHO-TUTORIAL-R3-RECOVERY2-R4-GATE.yml').read_text()
+          m=re.search(r"echo '([A-Za-z0-9+/=]+)'\s+\|\s+base64 -d > guide-center\.html",src)
+          if not m: raise SystemExit('guide-center source extraction failed')
+          Path('guide-center.html').write_bytes(base64.b64decode(m.group(1)))
+          PY
+          grep -q 'STANDARD V1.1 / R4' guide-center.html
+          grep -q 'id="first10-start"' guide-center.html
+          grep -q 'id="first10-resume"' guide-center.html
+          grep -q 'id="first10-replay"' guide-center.html
+          grep -q 'id="roles"' guide-center.html
+          grep -q 'id="system"' guide-center.html
+          grep -q 'id="safety"' guide-center.html
+          grep -q 'id="trouble"' guide-center.html
+          grep -q 'id="accessibility"' guide-center.html
+          grep -q 'id="manuals"' guide-center.html
+          grep -q 'R5予定' guide-center.html
+          git add guide-center.html
+          git commit -m "Implement SHIHO Tutorial R4 Guide Center after Recovery3 R3 PASS"
+          git pull --rebase
+          git push
+          echo "R4_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Wait for R4 Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 22); do
+            if curl --max-time 7 -fsSL "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html?r4=${R4_HEAD}&n=$i" -o /tmp/guide-live.html; then
+              if grep -q 'STANDARD V1.1 / R4' /tmp/guide-live.html; then ok=1; break; fi
+            fi
+            sleep 4
+          done
+          test "$ok" = 1
+
+      - name: R4 LIVE QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-recovery3
+          timeout --signal=TERM --kill-after=10s 90s env OUT="$GITHUB_WORKSPACE/r4-live.json" node r4.mjs
+          cat "$GITHUB_WORKSPACE/r4-live.json"
+
+      - name: R3 regression after R4
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-recovery3
+          timeout --signal=TERM --kill-after=10s 90s env OUT="$GITHUB_WORKSPACE/r3-regression-after-r4.json" node reg.mjs
+          cat "$GITHUB_WORKSPACE/r3-regression-after-r4.json"
+
+      - name: Publish Recovery3 R3-R4 evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tutorial-evidence/shiho-r4
+          cp r3-recovery3-focused-login.json tutorial-evidence/shiho-r4/
+          cp r3-recovery3-live.json tutorial-evidence/shiho-r4/
+          cp r4-live.json tutorial-evidence/shiho-r4/
+          cp r3-regression-after-r4.json tutorial-evidence/shiho-r4/
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          files=['r3-recovery3-focused-login.json','r3-recovery3-live.json','r4-live.json','r3-regression-after-r4.json']
+          data={f:json.load(open(f)) for f in files}
+          assert all(d.get('ok') is True for d in data.values()),data
+          assert data['r3-recovery3-focused-login.json'].get('businessMutationCount')==0
+          assert data['r3-recovery3-live.json'].get('businessMutationCount')==0
+          final={
+            'ok':True,
+            'systemCode':'SHIHO',
+            'standard':'DPRO TUTORIAL STANDARD V1.1',
+            'rootCause':'Tutorial card/action non-interactive surfaces intercepted business-control pointer input',
+            'repair':'Card and actions backgrounds pointer-transparent; drag handle and actual Tutorial buttons/links pointer-interactive',
+            'recovery2Step4Freeze':'RESOLVED / retained',
+            'r3FocusedPointer':'PASS / 390x844 and 320x720 staff login normal pointer click',
+            'r3':'PASS / Recovery3 LIVE QA',
+            'r4':'PASS / Guide Center LIVE QA',
+            'r3RegressionAfterR4':'PASS',
+            'businessMutationCount':0,
+            'sourceLock':'0b7473527eb2575af07fe6ebfbc974ffa5e55c28',
+            'entryHead':os.environ.get('ENTRY_HEAD'),
+            'r3RepairHead':os.environ.get('R3_REPAIR_HEAD'),
+            'r4Head':os.environ.get('R4_HEAD'),
+            'workflowRunId':os.environ.get('GITHUB_RUN_ID'),
+            'r5':'NOT AUTHORIZED / STOP',
+            'r6':'NOT AUTHORIZED / STOP',
+            'r7':'NOT AUTHORIZED / STOP'
+          }
+          Path('tutorial-evidence/shiho-r4/final.json').write_text(json.dumps(final,ensure_ascii=False,indent=2)+'\n')
+          Path('tutorial-evidence/shiho-r4/STATUS.txt').write_text(
+            'DPRO SHIHO TUTORIAL R3-R4\n'
+            'RECOVERY3 POINTER FOCUSED QA: PASS\n'
+            'R3 RECOVERY3 LIVE QA: PASS\n'
+            'R4 GUIDE CENTER LIVE QA: PASS\n'
+            'R3 REGRESSION AFTER R4: PASS\n'
+            'BUSINESS MUTATION: 0\n'
+            'R5/R6/R7: STOP\n'
+          )
+          PY
+          git add tutorial-evidence/shiho-r4
+          git commit -m "Record SHIHO Tutorial Recovery3 R3-R4 evidence"
+          git pull --rebase
+          git push
+          echo "EVIDENCE_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Final summary
+        shell: bash
+        run: |
+          echo "RECOVERY3 POINTER PASS-THROUGH = PASS"
+          echo "FOCUSED STAFF LOGIN 390/320 = PASS"
+          echo "R3 RECOVERY3 = PASS"
+          echo "R4 GUIDE CENTER = PASS"
+          echo "R3 REGRESSION = PASS"
+          echo "BUSINESS MUTATION = 0"
+          echo "R5/R6/R7 = STOP"
+          echo "EVIDENCE HEAD = $EVIDENCE_HEAD"
