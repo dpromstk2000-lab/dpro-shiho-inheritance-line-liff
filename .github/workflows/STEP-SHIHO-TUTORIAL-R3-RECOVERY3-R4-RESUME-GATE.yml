@@ -1,4 +1,4 @@
-name: DPRO SHIHO Tutorial R3 Recovery3 R4 Resume Gate
+name: DPRO SHIHO Tutorial R3 Recovery3 R4 Resume Gate V1.1
 
 on:
   workflow_dispatch:
@@ -30,7 +30,8 @@ jobs:
           R3_PASS_HEAD='67e5f68a3a8e54989b0d2d71828e3151aff457c8'
           git merge-base --is-ancestor "$R3_PASS_HEAD" HEAD
           test "$(git rev-parse "$R3_PASS_HEAD^{tree}")" = 'babd8daeafff29e262630f9a3b6ab99decaf3d54'
-          unexpected="$(git diff --name-only "$R3_PASS_HEAD"..HEAD | grep -v '^\.github/workflows/STEP-SHIHO-TUTORIAL-R3-RECOVERY3-R4-RESUME-GATE\\.yml\$' || true)"
+          # V1.1: exact fixed-string path guard; avoids regex escaping false-negative
+          unexpected="$(git diff --name-only "$R3_PASS_HEAD"..HEAD | grep -Fxv '.github/workflows/STEP-SHIHO-TUTORIAL-R3-RECOVERY3-R4-RESUME-GATE.yml' || true)"
           test -z "$unexpected"
 
           node --check tutorial.js
