@@ -183,7 +183,9 @@
     target = waitReady ? (document.querySelector(s.target) || (s.fallback ? document.querySelector(s.fallback) : null)) : null;
     if (!target) {
       targetRing.classList.remove("is-visible");
-      statusEl.textContent = s.wait ? "画面の準備またはログインを待っています。本人操作後に自動で続きます。" : "対象表示を待っています。";
+      // R3-RECOVERY1-MUTATION-OBSERVER-SELF-LOOP-GUARD
+      const waitingStatus = s.wait ? "画面の準備またはログインを待っています。本人操作後に自動で続きます。" : "対象表示を待っています。";
+      if (statusEl.textContent !== waitingStatus) statusEl.textContent = waitingStatus;
       waitTimer = window.setTimeout(() => findAndTrackTarget(s), 350);
       return;
     }
