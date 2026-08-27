@@ -1,4 +1,4 @@
-name: DPRO SHIHO R5 Screenshot Capture V1.1
+name: DPRO SHIHO R5 Screenshot Capture V1.2
 
 on:
   workflow_dispatch:
@@ -38,6 +38,15 @@ jobs:
           echo "R4_TREE=$R4_TREE" >> screenshot-source-lock.txt
           echo "ENTRY_HEAD=$(git rev-parse HEAD)" >> screenshot-source-lock.txt
           echo "PRODUCT_SOURCE_DRIFT=0" >> screenshot-source-lock.txt
+
+      - name: Install Japanese fonts
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk fonts-noto-cjk-extra
+          fc-cache -f
+          fc-match 'Noto Sans CJK JP'
 
       - name: Install Playwright
         shell: bash
