@@ -1,0 +1,173 @@
+name: DPRO SHIHO Tutorial R3 FIX1 R4 Gate
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/STEP-SHIHO-TUTORIAL-R3-FIX1-R4-GATE.yml'
+permissions:
+  contents: write
+concurrency:
+  group: shiho-r3-fix1-r4
+  cancel-in-progress: false
+
+jobs:
+  fix1-r4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch cross-page Resume
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('tutorial.js')
+          s=p.read_text()
+          replacements={
+            'location.assign(routeUrl(step.file));':'location.assign(routeUrl(step.file, "resume"));',
+            'location.assign(routeUrl(nextStep.file));':'location.assign(routeUrl(nextStep.file, "resume"));',
+            'location.assign(routeUrl(prev.file))':'location.assign(routeUrl(prev.file, "resume"))',
+          }
+          for old,new in replacements.items():
+              if old not in s:
+                  raise SystemExit(f'missing expected R3 source: {old}')
+              s=s.replace(old,new)
+          if 'R3-FIX1-CROSS-PAGE-RESUME' not in s:
+              s=s.replace('"use strict";','"use strict";\n  // R3-FIX1-CROSS-PAGE-RESUME',1)
+          p.write_text(s)
+
+          for f in ['config.js','demo-guide.html']:
+              q=Path(f); t=q.read_text()
+              t=t.replace('SHIHO-TUTORIAL-R3-20260827','SHIHO-TUTORIAL-R3-FIX1-20260827')
+              q.write_text(t)
+          PY
+          node --check tutorial.js
+          grep -q 'R3-FIX1-CROSS-PAGE-RESUME' tutorial.js
+          grep -q 'routeUrl(nextStep.file, "resume")' tutorial.js
+          grep -q 'SHIHO-TUTORIAL-R3-FIX1-20260827' config.js
+
+          git config user.name "dpro-tutorial-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tutorial.js config.js demo-guide.html
+          git commit -m "Fix SHIHO Tutorial R3 cross-page Resume"
+          git pull --rebase
+          git push
+          echo "FIX_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Wait for FIX1 Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 48); do
+            if curl --max-time 8 -fsSL "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/tutorial.js?fix=${FIX_HEAD}&n=$i" | grep -q 'R3-FIX1-CROSS-PAGE-RESUME'; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+
+      - name: Install browser QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/shiho-fix1 && cd /tmp/shiho-fix1
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+          echo 'aW1wb3J0IHsgY2hyb21pdW0gfSBmcm9tICdwbGF5d3JpZ2h0JzsKaW1wb3J0IGZzIGZyb20gJ2ZzJzsKY29uc3QgQj0naHR0cHM6Ly9kcHJvbXN0azIwMDAtbGFiLmdpdGh1Yi5pby9kcHJvLXNoaWhvLWluaGVyaXRhbmNlLWxpbmUtbGlmZi8nOwpjb25zdCBzdGFydGVkPURhdGUubm93KCksIGNoZWNrcG9pbnRzPVtdLCBtdXRhdGlvbnM9W107CmNvbnN0IG1hcms9KHMseD17fSk9Pntjb25zdCByPXt0Om5ldyBEYXRlKCkudG9JU09TdHJpbmcoKSxtczpEYXRlLm5vdygpLXN0YXJ0ZWQscywuLi54fTtjaGVja3BvaW50cy5wdXNoKHIpO2NvbnNvbGUubG9nKCdDSEVDS1BPSU5UJyxzLEpTT04uc3RyaW5naWZ5KHgpKTt9Owpjb25zdCBkaWU9KHMpPT57dGhyb3cgbmV3IEVycm9yKHMpfTsKYXN5bmMgZnVuY3Rpb24gc3RlcChwLG4pe21hcmsoJ3N0ZXAnK24rJy13YWl0Jyx7dXJsOnAudXJsKCl9KTthd2FpdCBwLndhaXRGb3JGdW5jdGlvbihuPT53aW5kb3cuRFBST19UVVRPUklBTF9TSElITz8uZ2V0U3RhdGU/LigpPy5zdGVwPT09bixuLHt0aW1lb3V0OjE1MDAwfSk7YXdhaXQgcC5sb2NhdG9yKCcuZHByby10dXRvcmlhbC1jYXJkLmlzLXZpc2libGUnKS53YWl0Rm9yKHt0aW1lb3V0OjEwMDAwfSk7bWFyaygnc3RlcCcrbisnLXBhc3MnLHt1cmw6cC51cmwoKX0pO30KYXN5bmMgZnVuY3Rpb24gbmV4dChwLG4sZmlsZSl7YXdhaXQgcC5sb2NhdG9yKCcjZHByby10dXRvcmlhbC1uZXh0JykuY2xpY2soe3RpbWVvdXQ6MTAwMDAsbm9XYWl0QWZ0ZXI6dHJ1ZX0pO2lmKGZpbGUpYXdhaXQgcC53YWl0Rm9yRnVuY3Rpb24oZj0+bG9jYXRpb24ucGF0aG5hbWUuZW5kc1dpdGgoJy8nK2YpLGZpbGUse3RpbWVvdXQ6MTUwMDB9KTthd2FpdCBzdGVwKHAsbik7fQphc3luYyBmdW5jdGlvbiBsb2dpbihwLGFwcCxsYWJlbCl7bWFyayhsYWJlbCsnLWxvZ2luJyk7Y29uc3QgYz1wLmxvY2F0b3IoJyNhZG1pbi1jb2RlJyk7YXdhaXQgYy53YWl0Rm9yKHtzdGF0ZTondmlzaWJsZScsdGltZW91dDoxMjAwMH0pO2lmKChhd2FpdCBjLmlucHV0VmFsdWUoKSkhPT0nMTIzNCcpYXdhaXQgYy5maWxsKCcxMjM0Jyk7YXdhaXQgcC5sb2NhdG9yKCcjbG9naW4tYnV0dG9uJykuY2xpY2soe3RpbWVvdXQ6MTAwMDAsbm9XYWl0QWZ0ZXI6dHJ1ZX0pO2F3YWl0IHAubG9jYXRvcihhcHApLndhaXRGb3Ioe3N0YXRlOid2aXNpYmxlJyx0aW1lb3V0OjIwMDAwfSk7bWFyayhsYWJlbCsnLWxvZ2luLXBhc3MnKTt9CmNvbnN0IGJyb3dzZXI9YXdhaXQgY2hyb21pdW0ubGF1bmNoKHtoZWFkbGVzczp0cnVlfSk7CmxldCBvdXRwPXtvazpmYWxzZX07CnRyeXsKIGNvbnN0IGN0eD1hd2FpdCBicm93c2VyLm5ld0NvbnRleHQoe3ZpZXdwb3J0Ont3aWR0aDozOTAsaGVpZ2h0Ojg0NH19KTsKIGN0eC5zZXREZWZhdWx0VGltZW91dCgxMjAwMCk7Y3R4LnNldERlZmF1bHROYXZpZ2F0aW9uVGltZW91dCgyMDAwMCk7CiBjb25zdCBwPWF3YWl0IGN0eC5uZXdQYWdlKCk7CiBwLm9uKCdyZXF1ZXN0JyxyPT57aWYoWydQT1NUJywnUFVUJywnUEFUQ0gnLCdERUxFVEUnXS5pbmNsdWRlcyhyLm1ldGhvZCgpKSltdXRhdGlvbnMucHVzaCh7bWV0aG9kOnIubWV0aG9kKCksdXJsOnIudXJsKCl9KX0pOwogbGV0IHI9YXdhaXQgcC5nb3RvKEIrJ2RlbW8tZ3VpZGUuaHRtbD9kZW1vPTEmdHV0b3JpYWw9c3RhcnQmZml4MT0nK0RhdGUubm93KCkse3dhaXRVbnRpbDonZG9tY29udGVudGxvYWRlZCcsdGltZW91dDoyMDAwMH0pOwogaWYocj8uc3RhdHVzKCkhPT0yMDApZGllKCdkZW1vIEhUVFAgJytyPy5zdGF0dXMoKSk7CiBhd2FpdCBzdGVwKHAsMSk7IGF3YWl0IG5leHQocCwyLCdpbmRleC5odG1sJyk7IGF3YWl0IG5leHQocCwzKTsgYXdhaXQgbmV4dChwLDQsJ21lbWJlci5odG1sJyk7CiBpZighL3R1dG9yaWFsPXJlc3VtZS8udGVzdChwLnVybCgpKSlkaWUoJ21lbWJlciByb3V0ZSBtaXNzaW5nIHR1dG9yaWFsPXJlc3VtZTogJytwLnVybCgpKTsKIGF3YWl0IHAubG9jYXRvcignI2Rhc2hib2FyZC5pcy12aXNpYmxlJykud2FpdEZvcih7dGltZW91dDoyMDAwMH0pOyBtYXJrKCdtZW1iZXItZGFzaGJvYXJkLXBhc3MnKTsKIGF3YWl0IG5leHQocCw1KTsgYXdhaXQgbmV4dChwLDYsJ3N0YWZmLmh0bWwnKTsKIGlmKCEvdHV0b3JpYWw9cmVzdW1lLy50ZXN0KHAudXJsKCkpKWRpZSgnc3RhZmYgcm91dGUgbWlzc2luZyB0dXRvcmlhbD1yZXN1bWUnKTsKIGF3YWl0IGxvZ2luKHAsJyNzdGFmZi1hcHAuc2hvdycsJ3N0YWZmJyk7IGF3YWl0IG5leHQocCw3KTsgYXdhaXQgbmV4dChwLDgsJ293bmVyLmh0bWwnKTsKIGlmKCEvdHV0b3JpYWw9cmVzdW1lLy50ZXN0KHAudXJsKCkpKWRpZSgnb3duZXIgcm91dGUgbWlzc2luZyB0dXRvcmlhbD1yZXN1bWUnKTsKIGF3YWl0IGxvZ2luKHAsJyNvd25lci1hcHAuc2hvdycsJ293bmVyJyk7IGF3YWl0IG5leHQocCw5KTsgYXdhaXQgbmV4dChwLDEwKTsKIGF3YWl0IHAubG9jYXRvcignI2Rwcm8tdHV0b3JpYWwtbmV4dCcpLmNsaWNrKHt0aW1lb3V0OjEwMDAwfSk7CiBhd2FpdCBwLndhaXRGb3JGdW5jdGlvbigoKT0+d2luZG93LkRQUk9fVFVUT1JJQUxfU0hJSE8/LmdldFN0YXRlPy4oKT8uc3RhdHVzPT09J2NvbXBsZXRlJyx7dGltZW91dDoxMjAwMH0pOwogY29uc3Qgb3Y9YXdhaXQgcC5ldmFsdWF0ZSgoKT0+KHt3OmlubmVyV2lkdGgsc3c6TWF0aC5tYXgoZG9jdW1lbnQuZG9jdW1lbnRFbGVtZW50LnNjcm9sbFdpZHRoLGRvY3VtZW50LmJvZHk/LnNjcm9sbFdpZHRofHwwKX0pKTsKIGlmKG92LnN3Pm92LncrMSlkaWUoJ292ZXJmbG93MzkwJyk7CiBjb25zdCBidXNpbmVzcz1tdXRhdGlvbnMuZmlsdGVyKHg9PiEoL1wvYXBpXC9hZG1pblwvbG9naW4oPzpcP3wkKS8udGVzdCh4LnVybCl8fC9cL2FwaVwvbWVtYmVyXC9zZXNzaW9uKD86XD98JCkvLnRlc3QoeC51cmwpKSk7CiBpZihidXNpbmVzcy5sZW5ndGgpZGllKCdidXNpbmVzcyBtdXRhdGlvbj0nK2J1c2luZXNzLmxlbmd0aCk7CiBvdXRwPXtvazp0cnVlLGNoZWNrZWRBdDpuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCksZWxhcHNlZE1zOkRhdGUubm93KCktc3RhcnRlZCxjaGVja3BvaW50cyxtdXRhdGlvbnMsYnVzaW5lc3NNdXRhdGlvbkNvdW50OjAsb3ZlcmZsb3c6b3Z9OwogZnMud3JpdGVGaWxlU3luYyhwcm9jZXNzLmVudi5PVVQsSlNPTi5zdHJpbmdpZnkob3V0cCxudWxsLDIpKydcbicpOwogY29uc29sZS5sb2coJ1IzX0ZJWDFfTElWRV9RQV9QQVNTJyk7Cn1jYXRjaChlKXsKIG91dHA9e29rOmZhbHNlLGNoZWNrZWRBdDpuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCksZWxhcHNlZE1zOkRhdGUubm93KCktc3RhcnRlZCxjaGVja3BvaW50cyxtdXRhdGlvbnMsZXJyb3I6U3RyaW5nKGU/LnN0YWNrfHxlKX07CiBmcy53cml0ZUZpbGVTeW5jKHByb2Nlc3MuZW52Lk9VVCxKU09OLnN0cmluZ2lmeShvdXRwLG51bGwsMikrJ1xuJyk7CiBjb25zb2xlLmVycm9yKFN0cmluZyhlPy5zdGFja3x8ZSkpO3Byb2Nlc3MuZXhpdENvZGU9MjsKfWZpbmFsbHl7YXdhaXQgUHJvbWlzZS5yYWNlKFticm93c2VyLmNsb3NlKCksbmV3IFByb21pc2Uocj0+c2V0VGltZW91dChyLDMwMDApKV0pO30K' | base64 -d > qa.mjs
+          node --check qa.mjs
+
+      - name: R3 FIX1 live QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-fix1
+          timeout --signal=TERM --kill-after=10s 5m env OUT="$GITHUB_WORKSPACE/r3-fix1-live.json" node qa.mjs
+
+      - name: Build R4 Guide Center
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          d=json.load(open('r3-fix1-live.json'))
+          assert d['ok'] is True
+          assert d['businessMutationCount']==0
+          PY
+          echo 'PCFkb2N0eXBlIGh0bWw+PGh0bWwgbGFuZz0iamEiPjxoZWFkPjxtZXRhIGNoYXJzZXQ9InV0Zi04Ij48bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLGluaXRpYWwtc2NhbGU9MSx2aWV3cG9ydC1maXQ9Y292ZXIiPjx0aXRsZT5EUFJPIFNISUhPIOS9v+OBhOaWueOCrOOCpOODiTwvdGl0bGU+CjxzdHlsZT4qe2JveC1zaXppbmc6Ym9yZGVyLWJveH1ib2R5e21hcmdpbjowO2JhY2tncm91bmQ6I2Y2ZjRlZjtjb2xvcjojMWMyNzMzO2ZvbnQtZmFtaWx5OnN5c3RlbS11aSwtYXBwbGUtc3lzdGVtLCJOb3RvIFNhbnMgSlAiLHNhbnMtc2VyaWY7bGluZS1oZWlnaHQ6MS43fS53e3dpZHRoOm1pbigxMDgwcHgsY2FsYygxMDAlIC0gMjRweCkpO21hcmdpbjphdXRvfWhlYWRlcntiYWNrZ3JvdW5kOiMxZjMwNDY7Y29sb3I6I2ZmZjtwYWRkaW5nOjM2cHggMDtib3JkZXItYm90dG9tOjRweCBzb2xpZCAjYTE3YjM1fWgxLGgyLGgze2xpbmUtaGVpZ2h0OjEuMzV9LmF7ZGlzcGxheTpmbGV4O2ZsZXgtd3JhcDp3cmFwO2dhcDo4cHh9LmJ7ZGlzcGxheTppbmxpbmUtZmxleDttaW4taGVpZ2h0OjQ0cHg7YWxpZ24taXRlbXM6Y2VudGVyO3BhZGRpbmc6OHB4IDEzcHg7Ym9yZGVyLXJhZGl1czo5cHg7YmFja2dyb3VuZDojZmZmO2NvbG9yOiMxMzIyMzg7Zm9udC13ZWlnaHQ6ODAwO3RleHQtZGVjb3JhdGlvbjpub25lfW5hdntwb3NpdGlvbjpzdGlja3k7dG9wOjA7ei1pbmRleDozO2JhY2tncm91bmQ6I2ZhZjdlZjtib3JkZXItYm90dG9tOjFweCBzb2xpZCAjZGRkNWM3O292ZXJmbG93OmF1dG99bmF2IC53e2Rpc3BsYXk6ZmxleDtnYXA6MTRweDtwYWRkaW5nOjEwcHggMH1uYXYgYXt3aGl0ZS1zcGFjZTpub3dyYXA7Y29sb3I6IzFmMzA0Njtmb250LXdlaWdodDo4MDA7dGV4dC1kZWNvcmF0aW9uOm5vbmV9bWFpbntwYWRkaW5nOjI4cHggMH0uZ3tkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdCgzLG1pbm1heCgwLDFmcikpO2dhcDoxM3B4fS5je2JhY2tncm91bmQ6I2ZmZjtib3JkZXI6MXB4IHNvbGlkICNkZGQ1Yzc7Ym9yZGVyLXJhZGl1czoxM3B4O3BhZGRpbmc6MTZweH0ubntib3JkZXItbGVmdDo0cHggc29saWQgIzliMmQyMTtiYWNrZ3JvdW5kOiNmZmY7cGFkZGluZzoxNHB4O2JvcmRlci1yYWRpdXM6OHB4fWlucHV0e3dpZHRoOjEwMCU7bWluLWhlaWdodDo0NHB4O3BhZGRpbmc6OHB4IDEwcHg7Ym9yZGVyOjFweCBzb2xpZCAjYmJiO2JvcmRlci1yYWRpdXM6OHB4O2ZvbnQ6aW5oZXJpdH0uaGlkZXtkaXNwbGF5Om5vbmUhaW1wb3J0YW50fTpmb2N1cy12aXNpYmxle291dGxpbmU6M3B4IHNvbGlkICMxZDYzYjc7b3V0bGluZS1vZmZzZXQ6M3B4fUBtZWRpYShtYXgtd2lkdGg6NzYwcHgpey5ne2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyfX1AbWVkaWEobWF4LXdpZHRoOjUyMHB4KXsuZ3tncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyfS53e3dpZHRoOm1pbigxMDAlIC0gMTZweCwxMDgwcHgpfX08L3N0eWxlPjwvaGVhZD48Ym9keT4KPGhlYWRlcj48ZGl2IGNsYXNzPSJ3Ij48cD5EUFJPIFNISUhPIC8gR1VJREUgQ0VOVEVSIC8gU1RBTkRBUkQgVjEuMTwvcD48aDE+5Y+45rOV5pu45aOr44O755u457aa55m76KiY44K344K544OG44OgIOS9v+OBhOaWueOCrOOCpOODiTwvaDE+PHA+VHV0b3JpYWzjga/mpa3li5njg4fjg7zjgr/jgpLoh6rli5XpgIHkv6Hjg7vmm7TmlrDjgZfjgb7jgZvjgpPjgII8L3A+PGRpdiBjbGFzcz0iYSI+PGEgaWQ9ImZpcnN0MTAtc3RhcnQiIGNsYXNzPSJiIiBocmVmPSIuL2RlbW8tZ3VpZGUuaHRtbD9kZW1vPTEmdHV0b3JpYWw9c3RhcnQiPkZpcnN0MTDjgpLplovlp4s8L2E+PGEgaWQ9ImZpcnN0MTAtcmVzdW1lIiBjbGFzcz0iYiIgaHJlZj0iLi9kZW1vLWd1aWRlLmh0bWw/ZGVtbz0xJnR1dG9yaWFsPXJlc3VtZSI+57aa44GN44GL44KJ5YaN6ZaLPC9hPjxhIGlkPSJmaXJzdDEwLXJlcGxheSIgY2xhc3M9ImIiIGhyZWY9Ii4vZGVtby1ndWlkZS5odG1sP2RlbW89MSZ0dXRvcmlhbD1yZXBsYXkiPuacgOWIneOBi+OCieWGjeeUnzwvYT48L2Rpdj48L2Rpdj48L2hlYWRlcj4KPG5hdj48ZGl2IGNsYXNzPSJ3Ij48YSBocmVmPSIjcXVpY2siPlF1aWNrIFN0YXJ0PC9hPjxhIGhyZWY9IiNyb2xlcyI+5b255Ymy5YilPC9hPjxhIGhyZWY9IiNzeXN0ZW0iPlN5c3RlbSBDaGVjazwvYT48YSBocmVmPSIjc2FmZXR5Ij7lronlhag8L2E+PGEgaHJlZj0iI3Ryb3VibGUiPuODiOODqeODluODqzwvYT48YSBocmVmPSIjYWNjZXNzaWJpbGl0eSI+44Kt44O844Oc44O844OJPC9hPjxhIGhyZWY9IiNtYW51YWxzIj7jg57jg4vjg6XjgqLjg6s8L2E+PC9kaXY+PC9uYXY+CjxtYWluIGNsYXNzPSJ3Ij48bGFiZWw+44Ks44Kk44OJ5YaF5qSc57SiPGlucHV0IGlkPSJxIiB0eXBlPSJzZWFyY2giIHBsYWNlaG9sZGVyPSLlv4XopoHmm7jpoZ7jgIFMSU5F44CB5pyf6ZmQ44CB5Y+X5LuYIj48L2xhYmVsPgo8c2VjdGlvbiBpZD0icXVpY2siIGRhdGEtaz0icXVpY2sgZmlyc3QxMCI+PGgyPlF1aWNrIFN0YXJ0PC9oMj48ZGl2IGNsYXNzPSJnIj48ZGl2IGNsYXNzPSJjIj48aDM+Rmlyc3QxMDwvaDM+PHA+5YWs6ZaL44OH44Oi4oaS55u46KuH5Y+X5LuY4oaS5L6d6aC86ICF4oaS44K544K/44OD44OV4oaS566h55CGUEPihpJzeXN0ZW0tY2hlY2vjgpIxMOOCueODhuODg+ODl+OBp+eiuuiqjeOAgjwvcD48L2Rpdj48ZGl2IGNsYXNzPSJjIj48aDM+5YaN6ZaLIC8gUmVwbGF5PC9oMz48cD5UdXRvcmlhbOWwgueUqOOBrumdnlBJSemAsuaNl+OBoOOBkeOCkuWIqeeUqOOAgjwvcD48L2Rpdj48ZGl2IGNsYXNzPSJjIj48aDM+M+WIhuOBp+WFqOS9k+WDjzwvaDM+PHA+5L6d6aC844GL44KJ5pyf6ZmQ44O76KOc5q2j566h55CG44G+44Gn44KS5oqK5o+h44CCPC9wPjwvZGl2PjwvZGl2Pjwvc2VjdGlvbj4KPHNlY3Rpb24gaWQ9InJvbGVzIiBkYXRhLWs9IuS+nemgvOiAhSDjgrnjgr/jg4Pjg5Ug5Y+X5LuYIGlwYWQg566h55CG6ICFIOWPuOazleabuOWjqyI+PGgyPuW9ueWJsuWIpeOCrOOCpOODiTwvaDI+PGRpdiBjbGFzcz0iZyI+PGRpdiBjbGFzcz0iYyI+PGgzPuS+nemgvOiAhTwvaDM+PHA+55u46KuH44O75b+F6KaB5pu46aGe44O75LqI57SE44O76YCj57Wh44CCPC9wPjwvZGl2PjxkaXYgY2xhc3M9ImMiPjxoMz7jgrnjgr/jg4Pjg5U8L2gzPjxwPuS7iuaXpeOBruS6iOe0hOODu+ebuOirh+ODu+ahiOS7tuODu+abuOmhnuOAgjwvcD48L2Rpdj48ZGl2IGNsYXNzPSJjIj48aDM+5Y+X5LuYIC8gaVBhZDwvaDM+PHA+6Zu76Kmx44O75p2l5omA5Y+X5LuY44CB6aGn5a6i5qSc57Si44CCPC9wPjwvZGl2PjxkaXYgY2xhc3M9ImMiPjxoMz7nrqHnkIbogIUgLyDlj7jms5Xmm7jlo6s8L2gzPjxwPuahiOS7tuOAgeacn+mZkOODu+ijnOato+OAgUxJTkXmib/oqo3jgIHoqK3lrprjgII8L3A+PC9kaXY+PC9kaXY+PC9zZWN0aW9uPgo8c2VjdGlvbiBpZD0ic3lzdGVtIiBkYXRhLWs9InN5c3RlbSBjaGVjayI+PGgyPlN5c3RlbSBDaGVjayAvIERlbW88L2gyPjxkaXYgY2xhc3M9ImciPjxkaXYgY2xhc3M9ImMiPjxoMz7llrbmpa3liY3norroqo08L2gzPjxwPuWFrOmWi+ODmuODvOOCuOODu0FQSeODu+iqjeiovOODu+WuieWFqOioreWumuOCkuiqreWPlueiuuiqjeOAgjwvcD48L2Rpdj48ZGl2IGNsYXNzPSJjIj48aDM+44OH44Oi566h55CG44Kz44O844OJPC9oMz48cD5kZW1vPTHjgafjga8xMjM044CC5pys55Wq6KqN6Ki844Go44Gv5Yil44CCPC9wPjwvZGl2PjxkaXYgY2xhc3M9ImMiPjxoMz7jg4fjg6Llho3nlJ/miJA8L2gzPjxwPlR1dG9yaWFs44GvZGVtb19wcmVwYXJl44KS6Ieq5YuV5a6f6KGM44GX44G+44Gb44KT44CCPC9wPjwvZGl2PjwvZGl2Pjwvc2VjdGlvbj4KPHNlY3Rpb24gaWQ9InNhZmV0eSIgZGF0YS1rPSLlronlhagg5YCL5Lq65oOF5aCxIOazleeahOWIpOaWrSI+PGgyPuWuieWFqDwvaDI+PGRpdiBjbGFzcz0ibiI+PHN0cm9uZz7lrp/lnKjjga7lgIvkurrmg4XloLHjg7vlrrbml4/plqLkv4Ljg7vkuI3li5XnlKPmg4XloLHjg7vmqZ/lr4bmm7jpoZ7jgpLlhazplovjg4fjg6LjgavlhaXlipvjgZfjgarjgYTjgafjgY/jgaDjgZXjgYTjgII8L3N0cm9uZz4g5rOV55qE5pyf6ZmQ44CB55u457aa5Lq644CB5rOV5a6a55u457aa5YiG44CB6YG66KiA44Gu5pyJ5Yq55oCn44Gv6Ieq5YuV56K65a6a44GX44G+44Gb44KT44CCPC9kaXY+PC9zZWN0aW9uPgo8c2VjdGlvbiBpZD0idHJvdWJsZSIgZGF0YS1rPSLjg4jjg6njg5bjg6sg5YaN6ZaLIj48aDI+44OI44Op44OW44Or44K344Ol44O844OG44Kj44Oz44KwPC9oMj48ZGl2IGNsYXNzPSJnIj48ZGl2IGNsYXNzPSJjIj48aDM+5a++6LGh44GM5Ye644Gq44GEPC9oMz48cD7nlLvpnaLmupblgpnjg7vjg63jgrDjgqTjg7Plvozjgavlho3mjqLntKLjgII8L3A+PC9kaXY+PGRpdiBjbGFzcz0iYyI+PGgzPumAlOS4reWGjemWizwvaDM+PHA+5ZCM44GY44K/44OW44Gn44CM57aa44GN44GL44KJ5YaN6ZaL44CN44CCPC9wPjwvZGl2PjxkaXYgY2xhc3M9ImMiPjxoMz7ooajnpLrkvY3nva48L2gzPjxwPuWwgueUqOODj+ODs+ODieODq+OBoOOBkeOBp+enu+WLleOAgjwvcD48L2Rpdj48L2Rpdj48L3NlY3Rpb24+CjxzZWN0aW9uIGlkPSJhY2Nlc3NpYmlsaXR5IiBkYXRhLWs9ImtleWJvYXJkIHRhYiBlbnRlciBlc2MiPjxoMj7jgqLjgq/jgrvjgrfjg5Pjg6rjg4bjgqMgLyDjgq3jg7zjg5zjg7zjg4k8L2gyPjxkaXYgY2xhc3M9ImciPjxkaXYgY2xhc3M9ImMiPjxoMz5UYWI8L2gzPjxwPumghueVquOBq+enu+WLleOAgjwvcD48L2Rpdj48ZGl2IGNsYXNzPSJjIj48aDM+RW50ZXIgLyBTcGFjZTwvaDM+PHA+44OV44Kp44O844Kr44K55Lit44Gu5pON5L2c44CCPC9wPjwvZGl2PjxkaXYgY2xhc3M9ImMiPjxoMz5Fc2M8L2gzPjxwPualreWLmeODouODvOODgOODq+OCkuWEquWFiOOAgjwvcD48L2Rpdj48L2Rpdj48L3NlY3Rpb24+CjxzZWN0aW9uIGlkPSJtYW51YWxzIiBkYXRhLWs9IlI1IG1hbnVhbCI+PGgyPuWNsOWIt+ODnuODi+ODpeOCouODqzwvaDI+PGRpdiBjbGFzcz0iZyI+PGRpdiBjbGFzcz0iYyI+PGgzPlF1aWNrIFN0YXJ077yIUjXkuojlrprvvIk8L2gzPjxwPkZpcnN0MTDjgIHlronlhajjgIHmnIDnn63mk43kvZzjgIHlho3plovjg7vjg4jjg6njg5bjg6vjgII8L3A+PC9kaXY+PGRpdiBjbGFzcz0iYyI+PGgzPkRldGFpbGVkIE1hbnVhbO+8iFI15LqI5a6a77yJPC9oMz48cD7nm7joq4fjgIHkvp3poLzogIXjgIHjgrnjgr/jg4Pjg5XjgIHnrqHnkIbjgIFpUGFk44CBU3lzdGVtIENoZWNr44CB6YGL55So44CCPC9wPjwvZGl2PjwvZGl2Pjwvc2VjdGlvbj4KPC9tYWluPjxzY3JpcHQ+KCgpPT57Y29uc3QgcT1kb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncScpLHNzPVsuLi5kb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCdzZWN0aW9uJyldO3Eub25pbnB1dD0oKT0+e2NvbnN0IHM9cS52YWx1ZS50b0xvd2VyQ2FzZSgpLm5vcm1hbGl6ZSgnTkZLQycpO3NzLmZvckVhY2goeD0+eC5jbGFzc0xpc3QudG9nZ2xlKCdoaWRlJywhIXMmJiEoKHguZGF0YXNldC5rfHwnJykrJyAnK3gudGV4dENvbnRlbnQpLnRvTG93ZXJDYXNlKCkubm9ybWFsaXplKCdORktDJykuaW5jbHVkZXMocykpKX19KSgpOzwvc2NyaXB0PjwvYm9keT48L2h0bWw+' | base64 -d > guide-center.html
+          grep -q 'DPRO SHIHO / GUIDE CENTER / STANDARD V1.1' guide-center.html
+          grep -q 'id="roles"' guide-center.html
+          grep -q 'R5予定' guide-center.html
+          git add guide-center.html
+          git commit -m "Implement SHIHO Tutorial R4 Guide Center"
+          git pull --rebase
+          git push
+          echo "R4_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Wait for R4 Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 48); do
+            if curl --max-time 8 -fsSL "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html?r4=${R4_HEAD}&n=$i" | grep -q 'DPRO SHIHO / GUIDE CENTER / STANDARD V1.1'; then ok=1; break; fi
+            sleep 5
+          done
+          test "$ok" = 1
+
+      - name: R4 responsive smoke QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/shiho-fix1
+          cat > r4.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const b=await chromium.launch({headless:true});
+          try{
+            for(const s of [{w:1440,h:1000},{w:390,h:844},{w:320,h:720}]){
+              const c=await b.newContext({viewport:{width:s.w,height:s.h}});const p=await c.newPage();
+              const r=await p.goto('https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html?q='+Date.now(),{waitUntil:'domcontentloaded',timeout:20000});
+              const m=await p.evaluate(()=>({w:innerWidth,sw:Math.max(document.documentElement.scrollWidth,document.body?.scrollWidth||0),roles:document.querySelectorAll('#roles .c').length,first:!!document.querySelector('#first10-start'),system:!!document.querySelector('#system'),safe:!!document.querySelector('#safety'),a11y:!!document.querySelector('#accessibility')}));
+              if(r?.status()!==200||m.sw>m.w+1||m.roles<4||!m.first||!m.system||!m.safe||!m.a11y)throw new Error(JSON.stringify({s,m,status:r?.status()}));
+              console.log('R4_PASS',s.w);await c.close();
+            }
+          }finally{await b.close()}
+          JS
+          timeout --signal=TERM --kill-after=10s 2m node r4.mjs
+
+      - name: Publish final evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tutorial-evidence/shiho-r4
+          cp r3-fix1-live.json tutorial-evidence/shiho-r4/r3-fix1-live.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          final={
+            "ok":True,
+            "systemCode":"SHIHO",
+            "standard":"DPRO TUTORIAL STANDARD V1.1",
+            "r3":"PASS / FIX1 cross-page Resume",
+            "r4":"PASS / Guide Center",
+            "businessMutationCount":0,
+            "r3FixHead":os.environ.get("FIX_HEAD"),
+            "r4Head":os.environ.get("R4_HEAD"),
+            "r5":"NOT AUTHORIZED / STOP"
+          }
+          Path('tutorial-evidence/shiho-r4/final.json').write_text(json.dumps(final,ensure_ascii=False,indent=2)+'\n')
+          Path('tutorial-evidence/shiho-r4/STATUS.txt').write_text('R3: PASS\nR4: PASS\nBUSINESS MUTATION: 0\nR5: STOP\n')
+          PY
+          git add tutorial-evidence/shiho-r4
+          git commit -m "Record SHIHO Tutorial R3-R4 final evidence"
+          git pull --rebase
+          git push
+
+      - name: Final summary
+        run: |
+          echo "R3 = PASS"
+          echo "R4 = PASS"
+          echo "R5 = STOP"
