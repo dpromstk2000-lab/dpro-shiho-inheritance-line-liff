@@ -1,5 +1,6 @@
 (() => {
   "use strict";
+  // R3-FIX1-CROSS-PAGE-RESUME
 
   const VERSION = "1.1";
   const TUTORIAL_ID = "first10";
@@ -138,7 +139,7 @@
   function goToStateRouteOrRender(userInitiated = false) {
     const step = stepFor(state.step);
     if (currentFile() !== step.file) {
-      if (userInitiated) location.assign(routeUrl(step.file));
+      if (userInitiated) location.assign(routeUrl(step.file, "resume"));
       else { hideTutorial(); refreshLauncher(); }
       return;
     }
@@ -154,14 +155,14 @@
     if (state.step >= 10) { complete(); return; }
     rememberCard(); state.step += 1; state.status = "active"; writeState();
     const nextStep = stepFor(state.step);
-    if (currentFile() !== nextStep.file) location.assign(routeUrl(nextStep.file)); else renderStep();
+    if (currentFile() !== nextStep.file) location.assign(routeUrl(nextStep.file, "resume")); else renderStep();
   }
   function next() { advance(false); }
   function skip() { advance(true); }
   function back() {
     if (!state || state.step <= 1) return;
     rememberCard(); state.step -= 1; state.status = "active"; writeState();
-    const prev = stepFor(state.step); if (currentFile() !== prev.file) location.assign(routeUrl(prev.file)); else renderStep();
+    const prev = stepFor(state.step); if (currentFile() !== prev.file) location.assign(routeUrl(prev.file, "resume")); else renderStep();
   }
 
   function renderStep() {
