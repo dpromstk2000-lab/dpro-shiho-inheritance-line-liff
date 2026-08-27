@@ -1,4 +1,4 @@
-name: DPRO SHIHO Tutorial R3 Recovery3 R4 Resume Gate V1.1
+name: DPRO SHIHO Tutorial R3 Recovery3 R4 Resume Gate V1.2
 
 on:
   workflow_dispatch:
@@ -45,6 +45,10 @@ jobs:
           grep -q 'SHIHO-TUTORIAL-R3-RECOVERY3-20260827' config.js
           grep -q 'SHIHO-TUTORIAL-R3-RECOVERY3-20260827' demo-guide.html
           test ! -f guide-center.html
+
+          # V1.2: Resume flow still commits R4/evidence, so set commit identity explicitly.
+          git config user.name "dpro-tutorial-bot"
+          git config user.email "actions@users.noreply.github.com"
 
           echo "ENTRY_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "R3_REPAIR_HEAD=$R3_PASS_HEAD" >> "$GITHUB_ENV"
