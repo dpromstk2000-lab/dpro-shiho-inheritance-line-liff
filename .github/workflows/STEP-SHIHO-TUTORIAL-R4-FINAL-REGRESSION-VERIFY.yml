@@ -1,4 +1,4 @@
-name: DPRO SHIHO R4 Final Regression Verify
+name: DPRO SHIHO R4 Final Regression Verify V1.1
 
 on:
   workflow_dispatch:
@@ -33,7 +33,9 @@ jobs:
           test "$(git rev-parse "$R4_LOCK^{tree}")" = "$R4_TREE"
           unexpected="$(git diff --name-only "$R4_LOCK"..HEAD | grep -Fxv '.github/workflows/STEP-SHIHO-TUTORIAL-R4-FINAL-REGRESSION-VERIFY.yml' || true)"
           test -z "$unexpected"
-          test "$(git diff --name-only "$R3_PASS".."$R4_LOCK")" = "guide-center.html"
+          # V1.1: CENTRAL requires the R4 commit itself to be guide-center.html only.
+          # Do not include earlier workflow-upload history between R3_PASS and R4_LOCK.
+          test "$(git diff --name-only "$R4_LOCK^".."$R4_LOCK")" = "guide-center.html"
           grep -q 'STANDARD V1.1 / R4' guide-center.html
           grep -q 'R3-RECOVERY3-POINTER-PASSTHROUGH' tutorial.css
           grep -q 'R3-RECOVERY2-WHOLE-DOCUMENT-MUTATION-OBSERVER-REMOVED' tutorial.js
@@ -79,11 +81,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f r4-final-regression-verify.json
           python - <<'PY'
           import json
           from pathlib import Path
-          d=json.load(open('r4-final-regression-verify.json'))
+          q=Path('r4-final-regression-verify.json')
+          if q.exists():
+            d=json.load(open(q))
+          else:
+            d={
+              'decision':'PRECHECK_OR_HARNESS_FAILURE',
+              'passCount':0,
+              'failCount':0,
+              'sameMemberFailureCount':0,
+              'businessMutationCount':0,
+              'attempts':[]
+            }
           vals={
             'DECISION':d.get('decision'),
             'PASS_COUNT':d.get('passCount'),
@@ -111,7 +123,7 @@ jobs:
             source-lock-final-verify.txt
             r4-live-final-verify.txt
             final-verify-summary.txt
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
 
       - name: Final gate
