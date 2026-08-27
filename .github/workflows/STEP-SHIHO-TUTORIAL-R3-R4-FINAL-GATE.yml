@@ -1,0 +1,514 @@
+name: DPRO SHIHO Tutorial R3-R4 FINAL Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/STEP-SHIHO-TUTORIAL-R3-R4-FINAL-GATE.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shiho-tutorial-r3-r4-final-gate
+  cancel-in-progress: false
+
+jobs:
+  final-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify repaired R3 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f tutorial.js
+          test -f tutorial.css
+          test -f config.js
+          test -f demo-guide.html
+          node --check tutorial.js
+
+          grep -q 'DPRO_TUTORIAL_SHIHO' tutorial.js
+          grep -q 'R3-FIX1-CROSS-PAGE-RESUME' tutorial.js
+          grep -q 'routeUrl(step.file, "resume")' tutorial.js
+          grep -q 'routeUrl(nextStep.file, "resume")' tutorial.js
+          grep -q 'routeUrl(prev.file, "resume")' tutorial.js
+          grep -q 'data-tutorial-drag-handle' tutorial.js
+          grep -q 'pointerdown' tutorial.js
+          grep -q 'pointermove' tutorial.js
+          grep -q 'pointerup' tutorial.js
+          grep -q 'pointercancel' tutorial.js
+          grep -q 'button,a,input,select,textarea' tutorial.js
+          grep -q 'touch-action:none' tutorial.css
+          grep -q 'focus-visible' tutorial.css
+
+          echo "R3_SOURCE_HEAD=$(git log -1 --format=%H -- tutorial.js config.js demo-guide.html)" >> "$GITHUB_ENV"
+
+      - name: Wait for repaired R3 Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 48); do
+            tmp="$(mktemp)"
+            if curl --max-time 8 -fsSL "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/tutorial.js?finalgate=${GITHUB_SHA}&n=$i" -o "$tmp" \
+              && grep -q 'R3-FIX1-CROSS-PAGE-RESUME' "$tmp"; then
+              rm -f "$tmp"
+              ok=1
+              break
+            fi
+            rm -f "$tmp"
+            sleep 5
+          done
+          test "$ok" = 1
+
+      - name: Install browser QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/shiho-final
+          cd /tmp/shiho-final
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+
+      - name: R3 live First10 QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/shiho-final/r3.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+
+          const BASE='https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/';
+          const started=Date.now();
+          const checks=[];
+          const mutations=[];
+          const errors=[];
+
+          function mark(name, extra={}) {
+            checks.push({name,at:new Date().toISOString(),elapsedMs:Date.now()-started,...extra});
+            console.log('CHECK',name,JSON.stringify(extra));
+          }
+          function die(msg){ throw new Error(msg); }
+
+          async function waitStep(page,n){
+            await page.waitForFunction(
+              n => window.DPRO_TUTORIAL_SHIHO?.getState?.()?.step === n,
+              n,
+              {timeout:20000}
+            );
+            await page.locator('.dpro-tutorial-card.is-visible').waitFor({state:'visible',timeout:12000});
+            mark(`step${n}`,{url:page.url()});
+          }
+          async function next(page,n,file){
+            await page.locator('#dpro-tutorial-next').click({timeout:12000,noWaitAfter:true});
+            if(file){
+              await page.waitForFunction(
+                f => location.pathname.endsWith('/'+f) || location.pathname.endsWith(f),
+                file,
+                {timeout:20000}
+              );
+            }
+            await waitStep(page,n);
+          }
+          async function login(page,app,label){
+            const code=page.locator('#admin-code');
+            await code.waitFor({state:'visible',timeout:15000});
+            if((await code.inputValue())!=='1234') await code.fill('1234');
+            await page.locator('#login-button').click({timeout:12000,noWaitAfter:true});
+            await page.locator(app).waitFor({state:'visible',timeout:20000});
+            mark(`${label}-login-pass`);
+          }
+          async function overflow(page){
+            return await page.evaluate(()=>({
+              w:innerWidth,
+              sw:Math.max(document.documentElement.scrollWidth,document.body?.scrollWidth||0)
+            }));
+          }
+
+          let browser;
+          try{
+            browser=await chromium.launch({headless:true});
+            const ctx=await browser.newContext({viewport:{width:390,height:844}});
+            ctx.setDefaultTimeout(12000);
+            ctx.setDefaultNavigationTimeout(20000);
+            const page=await ctx.newPage();
+
+            page.on('request',r=>{
+              const m=r.method();
+              if(['POST','PUT','PATCH','DELETE'].includes(m)) mutations.push({method:m,url:r.url()});
+            });
+            page.on('pageerror',e=>errors.push({type:'pageerror',message:String(e)}));
+            page.on('console',m=>{
+              if(m.type()==='error' && !/favicon\.ico/i.test(m.text())) errors.push({type:'console',message:m.text()});
+            });
+
+            const r=await page.goto(BASE+'demo-guide.html?demo=1&tutorial=start&finalqa='+Date.now(),{
+              waitUntil:'domcontentloaded',timeout:20000
+            });
+            if(r?.status()!==200) die('demo-guide HTTP '+r?.status());
+
+            await waitStep(page,1);
+
+            const ui=await page.evaluate(()=>({
+              handle:!!document.querySelector('[data-tutorial-drag-handle]'),
+              target:!!document.querySelector('.dpro-tutorial-target.is-visible'),
+              next:!!document.querySelector('#dpro-tutorial-next'),
+              back:!!document.querySelector('#dpro-tutorial-back'),
+              close:!!document.querySelector('#dpro-tutorial-close'),
+              skip:!!document.querySelector('#dpro-tutorial-skip'),
+              replay:!!document.querySelector('#dpro-tutorial-replay'),
+              touchAction:getComputedStyle(document.querySelector('[data-tutorial-drag-handle]')).touchAction,
+              focusOutline:getComputedStyle(document.querySelector('#dpro-tutorial-next')).outlineStyle
+            }));
+            if(!ui.handle||!ui.target||!ui.next||!ui.back||!ui.close||!ui.skip||!ui.replay) die('required Tutorial UI missing');
+            if(ui.touchAction!=='none') die('drag handle touch-action is not none');
+            mark('r3-ui-contract',ui);
+
+            const before=await page.locator('.dpro-tutorial-card').boundingBox();
+            const hb=await page.locator('[data-tutorial-drag-handle]').boundingBox();
+            if(!before||!hb) die('drag bounds missing');
+            await page.mouse.move(hb.x+hb.width/2,hb.y+hb.height/2);
+            await page.mouse.down();
+            await page.mouse.move(Math.min(360,hb.x+hb.width/2+40),Math.min(700,hb.y+hb.height/2+35),{steps:5});
+            await page.mouse.up();
+            const after=await page.locator('.dpro-tutorial-card').boundingBox();
+            if(!after || (Math.abs(after.x-before.x)<3 && Math.abs(after.y-before.y)<3)) die('desktop drag did not move card');
+            mark('desktop-drag-pass',{before,after});
+
+            await page.locator('#dpro-tutorial-next').focus();
+            await page.keyboard.press('Enter');
+            await page.waitForFunction(()=>location.pathname.endsWith('/index.html')||location.pathname.endsWith('index.html'),{timeout:20000});
+            await waitStep(page,2);
+
+            await page.keyboard.press('Escape');
+            await page.waitForFunction(()=>window.DPRO_TUTORIAL_SHIHO?.getState?.()?.status==='paused',{timeout:10000});
+            await page.locator('#dpro-tutorial-launcher button').click();
+            await waitStep(page,2);
+            mark('esc-close-resume-pass');
+
+            await next(page,3);
+            await next(page,4,'member.html');
+            if(!/tutorial=resume/.test(page.url())) die('member cross-page Resume missing');
+            await page.locator('#dashboard.is-visible').waitFor({state:'visible',timeout:20000});
+            await next(page,5);
+
+            await next(page,6,'staff.html');
+            if(!/tutorial=resume/.test(page.url())) die('staff cross-page Resume missing');
+            await login(page,'#staff-app.show','staff');
+            await next(page,7);
+
+            await next(page,8,'owner.html');
+            if(!/tutorial=resume/.test(page.url())) die('owner cross-page Resume missing');
+            await login(page,'#owner-app.show','owner');
+            await next(page,9);
+            await next(page,10);
+
+            await page.locator('#dpro-tutorial-next').click({timeout:12000});
+            await page.waitForFunction(()=>window.DPRO_TUTORIAL_SHIHO?.getState?.()?.status==='complete',{timeout:12000});
+            mark('first10-complete');
+
+            const ov=await overflow(page);
+            if(ov.sw>ov.w+1) die('390 overflow '+JSON.stringify(ov));
+            mark('overflow390-pass',ov);
+
+            const business=mutations.filter(x =>
+              !/\/api\/admin\/login(?:\?|$)/.test(x.url) &&
+              !/\/api\/member\/session(?:\?|$)/.test(x.url)
+            );
+            if(business.length) die('business mutation count='+business.length+' '+JSON.stringify(business));
+
+            const out={
+              ok:true,
+              systemCode:'SHIHO',
+              standard:'DPRO TUTORIAL STANDARD V1.1',
+              checkedAt:new Date().toISOString(),
+              checks,
+              errors,
+              mutations,
+              businessMutationCount:0,
+              overflow390:ov
+            };
+            fs.writeFileSync(process.env.OUT,JSON.stringify(out,null,2)+'\n');
+            console.log('R3_LIVE_QA_PASS');
+            await ctx.close();
+          }catch(e){
+            fs.writeFileSync(process.env.OUT,JSON.stringify({
+              ok:false,
+              checkedAt:new Date().toISOString(),
+              error:String(e?.stack||e),
+              checks,errors,mutations
+            },null,2)+'\n');
+            throw e;
+          }finally{
+            if(browser) await browser.close();
+          }
+          JS
+
+          OUT="$GITHUB_WORKSPACE/r3-final-live.json" timeout --signal=TERM --kill-after=10s 6m node /tmp/shiho-final/r3.mjs
+
+      - name: Build R4 Guide Center
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          d=json.load(open('r3-final-live.json'))
+          assert d['ok'] is True
+          assert d['businessMutationCount'] == 0
+          PY
+
+          cat > guide-center.html <<'HTML'
+          <!doctype html>
+          <html lang="ja">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+            <title>DPRO SHIHO 使い方ガイド</title>
+            <style>
+              *{box-sizing:border-box}
+              body{margin:0;background:#f6f4eb;color:#1c2733;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;line-height:1.7}
+              .w{width:min(1080px,calc(100% - 24px));margin:auto}
+              header{background:#1f3046;color:#fff;padding:36px 0;border-bottom:4px solid #a17b35}
+              h1,h2,h3{line-height:1.35}
+              .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+              .btn{display:inline-flex;min-height:44px;align-items:center;padding:8px 13px;border-radius:9px;background:#fff;color:#132238;font-weight:800;text-decoration:none}
+              nav{position:sticky;top:0;z-index:3;background:#faf7ef;border-bottom:1px solid #ddd5c7;overflow:auto}
+              nav .w{display:flex;gap:14px;padding:10px 0}
+              nav a{white-space:nowrap;color:#1f3046;font-weight:800;text-decoration:none}
+              main{padding:28px 0 42px}
+              .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+              .card{background:#fff;border:1px solid #ddd5c7;border-radius:13px;padding:16px}
+              .note{border-left:4px solid #9b2d21;background:#fff;padding:14px;border-radius:8px}
+              input{width:100%;min-height:44px;padding:8px 10px;border:1px solid #bbb;border-radius:8px;font:inherit}
+              :focus-visible{outline:3px solid #1d63b7;outline-offset:3px}
+              .hide{display:none!important}
+              @media(max-width:760px){.grid{grid-template-columns:1fr 1fr}}
+              @media(max-width:520px){.grid{grid-template-columns:1fr}.w{width:min(100% - 16px,1080px)}}
+            </style>
+          </head>
+          <body>
+            <header>
+              <div class="w">
+                <p>DPRO SHIHO / GUIDE CENTER / STANDARD V1.1</p>
+                <h1>司法書士・相続登記システム 使い方ガイド</h1>
+                <p>Tutorialは業務データを自動送信・保存・承認・削除しません。</p>
+                <div class="actions">
+                  <a id="first10-start" class="btn" href="./demo-guide.html?demo=1&tutorial=start">First10を開始</a>
+                  <a id="first10-resume" class="btn" href="./demo-guide.html?demo=1&tutorial=resume">続きから再開</a>
+                  <a id="first10-replay" class="btn" href="./demo-guide.html?demo=1&tutorial=replay">最初から再生</a>
+                </div>
+              </div>
+            </header>
+
+            <nav>
+              <div class="w">
+                <a href="#quick">Quick Start</a>
+                <a href="#roles">役割別</a>
+                <a href="#system">System Check</a>
+                <a href="#safety">安全</a>
+                <a href="#trouble">トラブル</a>
+                <a href="#accessibility">キーボード</a>
+                <a href="#manuals">マニュアル</a>
+              </div>
+            </nav>
+
+            <main class="w">
+              <label>ガイド内検索
+                <input id="q" type="search" placeholder="必要書類、LINE、期限、受付">
+              </label>
+
+              <section id="quick" data-k="quick first10">
+                <h2>Quick Start</h2>
+                <div class="grid">
+                  <div class="card"><h3>First10</h3><p>公開デモ→相談受付→依頼者→スタッフ→管理PC→system-checkを10ステップで確認します。</p></div>
+                  <div class="card"><h3>再開 / Replay</h3><p>閉じても同一セッション内なら続きから再開できます。最初から再生も可能です。</p></div>
+                  <div class="card"><h3>業務データ保護</h3><p>Tutorial自身は送信・保存・承認・削除を行いません。</p></div>
+                </div>
+              </section>
+
+              <section id="roles" data-k="依頼者 スタッフ 管理者 司法書士">
+                <h2>役割別ガイド</h2>
+                <div class="grid">
+                  <div class="card"><h3>依頼者</h3><p>相談受付、必要書類、予約・連絡の流れを確認します。</p></div>
+                  <div class="card"><h3>スタッフ</h3><p>今日の予約・相談・案件・書類・期限を確認します。</p></div>
+                  <div class="card"><h3>管理者 / 司法書士</h3><p>事務所全体の進捗、期限、補正、LINE承認、設定を確認します。</p></div>
+                </div>
+              </section>
+
+              <section id="system" data-k="system check demo 1234">
+                <h2>System Check / Demo</h2>
+                <div class="grid">
+                  <div class="card"><h3>営業前確認</h3><p>公開ページ・API・認証・安全設定を確認します。</p></div>
+                  <div class="card"><h3>デモ管理コード</h3><p>demo=1では1234。実運用の認証情報とは別です。</p></div>
+                  <div class="card"><h3>デモ再生成</h3><p>Tutorialはdemo_prepareを自動実行しません。</p></div>
+                </div>
+              </section>
+
+              <section id="safety" data-k="安全 個人情報 機密">
+                <h2>安全</h2>
+                <div class="note"><strong>実在する氏名・住所・家族関係・不動産情報・機密書類を公開デモへ入力しないでください。</strong></div>
+              </section>
+
+              <section id="trouble" data-k="トラブル 再開 表示">
+                <h2>トラブル時</h2>
+                <div class="grid">
+                  <div class="card"><h3>カードが見えない</h3><p>右下のFirst10再開ボタンから復帰します。</p></div>
+                  <div class="card"><h3>別画面へ移動した</h3><p>First10は画面をまたいで続きのステップへ復帰します。</p></div>
+                  <div class="card"><h3>最初から確認</h3><p>Replayを使用します。</p></div>
+                </div>
+              </section>
+
+              <section id="accessibility" data-k="キーボード tab enter esc focus">
+                <h2>キーボード操作</h2>
+                <p>Tab / Shift+Tabで移動、Enterで実行、EscでTutorialを閉じられます。フォーカス表示は常に確認できます。</p>
+              </section>
+
+              <section id="manuals" data-k="マニュアル 印刷 pdf png">
+                <h2>印刷マニュアル</h2>
+                <p>R5でQuick Start PDF/PNGと詳細マニュアルを作成します。R4ではまだ作成しません。</p>
+              </section>
+            </main>
+
+            <script>
+              const q=document.querySelector('#q');
+              q.addEventListener('input',()=>{
+                const k=q.value.trim().toLowerCase();
+                document.querySelectorAll('main section').forEach(s=>{
+                  s.classList.toggle('hide',!!k&&!s.textContent.toLowerCase().includes(k)&&!(s.dataset.k||'').toLowerCase().includes(k));
+                });
+              });
+            </script>
+          </body>
+          </html>
+          HTML
+
+          git config user.name "dpro-tutorial-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add guide-center.html
+          if git diff --cached --quiet; then
+            echo "Guide Center already current"
+          else
+            git commit -m "Implement SHIHO Tutorial R4 Guide Center"
+            git pull --rebase
+            git push
+          fi
+          echo "R4_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Wait for R4 Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 48); do
+            tmp="$(mktemp)"
+            if curl --max-time 8 -fsSL "https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html?r4=${R4_HEAD}&n=$i" -o "$tmp" \
+              && grep -q 'DPRO SHIHO / GUIDE CENTER / STANDARD V1.1' "$tmp"; then
+              rm -f "$tmp"
+              ok=1
+              break
+            fi
+            rm -f "$tmp"
+            sleep 5
+          done
+          test "$ok" = 1
+
+      - name: R4 responsive QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/shiho-final/r4.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'fs';
+
+          const B='https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/';
+          const sizes=[{w:1440,h:1000},{w:1024,h:900},{w:390,h:844},{w:320,h:720}];
+          const results=[];
+          const browser=await chromium.launch({headless:true});
+          try{
+            for(const s of sizes){
+              const c=await browser.newContext({viewport:{width:s.w,height:s.h}});
+              const p=await c.newPage();
+              const r=await p.goto(B+'guide-center.html?qa='+Date.now(),{waitUntil:'domcontentloaded',timeout:20000});
+              const m=await p.evaluate(()=>({
+                w:innerWidth,
+                sw:Math.max(document.documentElement.scrollWidth,document.body?.scrollWidth||0),
+                roles:document.querySelectorAll('#roles .card').length,
+                first:!!document.querySelector('#first10-start'),
+                resume:!!document.querySelector('#first10-resume'),
+                replay:!!document.querySelector('#first10-replay'),
+                system:!!document.querySelector('#system'),
+                safety:!!document.querySelector('#safety'),
+                trouble:!!document.querySelector('#trouble'),
+                a11y:!!document.querySelector('#accessibility'),
+                manuals:!!document.querySelector('#manuals')
+              }));
+              if(r?.status()!==200) throw new Error('HTTP '+r?.status());
+              if(m.sw>m.w+1) throw new Error('overflow '+s.w+' '+JSON.stringify(m));
+              if(m.roles<3||!m.first||!m.resume||!m.replay||!m.system||!m.safety||!m.trouble||!m.a11y||!m.manuals){
+                throw new Error('R4 contract '+s.w+' '+JSON.stringify(m));
+              }
+              results.push({size:s,status:r.status(),...m});
+              console.log('R4_PASS',s.w);
+              await c.close();
+            }
+            fs.writeFileSync(process.env.OUT,JSON.stringify({ok:true,checkedAt:new Date().toISOString(),results},null,2)+'\n');
+          }finally{
+            await browser.close();
+          }
+          JS
+          OUT="$GITHUB_WORKSPACE/r4-final-live.json" timeout --signal=TERM --kill-after=10s 3m node /tmp/shiho-final/r4.mjs
+
+      - name: Publish R3-R4 final evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tutorial-evidence/shiho-r4
+          cp r3-final-live.json tutorial-evidence/shiho-r4/r3-final-live.json
+          cp r4-final-live.json tutorial-evidence/shiho-r4/r4-final-live.json
+
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r3=json.load(open('r3-final-live.json'))
+          r4=json.load(open('r4-final-live.json'))
+          assert r3['ok'] is True
+          assert r3['businessMutationCount'] == 0
+          assert r4['ok'] is True
+          final={
+            "ok":True,
+            "systemCode":"SHIHO",
+            "standard":"DPRO TUTORIAL STANDARD V1.1",
+            "r3":"PASS",
+            "r4":"PASS",
+            "businessMutationCount":0,
+            "r3SourceHead":os.environ.get("R3_SOURCE_HEAD"),
+            "r4Head":os.environ.get("R4_HEAD"),
+            "guideCenter":"https://dpromstk2000-lab.github.io/dpro-shiho-inheritance-line-liff/guide-center.html",
+            "r5":"NOT AUTHORIZED / STOP"
+          }
+          Path('tutorial-evidence/shiho-r4/final.json').write_text(json.dumps(final,ensure_ascii=False,indent=2)+'\n')
+          Path('tutorial-evidence/shiho-r4/STATUS.txt').write_text(
+            'R3: PASS\nR4: PASS\nBUSINESS MUTATION: 0\nSTANDARD: V1.1\nR5: STOP\n'
+          )
+          PY
+
+          git add tutorial-evidence/shiho-r4
+          git commit -m "Record SHIHO Tutorial R3-R4 final evidence"
+          git pull --rebase
+          git push
+
+      - name: Final summary
+        run: |
+          echo "SHIHO R3 = PASS"
+          echo "SHIHO R4 = PASS"
+          echo "BUSINESS MUTATION = 0"
+          echo "STANDARD = V1.1"
+          echo "R5 = STOP"
