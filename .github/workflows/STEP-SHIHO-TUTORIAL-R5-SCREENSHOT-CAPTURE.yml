@@ -1,4 +1,4 @@
-name: DPRO SHIHO R5 Screenshot Capture
+name: DPRO SHIHO R5 Screenshot Capture V1.1
 
 on:
   workflow_dispatch:
@@ -59,7 +59,8 @@ jobs:
           test -f "$GITHUB_WORKSPACE/r5-screens/SCREENSHOT_CAPTURE_EVIDENCE.json"
           python - <<'PY'
           import json
-          d=json.load(open('r5-screens/SCREENSHOT_CAPTURE_EVIDENCE.json'))
+          import os
+          d=json.load(open(os.path.join(os.environ['GITHUB_WORKSPACE'],'r5-screens','SCREENSHOT_CAPTURE_EVIDENCE.json')))
           assert d['ok'] is True
           assert d['businessMutationCount']==0
           print('screens=',len([x for x in d['screenshots'] if 'name' in x]))
